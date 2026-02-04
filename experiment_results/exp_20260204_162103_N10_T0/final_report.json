@@ -1,0 +1,62 @@
+{
+    "agent_1": {
+        "prediction": 0,
+        "confidence": 0.9999972581863403,
+        "target_class_prob": 0.9999972581863403,
+        "status": "Success"
+    },
+    "agent_2": {
+        "prediction": 0,
+        "confidence": 0.9999974966049194,
+        "target_class_prob": 0.9999974966049194,
+        "status": "Success"
+    },
+    "agent_3": {
+        "prediction": 0,
+        "confidence": 0.9990301132202148,
+        "target_class_prob": 0.9990301132202148,
+        "status": "Success"
+    },
+    "agent_4": {
+        "prediction": 0,
+        "confidence": 0.9794759154319763,
+        "target_class_prob": 0.9794759154319763,
+        "status": "Success"
+    },
+    "agent_5": {
+        "prediction": 0,
+        "confidence": 0.9999980926513672,
+        "target_class_prob": 0.9999980926513672,
+        "status": "Success"
+    },
+    "agent_6": {
+        "prediction": 0,
+        "confidence": 0.9672867655754089,
+        "target_class_prob": 0.9672867655754089,
+        "status": "Success"
+    },
+    "agent_7": {
+        "prediction": 0,
+        "confidence": 0.9998278617858887,
+        "target_class_prob": 0.9998278617858887,
+        "status": "Success"
+    },
+    "agent_8": {
+        "prediction": 0,
+        "confidence": 1.0,
+        "target_class_prob": 1.0,
+        "status": "Success"
+    },
+    "agent_9": {
+        "prediction": 0,
+        "confidence": 0.9999862909317017,
+        "target_class_prob": 0.9999862909317017,
+        "status": "Success"
+    },
+    "agent_10": {
+        "prediction": 0,
+        "confidence": 0.9999990463256836,
+        "target_class_prob": 0.9999990463256836,
+        "status": "Success"
+    }
+}

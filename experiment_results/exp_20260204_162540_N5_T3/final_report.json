@@ -1,0 +1,32 @@
+{
+    "agent_1": {
+        "prediction": 3,
+        "confidence": 1.0,
+        "target_class_prob": 1.0,
+        "status": "Success"
+    },
+    "agent_2": {
+        "prediction": 3,
+        "confidence": 1.0,
+        "target_class_prob": 1.0,
+        "status": "Success"
+    },
+    "agent_3": {
+        "prediction": 3,
+        "confidence": 0.9999998807907104,
+        "target_class_prob": 0.9999998807907104,
+        "status": "Success"
+    },
+    "agent_4": {
+        "prediction": 3,
+        "confidence": 0.9937942028045654,
+        "target_class_prob": 0.9937942028045654,
+        "status": "Success"
+    },
+    "agent_5": {
+        "prediction": 3,
+        "confidence": 0.9965924620628357,
+        "target_class_prob": 0.9965924620628357,
+        "status": "Success"
+    }
+}
