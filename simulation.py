@@ -13,9 +13,9 @@ from models import get_device
 
 # --- 設定 ---
 NUM_CLIENTS = 5
-TARGET_CLASS = 3
+TARGET_CLASS = 0
 NUM_ROUNDS = 100
-LR = 0.1
+LR = 0.01
 # -----------
 
 def plot_loss_curve(history, save_dir):
