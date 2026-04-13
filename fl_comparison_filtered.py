@@ -1,6 +1,5 @@
 import os
 import copy
-import json
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Subset
@@ -131,9 +130,7 @@ class FLClient(fl.client.NumPyClient):
         return self.get_parameters(config={}), len(self.train_loader.dataset), {}
 
 def run_simulation(agent_list, strategy, num_rounds=15):
-    # 1. 自動偵測運算設備
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
+    device = torch.device("cpu") # 若有 GPU 請自行更改
     def client_fn(cid: str) -> fl.client.Client:
         agent_id = agent_list[int(cid)]
         train_loader = load_agent_data(agent_id)
@@ -141,19 +138,77 @@ def run_simulation(agent_list, strategy, num_rounds=15):
         return FLClient(model, train_loader, device).to_client()
 
     print(f"\n=== 開始 FL 模擬 (通訊耗時) | 策略: {strategy.__class__.__name__} ===")
-    
-    # 2. ⭐️ 核心修改：動態決定 GPU 資源分配
-    gpu_resources = 0.25 if torch.cuda.is_available() else 0.0
-    
     history = fl.simulation.start_simulation(
         client_fn=client_fn,
         num_clients=len(agent_list),
         config=fl.server.ServerConfig(num_rounds=num_rounds),
         strategy=strategy,
-        client_resources={"num_cpus": 1, "num_gpus": gpu_resources} # <--- 使用自動偵測的變數
+        client_resources={"num_cpus": 1, "num_gpus": 0.25} # 依硬體調整
     )
     return [acc for _, acc in history.metrics_centralized["accuracy"]]
 
+## 實驗:畫剖面圖
+def run_displacement_profiling(agent_list, device):
+    """
+    實驗一：偏移量(Delta)的窮舉剖面分析
+    目的：畫出往特定 Agent 方向移動時，Loss 的真實地形圖。
+    """
+    print(f"\n{'='*50}\n🔬 實驗一啟動：偏移量 (Delta) 剖面地形掃描\n{'='*50}")
+    
+    # 1. 準備起點 (Global Init) 與終點 (某一個錨點 m_1^*)
+    init_path = "saved_models/global_init.pt"
+    ref_state_dict = torch.load(init_path, map_location=device)
+    M_current_flat = flatten_state_dict(ref_state_dict) # 起點：嬰兒模型
+    
+    # 我們隨便挑選 Agent 1 作為觀察方向
+    target_agent = agent_list[0]
+    path = f"saved_models/m_star_agent_{target_agent}.pt"
+    m_star_dict = torch.load(path, map_location=device)
+    m_star_flat = flatten_state_dict(m_star_dict)       # 終點：訓練好的錨點
+    
+    # 2. 計算單位方向向量 (Unit Direction Vector)
+    direction = m_star_flat - M_current_flat
+    dist = torch.norm(direction)
+    unit_dir = direction / dist
+    
+    # 先計算起點的 Loss (Delta = 0 的截距)
+    base_loss, _ = evaluate_pytorch_model(ref_state_dict, device)
+    print(f"📍 起點 (Delta=0) 的基準 Loss: {base_loss:.4f}")
+    
+    # 3. 準備要窮舉的 Delta 候選名單
+    # 我們使用對數刻度 (Log space)，從 10^-6 掃描到 10^1，共產生 30 個點
+    deltas = np.logspace(-6, 1, 30)
+    losses = []
+    
+    # 4. 開始不計代價地窮舉描點
+    print("⏳ 正在沿著方向發射探測波，請稍候...")
+    for delta in deltas:
+        # 計算位移後的新權重： M' = M + delta * U
+        M_perturbed_flat = M_current_flat + delta * unit_dir
+        
+        # 評估這個新地點的 Loss
+        loss_p, _ = evaluate_pytorch_model(unflatten_state_dict(M_perturbed_flat, ref_state_dict), device)
+        losses.append(loss_p)
+        print(f"  探測 Delta = {delta:.1e} --> Loss = {loss_p:.4f}")
+
+    # 5. 繪製橫切剖面圖 (Displacement Profile)
+    plt.figure(figsize=(10, 6))
+    plt.plot(deltas, losses, marker='o', linestyle='-', color='b')
+    
+    # 畫一條紅色的水平虛線，代表基準 Loss
+    plt.axhline(y=base_loss, color='r', linestyle='--', label='Baseline Loss (Delta=0)')
+    
+    plt.xscale('log') # 橫軸使用對數刻度，方便觀察極小的 Delta
+    plt.title('Displacement Profiling: Loss vs. Delta', fontsize=16)
+    plt.xlabel('Displacement Delta ($\Delta$) (Log Scale)', fontsize=14)
+    plt.ylabel('Test Loss', fontsize=14)
+    plt.grid(True, which="both", ls="--", alpha=0.5)
+    plt.legend()
+    
+    save_path = "results_plots/delta_profiling.png"
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    print(f"\n🎉 剖面掃描完成！圖表已存至：{save_path}")
+    plt.show()
 
 # =====================================================================
 # ★ 聯邦學習第三路核心功能 ★
@@ -231,7 +286,7 @@ def run_server_subspace_optimization(agent_list, device, num_iterations=15):
     
     eta = 1.0
     current_method = "secant"
-    delta = 0.5
+    delta = 1e-4
     
     for k in range(num_iterations):
         print(f"--- Server Iteration {k+1}/{num_iterations} | 引擎: {current_method} ---")
@@ -284,109 +339,99 @@ def run_server_subspace_optimization(agent_list, device, num_iterations=15):
                 
     return accuracies
 
-# --- 4. 主程式與畫圖 ---
 def main():
-    NUM_ROUNDS = 50
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🔥 目前分配到的運算設備：{device}")
+    NUM_ROUNDS = 15
+    device = torch.device("cpu") # 或是 get_device()
     evaluate_fn = get_evaluate_fn(device)
     
-    # 建立管理圖表與快取的資料夾
+    # 建立圖表資料夾
     plot_dir = "results_plots"
-    cache_dir = "saved_results"
     os.makedirs(plot_dir, exist_ok=True)
-    os.makedirs(cache_dir, exist_ok=True)
     
-    agents_all = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    # 這次我們只關注篩選後的這 6 個人
     agents_filtered = [1, 2, 3, 4, 5, 6]
+
+    print(f"\n{'='*50}\n🔬 消融實驗：針對 6 名純淨 Agent 的 Aggregator 測試\n{'='*50}")
+
+    # --- 策略 1：Filtered + FedAvg (我們的基準) ---
+    strategy_avg = fl.server.strategy.FedAvg(
+        fraction_fit=1.0, fraction_evaluate=0.0,
+        min_fit_clients=len(agents_filtered), min_available_clients=len(agents_filtered),
+        evaluate_fn=evaluate_fn
+    )
     
-    # 快取檔案路徑
-    cache_file = os.path.join(cache_dir, "baselines_history.json")
+    # --- 策略 2：Filtered + FedMedian ---
+    strategy_median = fl.server.strategy.FedMedian(
+        fraction_fit=1.0, fraction_evaluate=0.0,
+        min_fit_clients=len(agents_filtered), min_available_clients=len(agents_filtered),
+        evaluate_fn=evaluate_fn
+    )
+    
+    # --- 策略 3：Filtered + FedProx ---
+    strategy_prox = fl.server.strategy.FedProx(
+        fraction_fit=1.0, fraction_evaluate=0.0,
+        min_fit_clients=len(agents_filtered), min_available_clients=len(agents_filtered),
+        evaluate_fn=evaluate_fn, proximal_mu=0.1
+    )
+    
+    # --- 策略 4：Filtered + Krum ---
+    # 假設 Server 有被害妄想症，即便只有 6 個好人，還是設定丟掉 1 個最遠的
+    strategy_krum = fl.server.strategy.Krum(
+        fraction_fit=1.0, fraction_evaluate=0.0,
+        min_fit_clients=len(agents_filtered), min_available_clients=len(agents_filtered),
+        evaluate_fn=evaluate_fn, 
+        num_malicious_clients=1,  # 假定 1 個是極端值
+        num_clients_to_keep=5     # 只留 5 個平均
+    )
 
-    # ==========================================
-    # === Stage 1: 傳統 Flower 框架實驗 (具備快取功能) ===
-    # ==========================================
-    if os.path.exists(cache_file):
-        print(f"\n{'='*50}\n 偵測到快取檔案！直接讀取 Baseline 結果，跳過漫長模擬...\n{'='*50}")
-        with open(cache_file, 'r') as f:
-            cached_data = json.load(f)
-            
-        acc_all_avg = cached_data['acc_all_avg']
-        acc_all_median = cached_data['acc_all_median']
-        acc_all_prox = cached_data['acc_all_prox']
-        acc_all_krum = cached_data['acc_all_krum']
-        acc_filtered_avg = cached_data['acc_filtered_avg']
-    else:
-        print(f"\n{'='*50}\n 無快取紀錄，開始執行漫長的 Baseline 模擬運算...\n{'='*50}")
-        
-        acc_all_avg = run_simulation(agents_all, fl.server.strategy.FedAvg(
-            fraction_fit=1.0, fraction_evaluate=0.0,
-            min_fit_clients=len(agents_all), min_available_clients=len(agents_all), evaluate_fn=evaluate_fn
-        ), NUM_ROUNDS)
-        
-        acc_all_median = run_simulation(agents_all, fl.server.strategy.FedMedian(
-            fraction_fit=1.0, fraction_evaluate=0.0,
-            min_fit_clients=len(agents_all), min_available_clients=len(agents_all), evaluate_fn=evaluate_fn
-        ), NUM_ROUNDS)
-        
-        acc_all_prox = run_simulation(agents_all, fl.server.strategy.FedProx(
-            fraction_fit=1.0, fraction_evaluate=0.0,
-            min_fit_clients=len(agents_all), min_available_clients=len(agents_all), evaluate_fn=evaluate_fn, proximal_mu=0.1
-        ), NUM_ROUNDS)
-        
-        acc_all_krum = run_simulation(agents_all, fl.server.strategy.Krum(
-            fraction_fit=1.0, fraction_evaluate=0.0,
-            min_fit_clients=len(agents_all), min_available_clients=len(agents_all), evaluate_fn=evaluate_fn, num_malicious_clients=3, num_clients_to_keep=7
-        ), NUM_ROUNDS)
+    # === 開始執行實驗 ===
+    print(">>> [1/4] 執行 6 人 (FedAvg)...")
+    acc_avg = run_simulation(agents_filtered, strategy_avg, NUM_ROUNDS)
+    
+    print("\n>>> [2/4] 執行 6 人 (FedMedian)...")
+    acc_median = run_simulation(agents_filtered, strategy_median, NUM_ROUNDS)
+    
+    print("\n>>> [3/4] 執行 6 人 (FedProx)...")
+    acc_prox = run_simulation(agents_filtered, strategy_prox, NUM_ROUNDS)
+    
+    print("\n>>> [4/4] 執行 6 人 (Krum)...")
+    acc_krum = run_simulation(agents_filtered, strategy_krum, NUM_ROUNDS)
 
-        acc_filtered_avg = run_simulation(agents_filtered, fl.server.strategy.FedAvg(
-            fraction_fit=1.0, fraction_evaluate=0.0,
-            min_fit_clients=len(agents_filtered), min_available_clients=len(agents_filtered), evaluate_fn=evaluate_fn
-        ), NUM_ROUNDS)
-        
-        # 將跑完的結果存入 JSON 檔案
-        cached_data = {
-            'acc_all_avg': acc_all_avg,
-            'acc_all_median': acc_all_median,
-            'acc_all_prox': acc_all_prox,
-            'acc_all_krum': acc_all_krum,
-            'acc_filtered_avg': acc_filtered_avg
-        }
-        with open(cache_file, 'w') as f:
-            json.dump(cached_data, f, indent=4)
-        print(f"✅ Baseline 結果已儲存至 {cache_file}，下次執行將瞬間完成！")
-
-    # ==========================================
-    # === Stage 2 & 3: 我們的方法 (Ours Pro) ===
-    # (注意：我們的方法因為要頻繁修改測試，且通訊成本為 0 執行極快，所以不加入快取，維持每次即時運算)
-    # ==========================================
-    generate_initial_m_stars(agents_filtered, device, local_epochs=30)
-    acc_ours_pro = run_server_subspace_optimization(agents_filtered, device, num_iterations=NUM_ROUNDS)
-
-    # === 終極大合併畫圖 ===
-    plt.figure(figsize=(15, 8))
+    # === 畫圖 ===
+    plt.figure(figsize=(12, 7))
     rounds = range(0, NUM_ROUNDS + 1)
     
-    plt.plot(rounds, acc_all_avg, label='Baseline: 10 Agents (FedAvg)', color='red', marker='x', linestyle=':', linewidth=2)
-    plt.plot(rounds, acc_all_median, label='Robust: 10 Agents (FedMedian)', color='orange', marker='s', linestyle='--', alpha=0.7)
-    plt.plot(rounds, acc_all_prox, label='Robust: 10 Agents (FedProx)', color='purple', marker='^', linestyle='--', alpha=0.7)
-    plt.plot(rounds, acc_all_krum, label='Robust: 10 Agents (Krum)', color='brown', marker='d', linestyle='--', alpha=0.7)
+    # 畫出四條線
+    plt.plot(rounds, acc_avg, label='Ours: 6 Agents (FedAvg)', color='green', marker='o', linewidth=3, markersize=9)
+    plt.plot(rounds, acc_median, label='Ablation: 6 Agents (FedMedian)', color='orange', marker='s', linestyle='--', alpha=0.8)
+    plt.plot(rounds, acc_prox, label='Ablation: 6 Agents (FedProx)', color='purple', marker='^', linestyle='--', alpha=0.8)
+    plt.plot(rounds, acc_krum, label='Ablation: 6 Agents (Krum)', color='brown', marker='d', linestyle='--', alpha=0.8)
     
-    plt.plot(rounds, acc_filtered_avg, label='Ours: Pre-filtered (FedAvg)', color='green', marker='o', linewidth=2.5, linestyle='--')
-    plt.plot(rounds, acc_ours_pro, label='Ours: Pre-filtered + Subspace method', color='red', marker='*', linewidth=3.5, markersize=12)
-    
-    plt.title('FL Comparison: Robust Aggregators vs. Our Subspace Optimization', fontsize=16, fontweight='bold')
-    plt.xlabel('Communication Rounds (Baselines) / Server Iterations (Ours)', fontsize=14)
+    # 圖表美化
+    plt.title('Ablation Study: Performance of Different Aggregators on Filtered Agents', fontsize=16, fontweight='bold')
+    plt.xlabel('Federated Learning Rounds', fontsize=14)
     plt.ylabel('PathMNIST Test Accuracy', fontsize=14)
     plt.xticks(rounds)
     plt.grid(True, linestyle=':', alpha=0.6)
-    plt.legend(fontsize=12, loc='lower right', framealpha=0.9)
+    plt.legend(fontsize=12, loc='lower right')
     
-    save_path = os.path.join(plot_dir, "fl_ultimate_pro_comparison_50.png")
+    save_path = os.path.join(plot_dir, "fl_ablation_6_agents.png")
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
     
-    print(f"\n=== 🎉 實驗大功告成！終極比較圖已整齊收納至：{save_path} ===")
+    print(f"\n=== 🎉 實驗大功告成！消融實驗比較圖已存至：{save_path} ===")
     plt.show()
 
+def exp():
+    device = torch.device("cpu") # 或是 get_device()
+    
+    # 建立圖表資料夾
+    plot_dir = "results_plots"
+    os.makedirs(plot_dir, exist_ok=True)
+    
+    # 這次我們只關注篩選後的這 6 個人
+    agents_filtered = [1, 2, 3, 4, 5, 6]
+    run_displacement_profiling(agents_filtered, device)
+
 if __name__ == "__main__":
-    main()
+    # main()
+    exp()
