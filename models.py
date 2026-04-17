@@ -1,40 +1,38 @@
 import torch
 import torch.nn as nn
 
-# 預設值設為 PathMNIST 的規格 (3 channel, 9 classes) 以保持兼容性
-
-class Net(nn.Module):
-    def __init__(self, in_channels=3, num_classes=9):
-        """
-        參數:
-        - in_channels: 輸入圖片的通道數 (PathMNIST/BloodMNIST 都是 3)
-        - num_classes: 分類輸出的數量 (PathMNIST=9, BloodMNIST=8)
-        """
-        super(Net, self).__init__()
-        
-        self.features = nn.Sequential(
-            nn.Conv2d(in_channels, 16, kernel_size=3, padding=1),
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            nn.Conv2d(16, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2)
-        )
-        
-        # 這裡假設輸入圖片大小固定為 28x28
-        # 經過兩次 MaxPool2d(2) 後，大小變為 7x7 (28 -> 14 -> 7)
-        self.classifier = nn.Sequential(
-            nn.Linear(32 * 7 * 7, 128),
-            nn.ReLU(),
-            nn.Linear(128, num_classes)
-        )
+# --- 1. 本地預訓練模型 (取代原本的 CNN) ---
+class PretrainedModel(nn.Module):
+    def __init__(self, in_features=2):
+        super(PretrainedModel, self).__init__()
+        # 假設決策變數有 2 個 (a, b)
+        self.fc1 = nn.Linear(in_features, 64)
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, 1) # 輸出目標 y
 
     def forward(self, x):
-        x = self.features(x)
-        x = x.view(x.size(0), -1)
-        x = self.classifier(x)
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+# --- 2. 虛設層反推模型 ---
+class AgentReverseModel(nn.Module):
+    def __init__(self, pretrained_model, init_guess):
+        super(AgentReverseModel, self).__init__()
+        self.dummy = nn.Identity()
+        # arc 就是我們要反推的決策變數 (例如 a, b)
+        self.arc = nn.Parameter(init_guess)
+        self.pretrained = pretrained_model
+
+        # 凍結預訓練模型的權重，保證隱私且只優化 arc
+        for param in self.pretrained.parameters():
+            param.requires_grad = False
+
+    def forward(self, x):
+        x = self.dummy(x)
+        x = x * self.arc  # 全 1 向量乘上待優化的參數
+        x = self.pretrained(x)
         return x
 
 def get_device():
