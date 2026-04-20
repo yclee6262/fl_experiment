@@ -2,23 +2,29 @@ import numpy as np
 from scipy.optimize import minimize
 
 class HostServer:
-    def __init__(self, target_T):
+    def __init__(self, target_T, n_features):
         self.target_T = target_T
+        self.n_features = n_features
         self.trusted_agents = []
         self.alphas = []
         self.I_list = [] # 收集大家的初步建議參數
 
+        np.random.seed(42)
+        self.test_X = np.random.uniform(-1, 1, (5, self.n_features)) 
+        
+        # ⭐ 3. 同步生成對應的標準答案 test_y
+        self.test_y = np.sum(self.test_X, axis=1)
+        if self.n_features > 1:
+            self.test_y += np.sum(self.test_X[:, :-1] * self.test_X[:, 1:], axis=1)
+
     def phase1_filter_agents(self, all_agents):
         """發送測試題，過濾掉誤差太大的惡意節點"""
         print("\n--- Phase 1: 節點信任度測驗 ---")
-        test_X = np.array([[0.5, 0.5], [-0.2, 0.8]])
-        # 真正的 y = a + ab + b
-        true_y = np.array([0.5 + 0.25 + 0.5, -0.2 - 0.16 + 0.8]) 
         
         scores = []
         for agent in all_agents:
-            pred_y = agent.api_predict(test_X)
-            mse = np.mean((pred_y - true_y)**2)
+            pred_y = agent.api_predict(self.test_X)
+            mse = np.mean((pred_y - self.test_y)**2)
             
             if mse < 0.1: # 門檻值：過濾掉誤差極大的惡意節點
                 scores.append((agent, 1.0 / (mse + 1e-5))) # 誤差越小分數越高
@@ -86,9 +92,9 @@ class HostServer:
         loss_anchors = [evaluate_S(I_i) for I_i in self.I_list]
         
         best_loss = evaluate_S(S_current)
-        eta = 1.0
+        eta = 0.1
         current_method = "secant"
-        delta = 0.5 # 切線法的微小偏移量
+        delta = 0.0001 # 切線法的微小偏移量
         
         # 3. 開始手動尋路迴圈
         for k in range(num_iterations):
@@ -113,10 +119,17 @@ class HostServer:
                 # 累加各個方向的梯度 (乘上信任權重 alpha)
                 grad_S += self.alphas[i] * deriv * unit_dir
                 
+            grad_norm = np.linalg.norm(grad_S)
+            if grad_norm > 1e-8:
+                grad_S = grad_S / grad_norm 
+            else:
+                print(f"  [Iter {k+1}] 梯度趨近於零，提早收斂。")
+                break
+
             # --- 步驟 B：退火與步長更新機制 ---
             current_eta = eta
             success = False
-            for attempt in range(4): # 最多嘗試退火 4 次
+            for attempt in range(10): # 最多嘗試退火 10 次
                 S_try = S_current - current_eta * grad_S
                 try_loss = evaluate_S(S_try)
                 
@@ -124,7 +137,7 @@ class HostServer:
                     print(f"  [Iter {k+1} - {current_method}] ✅ 步長 {current_eta:.4f} -> Loss: {try_loss:.4f}")
                     S_current = S_try
                     best_loss = try_loss
-                    eta = min(2.0, current_eta * 1.2) # 樂觀加速
+                    eta = min(0.5, current_eta * 1.5) # 樂觀加速
                     success = True
                     break
                 else:

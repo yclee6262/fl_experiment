@@ -4,10 +4,11 @@ import torch.optim as optim
 from models import PretrainedModel, AgentReverseModel, get_device
 
 class AgentNode:
-    def __init__(self, agent_id, dataloader):
+    def __init__(self, agent_id, dataloader, n_features=2):
         self.agent_id = agent_id
         self.device = get_device()
-        self.model = PretrainedModel().to(self.device)
+        self.n_feature = n_features
+        self.model = PretrainedModel(in_features=n_features).to(self.device)
         self.dataloader = dataloader
 
     def train_local_model(self, epochs=50):
@@ -20,7 +21,7 @@ class AgentNode:
             for X_batch, y_batch in self.dataloader:
                 X_batch, y_batch = X_batch.to(self.device), y_batch.to(self.device)
                 optimizer.zero_grad()
-                loss = criterion(self.model(X_batch), y_batch)
+                loss = criterion(self.model(X_batch), y_batch.unsqueeze(1))
                 loss.backward()
                 optimizer.step()
         self.model.eval()
@@ -35,15 +36,17 @@ class AgentNode:
                 X_tensor = X_tensor.unsqueeze(0)
             return self.model(X_tensor).cpu().numpy().flatten()
 
-    def infer_parameters_C(self, target_T, steps=500):
+    def infer_parameters_C(self, target_T, steps=500, n_features=2):
         """Phase 2: 虛設層反推 (Method C)"""
-        init_guess = torch.randn(2).to(self.device) # 假設 2 個特徵
+        # 1. 根據 n_features 動態初始化
+        init_guess = torch.randn(self.n_feature).to(self.device) 
         reverse_model = AgentReverseModel(self.model, init_guess).to(self.device)
         
         optimizer = optim.Adam(reverse_model.parameters(), lr=0.01)
         criterion = nn.MSELoss()
         
-        raw_input = torch.tensor([1.0, 1.0]).to(self.device) # 永遠全 1
+        # 2. 動態長度的全 1 向量
+        raw_input = torch.ones(self.n_feature).to(self.device) 
         target_tensor = torch.tensor([target_T], dtype=torch.float32).to(self.device)
 
         for _ in range(steps):
@@ -52,28 +55,26 @@ class AgentNode:
             loss = criterion(output, target_tensor)
             loss.backward()
             optimizer.step()
-            
+            with torch.no_grad():
+                reverse_model.arc.clamp_(-1.0, 1.0)
+                
         return reverse_model.arc.detach().cpu().numpy()
     
-    def infer_parameters_D(self, target_T, steps=500):
-        """Phase 2: 方法 D - 直接輸入梯度反推 (Input Gradient Optimization)"""
-        
-        # 1. 確保本地預訓練模型被完全凍結，且處於 eval 模式
+    def infer_parameters_D(self, target_T, steps=500, n_features=2):
+        """Phase 2: 方法 D - 直接輸入梯度反推"""
         self.model.eval()
         for param in self.model.parameters():
             param.requires_grad = False
             
-        # 2. 宣告『輸入變數 (Input Tensor)』，並開啟 requires_grad=True
-        # 假設有 2 個決策變數 (a, b)，我們給一個隨機的初始起點
-        # 注意：形狀要是 [1, 2] 以符合神經網路 batch 輸入的要求
-        input_tensor = torch.randn(1, 2, device=self.device, requires_grad=True)
+        # 根據 n_features 動態生成 input_tensor
+        input_tensor = torch.randn(1, self.n_feature, device=self.device, requires_grad=True)
         
-        # 3. 建立優化器，⭐ 關鍵：直接把 input_tensor 交給優化器去更新！
+        # 建立優化器，直接把 input_tensor 交給優化器去更新！
         optimizer = optim.Adam([input_tensor], lr=0.01)
         criterion = nn.MSELoss()
         target_tensor = torch.tensor([[target_T]], dtype=torch.float32).to(self.device)
 
-        # 4. 梯度下降優化迴圈
+        # 梯度下降優化迴圈
         for _ in range(steps):
             optimizer.zero_grad()
             
@@ -94,5 +95,5 @@ class AgentNode:
             with torch.no_grad():
                 input_tensor.clamp_(-1.0, 1.0)
                 
-        # 5. 回傳優化完成的決策變數 (I_i)
+        # 回傳優化完成的決策變數 (I_i)
         return input_tensor.detach().cpu().numpy().flatten()

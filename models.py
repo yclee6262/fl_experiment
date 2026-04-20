@@ -5,7 +5,6 @@ import torch.nn as nn
 class PretrainedModel(nn.Module):
     def __init__(self, in_features=2):
         super(PretrainedModel, self).__init__()
-        # 假設決策變數有 2 個 (a, b)
         self.fc1 = nn.Linear(in_features, 64)
         self.fc2 = nn.Linear(64, 64)
         self.fc3 = nn.Linear(64, 1) # 輸出目標 y
