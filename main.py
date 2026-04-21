@@ -20,18 +20,18 @@ def main():
         agent.train_local_model(epochs=30)
         all_agents.append(agent)
         
-    print("\n=== 開始去中心化反推演算法 ===")
+    print("\n=== 開始反推演算法 ===")
     server = HostServer(target_T=TARGET_T, n_features=N)
     
     # Phase 1: 考試過濾
     server.phase1_filter_agents(all_agents)
     
-    # Phase 2: 虛設層反推
+    # Phase 2: 反推
     server.phase2_collect_proposals()
     
     # Phase 3: 黑箱最佳化 (雙引擎對決！)
     print("\n" + "="*50)
-    print("🏆 尋路引擎對決開始！目標 T = {}".format(TARGET_T))
+    print("子空間法開始，目標 T = {}".format(TARGET_T))
     print("="*50)
     
     # 引擎 1：工業級 SciPy BFGS
@@ -62,13 +62,13 @@ def main():
     y_custom = calculate_true_y(final_S_custom)
     
     print(f"目標 T: {TARGET_T}")
-    print(f"真實公式: {formula_str}")
+    print(f"目標公式: {formula_str}")
     # 為了版面整潔，將高維度變數陣列四捨五入印出
     S_bfgs_str = np.array2string(final_S_bfgs, formatter={'float_kind':lambda x: "%.4f" % x})
     S_custom_str = np.array2string(final_S_custom, formatter={'float_kind':lambda x: "%.4f" % x})
     
-    print(f"[SciPy BFGS 引擎] 求得變數: {S_bfgs_str} | 代入真實公式 y={y_bfgs:.4f}")
-    print(f"[法二法三引擎] 求得變數: {S_custom_str} | 代入真實公式 y={y_custom:.4f}")
+    print(f"[SciPy BFGS 引擎] 求得變數: {S_bfgs_str} | 代入目標公式 y={y_bfgs:.4f}")
+    print(f"[法二法三引擎] 求得變數: {S_custom_str} | 代入目標公式 y={y_custom:.4f}")
     
 if __name__ == "__main__":
     main()
