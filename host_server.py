@@ -2,12 +2,14 @@ import numpy as np
 from scipy.optimize import minimize
 
 class HostServer:
-    def __init__(self, target_T, n_features):
+    def __init__(self, target_T, n_features, total_budget=10.0):
         self.target_T = target_T
         self.n_features = n_features
+        self.total_budget = float(total_budget)
         self.trusted_agents = []
         self.alphas = []
         self.I_list = []
+        self.phase1_report = []
 
         np.random.seed(42)
         self.test_X = np.random.uniform(-1, 1, (5, self.n_features)) 
@@ -17,26 +19,149 @@ class HostServer:
         if self.n_features > 1:
             self.test_y += np.sum(self.test_X[:, :-1] * self.test_X[:, 1:], axis=1)
 
-    def phase1_filter_agents(self, all_agents):
-        """發送測試題，過濾掉誤差太大的惡意節點"""
-        print("\n--- Phase 1: 節點信任度測驗 ---")
+    def _residual_diversity(self, residual, selected_reports, eps=1e-8):
+        """Return D(i, C): residual cosine dissimilarity to the selected coalition."""
+        if not selected_reports:
+            return 1.0
+
+        residual_norm = np.linalg.norm(residual)
+        max_similarity = 0.0
+        for report in selected_reports:
+            selected_residual = report["residual"]
+            denom = residual_norm * np.linalg.norm(selected_residual) + eps
+            similarity = abs(float(np.dot(residual, selected_residual) / denom))
+            max_similarity = max(max_similarity, similarity)
+        return max(0.0, 1.0 - max_similarity)
+
+    def phase1_filter_agents(
+        self,
+        all_agents,
+        mse_threshold=0.1,
+        budget_fraction=0.8,
+        diversity_eta=0.5,
+        min_selection_score=0.0,
+        k_api=None,
+        k_red=None,
+    ):
+        """Stage 1: blind-test, bid-aware, diversity-aware coalition selection."""
+        print("\n--- Phase 1: 盲測信任評估與投標式節點選擇 ---")
+        self.trusted_agents = []
+        self.alphas = []
+        self.I_list = []
+        self.phase1_report = []
         
-        scores = []
+        qualified_reports = []
         for agent in all_agents:
             pred_y = agent.api_predict(self.test_X)
-            mse = np.mean((pred_y - self.test_y)**2)
+            residual = pred_y - self.test_y
+            mse = np.mean(residual**2)
+            bid = agent.get_minimum_bid() if hasattr(agent, "get_minimum_bid") else 1.0
             
-            if mse < 0.1: # 門檻值：過濾掉誤差極大的惡意節點
-                scores.append((agent, 1.0 / (mse + 1e-5))) # 誤差越小分數越高
-                print(f"Agent {agent.agent_id} 通過測驗 (MSE: {mse:.4f})")
+            if mse <= mse_threshold:
+                raw_score = 1.0 / (mse + 1e-5)
+                report = {
+                    "agent": agent,
+                    "agent_id": agent.agent_id,
+                    "mse": float(mse),
+                    "bid": float(bid),
+                    "raw_score": float(raw_score),
+                    "residual": residual,
+                    "alpha_pre": 0.0,
+                    "cost_performance": 0.0,
+                    "diversity": 0.0,
+                    "selection_score": 0.0,
+                    "selected": False,
+                }
+                qualified_reports.append(report)
+                print(f"Agent {agent.agent_id} 通過盲測 (MSE: {mse:.4f}, bid: {bid:.3f})")
             else:
-                print(f"Agent {agent.agent_id} 被剔除 (MSE: {mse:.4f})")
-                
-        # 正規化分數變成 alphas (加總為 1)
-        total_score = sum([s[1] for s in scores])
-        for agent, score in scores:
-            self.trusted_agents.append(agent)
-            self.alphas.append(score / total_score)
+                self.phase1_report.append({
+                    "agent_id": agent.agent_id,
+                    "mse": float(mse),
+                    "bid": float(bid),
+                    "selected": False,
+                    "reason": "failed_mse_threshold",
+                })
+                print(f"Agent {agent.agent_id} 被剔除 (MSE: {mse:.4f}, bid: {bid:.3f})")
+
+        if not qualified_reports:
+            raise ValueError("No agents passed Stage 1 blind-test filtering.")
+
+        total_raw_score = sum(report["raw_score"] for report in qualified_reports)
+        for report in qualified_reports:
+            report["alpha_pre"] = report["raw_score"] / total_raw_score
+            report["cost_performance"] = report["alpha_pre"] / max(report["bid"], 1e-8)
+
+        budget_select = budget_fraction * self.total_budget
+        k_red = min(3, int(np.ceil(0.3 * self.n_features))) if k_red is None else k_red
+        k_api = len(qualified_reports) if k_api is None else k_api
+        k_max = min(len(qualified_reports), k_api, self.n_features + k_red)
+        print(
+            f"  選擇設定：B_select={budget_select:.3f}, "
+            f"K_API={k_api}, K_red={k_red}, K_max={k_max}"
+        )
+
+        selected_reports = []
+        spent_budget = 0.0
+        while len(selected_reports) < k_max:
+            best_report = None
+            best_score = -np.inf
+            best_diversity = 0.0
+
+            for report in qualified_reports:
+                if report["selected"]:
+                    continue
+                if spent_budget + report["bid"] > budget_select:
+                    continue
+
+                diversity = self._residual_diversity(report["residual"], selected_reports)
+                selection_score = report["cost_performance"] * (1.0 + diversity_eta * diversity)
+                if selection_score > best_score:
+                    best_score = selection_score
+                    best_report = report
+                    best_diversity = diversity
+
+            if best_report is None or best_score < min_selection_score:
+                break
+
+            best_report["selected"] = True
+            best_report["diversity"] = float(best_diversity)
+            best_report["selection_score"] = float(best_score)
+            selected_reports.append(best_report)
+            spent_budget += best_report["bid"]
+            print(
+                f"  選入 Agent {best_report['agent_id']} | "
+                f"R={best_report['cost_performance']:.4f}, "
+                f"D={best_report['diversity']:.4f}, "
+                f"G={best_report['selection_score']:.4f}, "
+                f"累計 bid={spent_budget:.3f}/{budget_select:.3f}"
+            )
+
+        if not selected_reports:
+            raise ValueError("No agents were selected under the Stage 1 budget/quality constraints.")
+
+        selected_score_sum = sum(report["raw_score"] for report in selected_reports)
+        for report in selected_reports:
+            self.trusted_agents.append(report["agent"])
+            self.alphas.append(report["raw_score"] / selected_score_sum)
+
+        for report in qualified_reports:
+            self.phase1_report.append({
+                "agent_id": report["agent_id"],
+                "mse": report["mse"],
+                "bid": report["bid"],
+                "alpha_pre": report["alpha_pre"],
+                "cost_performance": report["cost_performance"],
+                "diversity": report["diversity"],
+                "selection_score": report["selection_score"],
+                "selected": report["selected"],
+                "reason": "selected" if report["selected"] else "not_selected_by_coalition_rule",
+            })
+
+        print(
+            f"Stage 1 完成：從 {len(all_agents)} 個 Agent 中，"
+            f"{len(qualified_reports)} 個通過盲測，最終選入 K={len(self.trusted_agents)} 個。"
+        )
 
     def phase2_collect_proposals(self):
         """請合格 Agent 利用虛設層反推初步參數"""

@@ -4,12 +4,26 @@ import torch.optim as optim
 from models import PretrainedModel, AgentReverseModel, get_device
 
 class AgentNode:
-    def __init__(self, agent_id, dataloader, n_features=2):
+    def __init__(self, agent_id, dataloader, n_features=2, minimum_bid=None):
         self.agent_id = agent_id
         self.device = get_device()
         self.n_feature = n_features
         self.model = PretrainedModel(in_features=n_features).to(self.device)
         self.dataloader = dataloader
+        # Stage 1 bidding signal. In a real marketplace this would be submitted
+        # by the agent; here we use a deterministic default for reproducibility.
+        self.minimum_bid = float(minimum_bid) if minimum_bid is not None else self._default_minimum_bid()
+
+    def _default_minimum_bid(self):
+        """Create a stable toy bid so experiments can exercise Stage 1 selection."""
+        base_bid = 1.0
+        agent_variation = 0.08 * ((self.agent_id * 7) % 5)
+        dimension_cost = 0.03 * self.n_feature
+        return base_bid + agent_variation + dimension_cost
+
+    def get_minimum_bid(self):
+        """Stage 1: return the agent's reservation price / minimum expected bid."""
+        return self.minimum_bid
 
     def train_local_model(self, epochs=50):
         """Phase 0: 訓練本地黑箱模型"""
