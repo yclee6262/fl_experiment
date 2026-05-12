@@ -10,6 +10,7 @@ class HostServer:
         self.alphas = []
         self.I_list = []
         self.phase1_report = []
+        self.phase4_report = []
 
         np.random.seed(42)
         self.test_X = np.random.uniform(-1, 1, (5, self.n_features)) 
@@ -163,6 +164,19 @@ class HostServer:
             f"{len(qualified_reports)} 個通過盲測，最終選入 K={len(self.trusted_agents)} 個。"
         )
 
+    def _agent_bid(self, agent):
+        return agent.get_minimum_bid() if hasattr(agent, "get_minimum_bid") else 1.0
+
+    def _weighted_consensus_loss(self, S_array, agents=None, alphas=None):
+        """Evaluate the Stage 3/4 consensus loss at a candidate decision vector."""
+        agents = self.trusted_agents if agents is None else agents
+        alphas = self.alphas if alphas is None else alphas
+        total_loss = 0.0
+        for agent, alpha in zip(agents, alphas):
+            pred = agent.api_predict(S_array)[0]
+            total_loss += alpha * abs(pred - self.target_T)
+        return float(total_loss)
+
     def phase2_collect_proposals(self):
         """請合格 Agent 利用虛設層反推初步參數"""
         print("\n--- Phase 2: 收集初步提議參數 (I_i) ---")
@@ -205,6 +219,151 @@ class HostServer:
         final_S = np.dot(best_betas, I_matrix)
         
         return final_S, error_history
+
+    def phase4_profit_sharing(
+        self,
+        final_S,
+        total_budget=None,
+        omega_trust=0.4,
+        omega_contribution=0.6,
+        min_positive_contribution=1e-8,
+    ):
+        """Stage 4: Subspace Exclusion Method and budget-feasible profit sharing."""
+        print("\n--- Phase 4: 子空間排除法貢獻度分潤 ---")
+        if not self.trusted_agents or not self.I_list:
+            raise ValueError("Phase 4 requires trusted agents and Phase 2 proposals.")
+
+        total_budget = self.total_budget if total_budget is None else float(total_budget)
+        I_matrix = np.array(self.I_list)
+        n_agents = len(self.trusted_agents)
+        base_loss = self._weighted_consensus_loss(final_S)
+
+        exclusion_reports = []
+        for excluded_idx, excluded_agent in enumerate(self.trusted_agents):
+            remaining_indices = [idx for idx in range(n_agents) if idx != excluded_idx]
+
+            if not remaining_indices:
+                restricted_loss = float("inf")
+                restricted_S = None
+            else:
+                restricted_I = I_matrix[remaining_indices]
+
+                def restricted_loss_function(betas):
+                    S_candidate = np.dot(betas, restricted_I)
+                    # Keep evaluation on the full selected coalition so every C_i
+                    # is compared against the same global consensus objective.
+                    return self._weighted_consensus_loss(S_candidate)
+
+                initial_betas = np.ones(len(remaining_indices)) / len(remaining_indices)
+                result = minimize(restricted_loss_function, initial_betas, method="BFGS")
+                restricted_S = np.dot(result.x, restricted_I)
+                restricted_loss = self._weighted_consensus_loss(restricted_S)
+
+            marginal_contribution = restricted_loss - base_loss
+            positive_contribution = max(float(marginal_contribution), 0.0)
+            exclusion_reports.append({
+                "agent": excluded_agent,
+                "agent_id": excluded_agent.agent_id,
+                "alpha": float(self.alphas[excluded_idx]),
+                "bid": float(self._agent_bid(excluded_agent)),
+                "loss_without_agent": float(restricted_loss),
+                "marginal_contribution": float(marginal_contribution),
+                "positive_contribution": positive_contribution,
+                "restricted_solution": restricted_S,
+            })
+            print(
+                f"Agent {excluded_agent.agent_id}: "
+                f"L(-i)={restricted_loss:.6f}, "
+                f"C_i={marginal_contribution:.6f}, "
+                f"C_i+={positive_contribution:.6f}"
+            )
+
+        active_reports = [
+            report for report in exclusion_reports
+            if report["positive_contribution"] > min_positive_contribution
+        ]
+
+        if not active_reports:
+            self.phase4_report = {
+                "base_loss": base_loss,
+                "total_budget": total_budget,
+                "active_agent_ids": [],
+                "payments": [],
+                "status": "rejected_no_positive_contributors",
+            }
+            print("沒有正邊際貢獻者，分潤流程拒絕此 coalition。")
+            return self.phase4_report
+
+        bid_sum = sum(report["bid"] for report in active_reports)
+        if bid_sum > total_budget:
+            self.phase4_report = {
+                "base_loss": base_loss,
+                "total_budget": total_budget,
+                "active_agent_ids": [report["agent_id"] for report in active_reports],
+                "minimum_bid_sum": bid_sum,
+                "payments": [],
+                "status": "infeasible_minimum_bids_exceed_budget",
+            }
+            raise ValueError(
+                f"Stage 4 budget infeasible: positive contributors require bids "
+                f"{bid_sum:.4f}, exceeding total budget {total_budget:.4f}."
+            )
+
+        weight_sum = omega_trust + omega_contribution
+        omega_trust = omega_trust / weight_sum
+        omega_contribution = omega_contribution / weight_sum
+
+        alpha_sum = sum(report["alpha"] for report in active_reports)
+        contribution_sum = sum(report["positive_contribution"] for report in active_reports)
+        surplus = total_budget - bid_sum
+
+        payment_reports = []
+        for report in active_reports:
+            alpha_share = report["alpha"] / alpha_sum if alpha_sum > 0 else 0.0
+            contribution_share = (
+                report["positive_contribution"] / contribution_sum
+                if contribution_sum > 0 else 0.0
+            )
+            profit_share = omega_trust * alpha_share + omega_contribution * contribution_share
+            payment = report["bid"] + profit_share * surplus
+
+            payment_report = {
+                "agent_id": report["agent_id"],
+                "alpha": report["alpha"],
+                "bid": report["bid"],
+                "marginal_contribution": report["marginal_contribution"],
+                "positive_contribution": report["positive_contribution"],
+                "alpha_share": alpha_share,
+                "contribution_share": contribution_share,
+                "profit_share": profit_share,
+                "payment": payment,
+            }
+            payment_reports.append(payment_report)
+            print(
+                f"Payment Agent {report['agent_id']}: "
+                f"bid={report['bid']:.3f}, "
+                f"alpha_share={alpha_share:.3f}, "
+                f"contrib_share={contribution_share:.3f}, "
+                f"payment={payment:.3f}"
+            )
+
+        paid_total = sum(report["payment"] for report in payment_reports)
+        self.phase4_report = {
+            "base_loss": base_loss,
+            "total_budget": total_budget,
+            "minimum_bid_sum": bid_sum,
+            "surplus": surplus,
+            "paid_total": paid_total,
+            "active_agent_ids": [report["agent_id"] for report in active_reports],
+            "exclusion_reports": [
+                {key: value for key, value in report.items() if key not in {"agent", "restricted_solution"}}
+                for report in exclusion_reports
+            ],
+            "payments": payment_reports,
+            "status": "ok",
+        }
+        print(f"Phase 4 完成：總支付 {paid_total:.3f}/{total_budget:.3f}")
+        return self.phase4_report
     
     def phase3_custom_secant_optimization(self, num_iterations=50, use_annealing=True, allow_tangent=True):
         """Phase 3 (Alternative): 使用原創的割線/切線法進行子空間尋路 (支援消融實驗)"""

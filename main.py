@@ -108,6 +108,9 @@ def main():
     # 引擎 2：割線/切線法
     final_S_custom, hist_custom, states_custom = server.phase3_custom_secant_optimization(num_iterations=30)
 
+    # Phase 4: 子空間排除法分潤
+    profit_report = server.phase4_profit_sharing(final_S_custom)
+
     final_S_fedavg, hist_fedavg = run_fedavg_baseline(all_agents, N, TARGET_T, global_rounds=15)
     
     # === 驗證與比較結果 ===
@@ -139,6 +142,18 @@ def main():
     
     print(f"[SciPy BFGS 引擎] 求得變數: {S_bfgs_str} | 代入目標公式 y={y_bfgs:.4f}")
     print(f"[法二法三引擎] 求得變數: {S_custom_str} | 代入目標公式 y={y_custom:.4f}")
+
+    print("\n=== 分潤結果 (Stage 4) ===")
+    if profit_report["status"] == "ok":
+        for row in profit_report["payments"]:
+            print(
+                f"Agent {row['agent_id']}: "
+                f"C_i+={row['positive_contribution']:.6f}, "
+                f"profit_share={row['profit_share']:.4f}, "
+                f"payment={row['payment']:.4f}"
+            )
+    else:
+        print(f"分潤狀態: {profit_report['status']}")
 
     # === 🎨 終極大合併畫圖 ===
     print("\n正在繪製實驗對比圖...")
