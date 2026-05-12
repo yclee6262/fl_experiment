@@ -1,13 +1,81 @@
+import copy
+import torch
+import torch.optim as optim
+import torch.nn as nn
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
 from dataset import generate_agent_dataloaders
 from agent_client import AgentNode
 from host_server import HostServer
-import numpy as np
+from models import PretrainedModel
+
+def run_fedavg_baseline(agents, n_features, target_T, global_rounds=15, local_epochs=5):
+    """執行傳統 FedAvg 並記錄每個 Round 的反推誤差"""
+    print("\n" + "="*50)
+    print("啟動傳統 baseline：FedAvg (Federated Averaging)")
+    print("="*50)
+    device = agents[0].device
+    global_model = PretrainedModel(in_features=n_features).to(device)
+    
+    error_history = []
+    
+    for round_num in range(global_rounds):
+        local_weights = []
+        global_state_dict = global_model.state_dict()
+        
+        for agent in agents:
+            agent.model.load_state_dict(copy.deepcopy(global_state_dict))
+            agent.model.train()
+            for param in agent.model.parameters():
+                param.requires_grad = True
+            optimizer = optim.Adam(agent.model.parameters(), lr=0.01)
+            criterion = nn.MSELoss()
+            for _ in range(local_epochs):
+                for X_batch, y_batch in agent.dataloader:
+                    X_batch, y_batch = X_batch.to(device), y_batch.to(device).unsqueeze(1)
+                    optimizer.zero_grad()
+                    loss = criterion(agent.model(X_batch), y_batch)
+                    loss.backward()
+                    optimizer.step()
+            local_weights.append(copy.deepcopy(agent.model.state_dict()))
+            
+        # FedAvg: 權重平均聚合
+        avg_state_dict = copy.deepcopy(local_weights[0])
+        for key in avg_state_dict.keys():
+            for i in range(1, len(local_weights)):
+                avg_state_dict[key] += local_weights[i][key]
+            avg_state_dict[key] = torch.div(avg_state_dict[key], len(local_weights))
+        global_model.load_state_dict(avg_state_dict)
+        
+        # --- 快速反推記錄當下誤差 ---
+        global_model.eval()
+        input_tensor = torch.randn(1, n_features, device=device, requires_grad=True)
+        opt_inv = optim.Adam([input_tensor], lr=0.05)
+        target_tensor = torch.tensor([[target_T]], dtype=torch.float32).to(device)
+        for _ in range(200): 
+            opt_inv.zero_grad()
+            output = global_model(input_tensor)
+            loss_inv = nn.MSELoss()(output, target_tensor)
+            loss_inv.backward()
+            opt_inv.step()
+            with torch.no_grad(): input_tensor.clamp_(-1.0, 1.0)
+            
+        current_S = input_tensor.detach().cpu().numpy().flatten()
+        y_val = np.sum(current_S)
+        if len(current_S) > 1: y_val += np.sum(current_S[:-1] * current_S[1:])
+        current_error = abs(y_val - target_T)
+        error_history.append(current_error)
+        print(f"  [FedAvg] Round {round_num + 1}/{global_rounds} 誤差: {current_error:.4f}")
+
+    return current_S, error_history
 
 def main():
-    TARGET_T = 1.5
-    NUM_AGENTS = 40      # 擴大參與人數！(可自由更改為 30, 50 等)
-    POISON_RATIO = 0.1   # 設定 40% 的人是異質節點
-    N = 5                # 設定是幾元多項式
+    TARGET_T = 0
+    NUM_AGENTS = 20      # 擴大參與人數
+    POISON_RATIO = 0.4   # 設定 40% 的人是異質節點
+    N = 2                # 設定是幾元多項式
     
     print(f"=== Phase 0: 準備資料與訓練本地神經網路 (共 {NUM_AGENTS} 個 Agent) ===")
     # 傳入設定的參數
@@ -35,10 +103,12 @@ def main():
     print("="*50)
     
     # 引擎 1：工業級 SciPy BFGS
-    final_S_bfgs = server.phase3_global_optimization()
+    final_S_bfgs, hist_bfgs = server.phase3_global_optimization()
     
     # 引擎 2：割線/切線法
-    final_S_custom = server.phase3_custom_secant_optimization(num_iterations=30)
+    final_S_custom, hist_custom, states_custom = server.phase3_custom_secant_optimization(num_iterations=30)
+
+    final_S_fedavg, hist_fedavg = run_fedavg_baseline(all_agents, N, TARGET_T, global_rounds=15)
     
     # === 驗證與比較結果 ===
     print("\n=== 最終對比結果 ===")
@@ -69,6 +139,45 @@ def main():
     
     print(f"[SciPy BFGS 引擎] 求得變數: {S_bfgs_str} | 代入目標公式 y={y_bfgs:.4f}")
     print(f"[法二法三引擎] 求得變數: {S_custom_str} | 代入目標公式 y={y_custom:.4f}")
+
+    # === 🎨 終極大合併畫圖 ===
+    print("\n正在繪製實驗對比圖...")
+    os.makedirs("results_plots", exist_ok=True)
+    plt.figure(figsize=(12, 7))
+    
+    # 由於 BFGS 收斂的迭代次數不固定，我們分別產生各自的 X 軸
+    x_fedavg = range(1, len(hist_fedavg) + 1)
+    x_bfgs = range(1, len(hist_bfgs) + 1)
+    x_custom = range(1, len(hist_custom) + 1)
+    
+    # 畫出三條線 (使用您熟悉的配色與標記)
+    plt.plot(x_fedavg, hist_fedavg, label='Baseline: Traditional FedAvg', 
+             color='red', marker='x', linestyle=':', linewidth=2)
+             
+    plt.plot(x_bfgs, hist_bfgs, label='Ours: Subspace (BFGS)', 
+             color='orange', marker='s', linestyle='--', alpha=0.8, linewidth=2.5)
+             
+    plt.plot(x_custom, hist_custom, label='Ours: Subspace (Secant/Tangent Engine)', 
+             color='green', marker='*', linewidth=3.5, markersize=12)
+    
+    # 標題與標籤設定
+    plt.title(f'Performance Comparison: FedAvg vs. Subspace Methods (T={TARGET_T}, N={N})', 
+              fontsize=16, fontweight='bold')
+    plt.xlabel('Communication Rounds (FedAvg) / API Iterations (Ours)', fontsize=14)
+    plt.ylabel('Absolute Error |y_pred - T|', fontsize=14)
+    
+    # 讓 Y 軸使用對數尺度 (Log Scale)，因為法五的誤差會降得非常低，用 Log 才看得出差距！
+    plt.yscale('log') 
+    
+    plt.grid(True, linestyle=':', alpha=0.6)
+    plt.legend(fontsize=12, loc='upper right', framealpha=0.9)
+    
+    # 儲存圖片
+    save_path = f"results_plots/fl_inversion_test_comparison_N{N}_T{TARGET_T}.png"
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    
+    print(f"=== 🎉 實驗對比圖已儲存至：{save_path} ===")
+    plt.show()
     
 if __name__ == "__main__":
     main()

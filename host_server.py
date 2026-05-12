@@ -7,7 +7,7 @@ class HostServer:
         self.n_features = n_features
         self.trusted_agents = []
         self.alphas = []
-        self.I_list = [] # 收集大家的初步建議參數
+        self.I_list = []
 
         np.random.seed(42)
         self.test_X = np.random.uniform(-1, 1, (5, self.n_features)) 
@@ -50,11 +50,12 @@ class HostServer:
         """使用 SciPy BFGS 計算最佳混合比例 (Betas)"""
         print("\n--- Phase 3: 全域最佳化 (BFGS 演算法) ---")
         I_matrix = np.array(self.I_list)
+        error_history = []
         
         def total_loss_function(betas):
             S_current = np.dot(betas, I_matrix)
             total_loss = 0.0
-            
+
             # 呼叫每個 Agent 的 API 算預測值
             for i, agent in enumerate(self.trusted_agents):
                 pred_i = agent.api_predict(S_current)[0]
@@ -62,23 +63,35 @@ class HostServer:
                 total_loss += self.alphas[i] * abs(pred_i - self.target_T)
             return total_loss
 
+        def callback(betas):
+            S_current = np.dot(betas, I_matrix)
+            # 代入真實公式 (這裡假設在 Host 裡也能算真實 y 來當作評估指標)
+            y_val = np.sum(S_current)
+            if len(S_current) > 1: 
+                y_val += np.sum(S_current[:-1] * S_current[1:])
+            error_history.append(abs(y_val - self.target_T))
+        
+
         # 初始猜測：平均分配
         initial_betas = np.ones(len(self.trusted_agents)) / len(self.trusted_agents)
         
-        result = minimize(total_loss_function, initial_betas, method='BFGS')
+        result = minimize(total_loss_function, initial_betas, method='BFGS', callback=callback)
         best_betas = result.x
         final_S = np.dot(best_betas, I_matrix)
         
-        return final_S
+        return final_S, error_history
     
-    def phase3_custom_secant_optimization(self, num_iterations=50):
-        """Phase 3 (Alternative): 使用原創的割線/切線法進行子空間尋路"""
+    def phase3_custom_secant_optimization(self, num_iterations=50, use_annealing=True, allow_tangent=True):
+        """Phase 3 (Alternative): 使用原創的割線/切線法進行子空間尋路 (支援消融實驗)"""
         print("\n--- Phase 3: 全域最佳化 (啟動割線/切線退火引擎) ---")
         
         # 1. 將 Agent 提議的參數轉為矩陣，並計算起點 (平均值 M^0)
         I_matrix = np.array(self.I_list)
         n_agents = len(self.trusted_agents)
         S_current = np.mean(I_matrix, axis=0) # 從平均點出發
+        
+        error_history = []
+        states_history = [] # 新增：紀錄每次迭代的演算法狀態
         
         # 內部評估函數：呼叫 API 並計算總誤差 (Loss)
         def evaluate_S(S_array):
@@ -95,6 +108,17 @@ class HostServer:
         eta = 0.1
         current_method = "secant"
         delta = 0.0001 # 切線法的微小偏移量
+
+        # 紀錄歷史最佳解
+        global_best_S = S_current.copy()
+        global_best_loss = best_loss
+        
+        # --- 紀錄起點 (Iter 0) 的真實誤差與狀態 ---
+        y_val_start = np.sum(S_current)
+        if len(S_current) > 1: 
+            y_val_start += np.sum(S_current[:-1] * S_current[1:])
+        error_history.append(abs(y_val_start - self.target_T))
+        states_history.append("Start")
         
         # 3. 開始手動尋路迴圈
         for k in range(num_iterations):
@@ -126,32 +150,58 @@ class HostServer:
                 print(f"  [Iter {k+1}] 梯度趨近於零，提早收斂。")
                 break
 
-            # --- 步驟 B：退火與步長更新機制 ---
+            # --- 步驟 B：退火與步長更新機制 (加入消融開關) ---
             current_eta = eta
             success = False
-            for attempt in range(10): # 最多嘗試退火 10 次
+            state_this_iter = current_method # 預設狀態為當前的引擎
+            
+            if use_annealing:
+                for attempt in range(10): # 最多嘗試退火 10 次
+                    S_try = S_current - current_eta * grad_S
+                    try_loss = evaluate_S(S_try)
+                    
+                    if try_loss < best_loss:
+                        if attempt > 0:
+                            state_this_iter = "Annealing Triggered" # 標記成功觸發退火
+                        print(f"  [Iter {k+1} - {current_method}] ✅ 步長 {current_eta:.4f} -> Loss: {try_loss:.4f}")
+                        S_current = S_try
+                        best_loss = try_loss
+
+                        if best_loss < global_best_loss:
+                            global_best_loss = best_loss
+                            global_best_S = S_current.copy()
+
+                        eta = min(0.5, current_eta * 1.5) # 樂觀加速
+                        success = True
+                        break
+                    else:
+                        current_eta /= 2.0 # 退火減半
+            else:
+                # 關閉退火：直接往前走一步，不測試縮減步長
                 S_try = S_current - current_eta * grad_S
                 try_loss = evaluate_S(S_try)
-                
                 if try_loss < best_loss:
-                    print(f"  [Iter {k+1} - {current_method}] ✅ 步長 {current_eta:.4f} -> Loss: {try_loss:.4f}")
+                    print(f"  [Iter {k+1} - {current_method}] ✅ 無退火步長 {current_eta:.4f} -> Loss: {try_loss:.4f}")
                     S_current = S_try
                     best_loss = try_loss
-                    eta = min(0.5, current_eta * 1.5) # 樂觀加速
                     success = True
-                    break
-                else:
-                    current_eta /= 2.0 # 退火減半
                     
-            # --- 步驟 C：引擎切換機制 ---
+            # --- 步驟 C：引擎切換機制 (加入消融開關) ---
             if not success:
-                if current_method == "secant":
+                if current_method == "secant" and allow_tangent:
                     print(f"  [Iter {k+1}] 割線法失真，切換至高精度切線法！")
                     current_method = "dynamic"
                     eta = 0.5 
                 else:
-                    print(f"  [Iter {k+1}] 高精度引擎亦達極限，演算法收斂。")
+                    print(f"  [Iter {k+1}] 高精度引擎亦達極限 (或不允許切換)，演算法收斂。")
                     break
 
+            # --- 計算真實誤差並紀錄 ---
+            y_val = np.sum(S_current)
+            if len(S_current) > 1: 
+                y_val += np.sum(S_current[:-1] * S_current[1:])
+            error_history.append(abs(y_val - self.target_T))
+            states_history.append(state_this_iter)
+
         print(f"✅ 法二法三引擎尋路完成！最終決策變數 S = {S_current}")
-        return S_current
+        return global_best_S, error_history, states_history
