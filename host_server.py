@@ -220,25 +220,13 @@ class HostServer:
         
         return final_S, error_history
 
-    def phase4_profit_sharing(
-        self,
-        final_S,
-        total_budget=None,
-        omega_trust=0.4,
-        omega_contribution=0.6,
-        min_positive_contribution=1e-8,
-    ):
-        """Stage 4: Subspace Exclusion Method and budget-feasible profit sharing."""
-        print("\n--- Phase 4: 子空間排除法貢獻度分潤 ---")
-        if not self.trusted_agents or not self.I_list:
-            raise ValueError("Phase 4 requires trusted agents and Phase 2 proposals.")
-
-        total_budget = self.total_budget if total_budget is None else float(total_budget)
+    def _compute_exclusion_reports(self, final_S, verbose=True):
+        """Compute C_i by virtually excluding each currently trusted agent."""
         I_matrix = np.array(self.I_list)
         n_agents = len(self.trusted_agents)
         base_loss = self._weighted_consensus_loss(final_S)
-
         exclusion_reports = []
+
         for excluded_idx, excluded_agent in enumerate(self.trusted_agents):
             remaining_indices = [idx for idx in range(n_agents) if idx != excluded_idx]
 
@@ -261,7 +249,8 @@ class HostServer:
 
             marginal_contribution = restricted_loss - base_loss
             positive_contribution = max(float(marginal_contribution), 0.0)
-            exclusion_reports.append({
+            report = {
+                "index": excluded_idx,
                 "agent": excluded_agent,
                 "agent_id": excluded_agent.agent_id,
                 "alpha": float(self.alphas[excluded_idx]),
@@ -270,13 +259,137 @@ class HostServer:
                 "marginal_contribution": float(marginal_contribution),
                 "positive_contribution": positive_contribution,
                 "restricted_solution": restricted_S,
-            })
-            print(
-                f"Agent {excluded_agent.agent_id}: "
-                f"L(-i)={restricted_loss:.6f}, "
-                f"C_i={marginal_contribution:.6f}, "
-                f"C_i+={positive_contribution:.6f}"
+            }
+            exclusion_reports.append(report)
+
+            if verbose:
+                print(
+                    f"Agent {excluded_agent.agent_id}: "
+                    f"L(-i)={restricted_loss:.6f}, "
+                    f"C_i={marginal_contribution:.6f}, "
+                    f"C_i+={positive_contribution:.6f}"
+                )
+
+        return base_loss, exclusion_reports
+
+    def _remove_trusted_agent_at(self, index):
+        removed_agent = self.trusted_agents.pop(index)
+        removed_proposal = self.I_list.pop(index)
+        removed_alpha = self.alphas.pop(index)
+
+        alpha_sum = sum(self.alphas)
+        if alpha_sum > 0:
+            self.alphas = [alpha / alpha_sum for alpha in self.alphas]
+
+        return {
+            "agent_id": removed_agent.agent_id,
+            "alpha": float(removed_alpha),
+            "proposal": removed_proposal,
+        }
+
+    def _rerun_stage3_optimizer(self, optimizer, custom_iterations):
+        if optimizer == "bfgs":
+            final_S, history = self.phase3_global_optimization()
+            return final_S, history, []
+        if optimizer == "custom":
+            final_S, history, states = self.phase3_custom_secant_optimization(
+                num_iterations=custom_iterations
             )
+            return final_S, history, states
+        raise ValueError("optimizer must be either 'custom' or 'bfgs'.")
+
+    def prune_negative_contributors(
+        self,
+        final_S,
+        epsilon=1e-6,
+        max_pruning_rounds=None,
+        optimizer="custom",
+        custom_iterations=30,
+    ):
+        """Iteratively remove the most negative-contribution agent and re-optimize."""
+        print("\n--- Negative Contribution Pruning Experiment ---")
+        if not self.trusted_agents or not self.I_list:
+            raise ValueError("Pruning requires trusted agents and Phase 2 proposals.")
+
+        max_pruning_rounds = (
+            max(0, len(self.trusted_agents) - 1)
+            if max_pruning_rounds is None else max_pruning_rounds
+        )
+
+        pruning_log = []
+        final_history = []
+        final_states = []
+        current_S = final_S
+
+        for pruning_round in range(max_pruning_rounds + 1):
+            coalition_ids = [agent.agent_id for agent in self.trusted_agents]
+            print(f"\n[Pruning Round {pruning_round}] coalition={coalition_ids}")
+            base_loss, exclusion_reports = self._compute_exclusion_reports(current_S)
+            min_report = min(exclusion_reports, key=lambda row: row["marginal_contribution"])
+
+            round_log = {
+                "round": pruning_round,
+                "coalition_ids": coalition_ids,
+                "base_loss": base_loss,
+                "reports": [
+                    {key: value for key, value in report.items() if key not in {"agent", "restricted_solution"}}
+                    for report in exclusion_reports
+                ],
+                "removed_agent_id": None,
+                "status": "stable",
+            }
+
+            if min_report["marginal_contribution"] >= -epsilon:
+                print(
+                    f"停止 pruning：最小 C_i={min_report['marginal_contribution']:.6f} "
+                    f">= -epsilon ({-epsilon:.6f})"
+                )
+                pruning_log.append(round_log)
+                break
+
+            if len(self.trusted_agents) <= 1:
+                print("停止 pruning：coalition 只剩 1 個 agent。")
+                round_log["status"] = "stopped_single_agent"
+                pruning_log.append(round_log)
+                break
+
+            removed = self._remove_trusted_agent_at(min_report["index"])
+            round_log["removed_agent_id"] = removed["agent_id"]
+            round_log["status"] = "removed_negative_contributor"
+            pruning_log.append(round_log)
+            print(
+                f"移除 Agent {removed['agent_id']} "
+                f"(C_i={min_report['marginal_contribution']:.6f})，重新執行 Stage 3。"
+            )
+
+            current_S, final_history, final_states = self._rerun_stage3_optimizer(
+                optimizer=optimizer,
+                custom_iterations=custom_iterations,
+            )
+
+        return {
+            "final_solution": current_S,
+            "final_history": final_history,
+            "final_states": final_states,
+            "final_coalition_ids": [agent.agent_id for agent in self.trusted_agents],
+            "pruning_log": pruning_log,
+        }
+
+    def phase4_profit_sharing(
+        self,
+        final_S,
+        total_budget=None,
+        omega_trust=0.4,
+        omega_contribution=0.6,
+        min_positive_contribution=1e-8,
+    ):
+        """Stage 4: Subspace Exclusion Method and budget-feasible profit sharing."""
+        print("\n--- Phase 4: 子空間排除法貢獻度分潤 ---")
+        if not self.trusted_agents or not self.I_list:
+            raise ValueError("Phase 4 requires trusted agents and Phase 2 proposals.")
+
+        total_budget = self.total_budget if total_budget is None else float(total_budget)
+        base_loss, exclusion_reports = self._compute_exclusion_reports(final_S)
 
         active_reports = [
             report for report in exclusion_reports

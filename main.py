@@ -108,7 +108,19 @@ def main():
     # 引擎 2：割線/切線法
     final_S_custom, hist_custom, states_custom = server.phase3_custom_secant_optimization(num_iterations=30)
 
-    # Phase 4: 子空間排除法分潤
+    # Phase 3.5: 移除負邊際貢獻者並重新最佳化
+    pruning_report = server.prune_negative_contributors(
+        final_S_custom,
+        epsilon=1e-6,
+        optimizer="custom",
+        custom_iterations=30,
+    )
+    final_S_custom = pruning_report["final_solution"]
+    if pruning_report["final_history"]:
+        hist_custom = pruning_report["final_history"]
+        states_custom = pruning_report["final_states"]
+
+    # Phase 4: 對 pruning 後的穩定 coalition 做子空間排除法分潤
     profit_report = server.phase4_profit_sharing(final_S_custom)
 
     final_S_fedavg, hist_fedavg = run_fedavg_baseline(all_agents, N, TARGET_T, global_rounds=15)
@@ -142,6 +154,17 @@ def main():
     
     print(f"[SciPy BFGS 引擎] 求得變數: {S_bfgs_str} | 代入目標公式 y={y_bfgs:.4f}")
     print(f"[法二法三引擎] 求得變數: {S_custom_str} | 代入目標公式 y={y_custom:.4f}")
+
+    print("\n=== 負貢獻 Pruning 結果 ===")
+    print(f"最終 coalition: {pruning_report['final_coalition_ids']}")
+    for row in pruning_report["pruning_log"]:
+        if row["removed_agent_id"] is not None:
+            print(
+                f"Round {row['round']}: 移除 Agent {row['removed_agent_id']} "
+                f"(base_loss={row['base_loss']:.6f})"
+            )
+        else:
+            print(f"Round {row['round']}: {row['status']} (base_loss={row['base_loss']:.6f})")
 
     print("\n=== 分潤結果 (Stage 4) ===")
     if profit_report["status"] == "ok":
