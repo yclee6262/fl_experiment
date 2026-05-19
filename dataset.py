@@ -9,12 +9,12 @@ class TabularDataset(Dataset):
     def __len__(self): return len(self.X)
     def __getitem__(self, idx): return self.X[idx], self.y[idx]
 
-def generate_agent_dataloaders(num_agents=20, n_samples_per_agent=500, poison_ratio=0.4, n_features=2):
+def generate_agent_dataloaders(num_agents=20, n_samples_per_agent=500, poison_ratio=0.4, n_features=2, seed=42):
     """
     生成 Agent 訓練用的模擬數據
     ⭐ 加入 n_features 參數，並動態切換物理公式
     """
-    np.random.seed(42)
+    np.random.seed(seed)
     loaders = []
     num_poisoned = int(num_agents * poison_ratio)
     
