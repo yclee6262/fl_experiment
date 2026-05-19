@@ -1,0 +1,4 @@
+seed,D,rho,target_T,method,iteration,target_error,state
+0,2,0.0,0.0,custom_secant_dynamic,0,0.015351039,Start
+0,2,0.0,0.0,custom_secant_dynamic,1,0.030867256,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,2,0.03376819,Annealing Triggered

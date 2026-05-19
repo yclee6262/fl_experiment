@@ -1,0 +1,51 @@
+seed,D,rho,target_T,method,iteration,target_error,state
+0,2,0.0,0.0,custom_secant_dynamic,0,0.1871641,Start
+0,2,0.0,0.0,custom_secant_dynamic,1,0.06559296,secant
+0,2,0.0,0.0,custom_secant_dynamic,2,0.026963484,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,3,0.011471134,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,4,0.011890803,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,5,0.011572419,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,6,0.0118117705,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,7,0.011629781,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,8,0.011766764,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,9,0.011714426,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,10,0.0117338225,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,11,0.011726438,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,12,0.011727794,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,13,0.011727903,Annealing Triggered
+0,2,0.0,0.0,custom_secant_dynamic,14,0.011727903,secant
+1,2,0.0,0.0,custom_secant_dynamic,0,0.18654868,Start
+1,2,0.0,0.0,custom_secant_dynamic,1,0.09208772,secant
+1,2,0.0,0.0,custom_secant_dynamic,2,0.06628855,secant
+1,2,0.0,0.0,custom_secant_dynamic,3,0.052501023,Annealing Triggered
+1,2,0.0,0.0,custom_secant_dynamic,4,0.004567063,Annealing Triggered
+1,2,0.0,0.0,custom_secant_dynamic,5,0.0034854948,Annealing Triggered
+1,2,0.0,0.0,custom_secant_dynamic,6,0.0034854948,secant
+1,2,0.0,0.0,custom_secant_dynamic,7,0.005867797,Annealing Triggered
+1,2,0.0,0.0,custom_secant_dynamic,8,0.0061605866,dynamic
+1,2,0.0,0.0,custom_secant_dynamic,9,0.0065212306,dynamic
+1,2,0.0,0.0,custom_secant_dynamic,10,0.005627555,dynamic
+1,2,0.0,0.0,custom_secant_dynamic,11,0.0049404423,Annealing Triggered
+1,2,0.0,0.0,custom_secant_dynamic,12,0.0044041136,Annealing Triggered
+1,2,0.0,0.0,custom_secant_dynamic,13,0.0043463786,Annealing Triggered
+1,2,0.0,0.0,custom_secant_dynamic,14,0.004326018,Annealing Triggered
+1,2,0.0,0.0,custom_secant_dynamic,15,0.0043179556,Annealing Triggered
+1,2,0.0,0.0,custom_secant_dynamic,16,0.0043172482,Annealing Triggered
+1,2,0.0,0.0,custom_secant_dynamic,17,0.0043172175,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,0,0.10600397,Start
+2,2,0.0,0.0,custom_secant_dynamic,1,0.011874761,secant
+2,2,0.0,0.0,custom_secant_dynamic,2,0.0122994725,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,3,0.018555997,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,4,0.019647181,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,5,0.019848391,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,6,0.019885994,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,7,0.019889522,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,8,0.019889522,secant
+2,2,0.0,0.0,custom_secant_dynamic,9,0.001971148,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,10,0.007417135,dynamic
+2,2,0.0,0.0,custom_secant_dynamic,11,0.009092066,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,12,0.009415071,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,13,0.009195164,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,14,0.009285927,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,15,0.009224005,Annealing Triggered
+2,2,0.0,0.0,custom_secant_dynamic,16,0.00923254,Annealing Triggered

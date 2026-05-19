@@ -1,0 +1,2 @@
+seed,D,rho,target_T,num_agents,num_poisoned,passed_agents,selected_agents,final_coalition_ids,final_error,stage1_requests,stage2_requests,stage3_requests,stage3_5_requests,stage4_requests,additional_contribution_requests,additional_query_ratio,filtering_precision,filtering_recall,selected_poison_rate,payment_status,total_budget,minimum_bid_sum,paid_total
+0,2,0.0,0.0,4,0,4,3,"[1, 4]",0.033768189562843,4,0,27,120,14,134,4.962962962962963,0.0,,0.0,ok,10.0,2.52,10.0

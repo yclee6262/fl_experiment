@@ -1,0 +1,4 @@
+seed,D,rho,target_T,num_agents,num_poisoned,passed_agents,selected_agents,final_coalition_ids,final_error,stage1_requests,stage2_requests,stage3_requests,stage3_5_requests,stage4_requests,additional_contribution_requests,additional_query_ratio,filtering_precision,filtering_recall,selected_poison_rate,payment_status,total_budget,minimum_bid_sum,paid_total
+0,2,0.4,0.0,20,8,12,3,"[2, 6, 9]",0.025247778177907465,20,0,249,75,75,150,0.6024096385542169,0.47058823529411764,1.0,0.0,ok,10.0,3.9000000000000004,10.0
+1,2,0.4,0.0,20,8,12,3,"[7, 3, 12]",0.004317217557081615,20,0,333,165,165,330,0.990990990990991,0.47058823529411764,1.0,0.0,ok,10.0,3.9000000000000004,10.0
+2,2,0.4,0.0,20,8,12,3,"[10, 8, 2]",0.022537462489669452,20,0,282,663,663,1326,4.702127659574468,0.47058823529411764,1.0,0.0,ok,10.0,3.58,10.0

@@ -72,10 +72,10 @@ def run_fedavg_baseline(agents, n_features, target_T, global_rounds=15, local_ep
     return current_S, error_history
 
 def main():
-    TARGET_T = 0
+    TARGET_T = 1.1
     NUM_AGENTS = 20      # 擴大參與人數
-    POISON_RATIO = 0.4   # 設定 40% 的人是異質節點
-    N = 2                # 設定是幾元多項式
+    POISON_RATIO = 0   # 設定 40% 的人是異質節點
+    N = 10                # 設定是幾元多項式
     
     print(f"=== Phase 0: 準備資料與訓練本地神經網路 (共 {NUM_AGENTS} 個 Agent) ===")
     # 傳入設定的參數
