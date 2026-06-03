@@ -32,6 +32,23 @@ def parse_int_list(value):
     return [int(item.strip()) for item in value.split(",") if item.strip()]
 
 
+def parse_str_list(value):
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+METHOD_LABELS = {
+    "candidate_mean": "Candidate mean",
+    "best_single_candidate": "Best single candidate",
+    "bfgs": "ZO-BFGS",
+    "secant_only": "Secant only",
+    "dynamic_only": "Dynamic/Tangent only",
+    "secant_with_annealing": "Secant + annealing",
+    "dynamic_with_annealing": "Dynamic/Tangent + annealing",
+    "adaptive_secant_dynamic_annealing": "Adaptive secant/dynamic",
+    "current_dual_engine_bfgs_plus_adaptive": "Current dual engine",
+}
+
+
 def weighted_consensus_loss(server, S_array):
     total_loss = 0.0
     for agent, alpha in zip(server.trusted_agents, server.alphas):
@@ -346,27 +363,52 @@ def write_csv(path, rows, fieldnames):
         writer.writerows(rows)
 
 
-def plot_convergence(output_dir, convergence):
-    by_method = {}
+def aggregate_convergence(convergence, plotted_methods):
+    by_method_seed = {}
     for row in convergence:
+        if row["method"] not in plotted_methods:
+            continue
         key = (row["method"], row["seed"])
-        by_method.setdefault(key, []).append(row)
+        by_method_seed.setdefault(key, []).append(row)
+
+    histories = {}
+    for (method, seed), rows in by_method_seed.items():
+        rows = sorted(rows, key=lambda item: item["iteration"])
+        histories.setdefault(method, {})[seed] = [row["target_error"] for row in rows]
+
+    aggregated = {}
+    for method, seed_histories in histories.items():
+        max_len = max(len(history) for history in seed_histories.values())
+        mean_values = []
+        for index in range(max_len):
+            values = []
+            for history in seed_histories.values():
+                values.append(history[index] if index < len(history) else history[-1])
+            mean_values.append(float(np.mean(values)))
+        aggregated[method] = mean_values
+    return aggregated
+
+
+def plot_convergence(output_dir, convergence, plotted_methods):
+    aggregated = aggregate_convergence(convergence, plotted_methods)
 
     plt.figure(figsize=(11, 6))
-    for (method, seed), rows in by_method.items():
-        rows = sorted(rows, key=lambda item: item["iteration"])
+    for method in plotted_methods:
+        if method not in aggregated:
+            continue
+        values = aggregated[method]
         plt.plot(
-            [row["iteration"] for row in rows],
-            [row["target_error"] for row in rows],
+            range(len(values)),
+            values,
             marker="o",
             linewidth=1.5,
-            label=f"{method} (seed={seed})",
+            label=METHOD_LABELS.get(method, method),
         )
 
     plt.yscale("log")
     plt.xlabel("Iteration")
-    plt.ylabel("Target error |g(S)-T|")
-    plt.title("Stage 3 Optimizer Ablation")
+    plt.ylabel("Mean target error |g(S)-T|")
+    plt.title("Stage 3 Optimizer Ablation (mean across seeds)")
     plt.grid(True, which="both", linestyle="--", alpha=0.4)
     plt.legend(fontsize=8)
     plt.tight_layout()
@@ -476,12 +518,14 @@ def run_ablation_study(args):
 
     write_csv(output_dir / "summary.csv", summary_rows, summary_fields)
     write_csv(output_dir / "convergence.csv", convergence, convergence_fields)
-    plot_convergence(output_dir, convergence)
+    plotted_methods = parse_str_list(args.plot_methods)
+    plot_convergence(output_dir, convergence, plotted_methods)
 
     print(f"\nAblation outputs written to: {output_dir}")
     print(f"- {output_dir / 'summary.csv'}")
     print(f"- {output_dir / 'convergence.csv'}")
     print(f"- {output_dir / 'optimizer_ablation_convergence.png'}")
+    print(f"Plotted methods: {', '.join(plotted_methods)}")
 
 
 def build_parser():
@@ -502,6 +546,17 @@ def build_parser():
     parser.add_argument("--k-red", type=int, default=None)
     parser.add_argument("--iterations", type=int, default=30)
     parser.add_argument("--output-dir", default="ablation_outputs/dual_engine")
+    parser.add_argument(
+        "--plot-methods",
+        default=(
+            "bfgs,"
+            "secant_only,"
+            "dynamic_only,"
+            "secant_with_annealing,"
+            "current_dual_engine_bfgs_plus_adaptive"
+        ),
+        help="Comma-separated methods to include in the convergence plot.",
+    )
     return parser
 
 
