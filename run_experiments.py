@@ -97,7 +97,11 @@ def filtering_metrics(num_agents, poison_ratio, phase1_report):
     num_poisoned = int(num_agents * poison_ratio)
     poisoned_ids = set(range(num_agents - num_poisoned + 1, num_agents + 1))
     selected_ids = {row["agent_id"] for row in phase1_report if row.get("selected")}
-    filtered_ids = set(range(1, num_agents + 1)) - selected_ids
+    filtered_ids = {
+        row["agent_id"]
+        for row in phase1_report
+        if row.get("reason") == "failed_mse_threshold"
+    }
 
     true_poisoned_filtered = len(filtered_ids & poisoned_ids)
     false_benign_filtered = len(filtered_ids - poisoned_ids)
@@ -146,6 +150,7 @@ def run_one_setting(args, seed, n_features, poison_ratio, target):
         n_features=n_features,
         total_budget=args.total_budget,
         test_seed=seed + 7919,
+        n_test=args.current_blind_test_size,
     )
 
     set_counter_stage(counter, "stage1")
@@ -208,6 +213,7 @@ def run_one_setting(args, seed, n_features, poison_ratio, target):
     summary_row = {
         "seed": seed,
         "D": n_features,
+        "n_test": args.current_blind_test_size,
         "rho": poison_ratio,
         "target_T": target,
         "num_agents": args.num_agents,
@@ -235,6 +241,7 @@ def run_one_setting(args, seed, n_features, poison_ratio, target):
     context = {
         "seed": seed,
         "D": n_features,
+        "n_test": args.current_blind_test_size,
         "rho": poison_ratio,
         "target_T": target,
     }
@@ -308,6 +315,7 @@ def main():
     parser.add_argument("--dimensions", default="2", help="Comma-separated D values")
     parser.add_argument("--rhos", default="0.0,0.4", help="Comma-separated poison ratios")
     parser.add_argument("--targets", default="0.0", help="Comma-separated target T values")
+    parser.add_argument("--blind-test-sizes", default="5", help="Comma-separated n_test values")
     parser.add_argument("--num-agents", type=int, default=20)
     parser.add_argument("--samples-per-agent", type=int, default=500)
     parser.add_argument("--epochs", type=int, default=30)
@@ -326,11 +334,12 @@ def main():
     dimensions = parse_number_list(args.dimensions, int)
     rhos = parse_number_list(args.rhos, float)
     targets = parse_number_list(args.targets, float)
+    blind_test_sizes = parse_number_list(args.blind_test_sizes, int)
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     summary_fields = [
-        "seed", "D", "rho", "target_T", "num_agents", "num_poisoned",
+        "seed", "D", "n_test", "rho", "target_T", "num_agents", "num_poisoned",
         "passed_agents", "selected_agents", "final_coalition_ids",
         "final_error", "stage1_requests", "stage2_requests",
         "stage3_requests", "stage3_5_requests", "stage4_requests",
@@ -339,40 +348,42 @@ def main():
         "payment_status", "total_budget", "minimum_bid_sum", "paid_total",
     ]
     stage1_fields = [
-        "seed", "D", "rho", "target_T", "agent_id", "is_poisoned",
+        "seed", "D", "n_test", "rho", "target_T", "agent_id", "is_poisoned",
         "mse", "bid", "alpha_pre", "cost_performance", "diversity",
         "selection_score", "selected", "reason",
     ]
     pruning_fields = [
-        "seed", "D", "rho", "target_T", "round", "coalition_ids",
+        "seed", "D", "n_test", "rho", "target_T", "round", "coalition_ids",
         "base_loss", "removed_agent_id", "status",
     ]
     payment_fields = [
-        "seed", "D", "rho", "target_T", "agent_id", "alpha", "bid",
+        "seed", "D", "n_test", "rho", "target_T", "agent_id", "alpha", "bid",
         "marginal_contribution", "positive_contribution", "alpha_share",
         "contribution_share", "profit_share", "payment",
     ]
     convergence_fields = [
-        "seed", "D", "rho", "target_T", "method", "iteration",
+        "seed", "D", "n_test", "rho", "target_T", "method", "iteration",
         "target_error", "state",
     ]
 
     for seed in seeds:
         for n_features in dimensions:
-            for rho in rhos:
-                for target in targets:
-                    print(
-                        f"\n=== Experiment seed={seed}, D={n_features}, "
-                        f"rho={rho}, T={target} ==="
-                    )
-                    rows = run_one_setting(args, seed, n_features, rho, target)
-                    summary_row, stage1_rows, pruning_rows, payment_rows, convergence_rows = rows
+            for n_test in blind_test_sizes:
+                args.current_blind_test_size = n_test
+                for rho in rhos:
+                    for target in targets:
+                        print(
+                            f"\n=== Experiment seed={seed}, D={n_features}, "
+                            f"n_test={n_test}, rho={rho}, T={target} ==="
+                        )
+                        rows = run_one_setting(args, seed, n_features, rho, target)
+                        summary_row, stage1_rows, pruning_rows, payment_rows, convergence_rows = rows
 
-                    write_rows(output_dir / "summary.csv", [summary_row], summary_fields)
-                    write_rows(output_dir / "stage1_agents.csv", stage1_rows, stage1_fields)
-                    write_rows(output_dir / "pruning.csv", pruning_rows, pruning_fields)
-                    write_rows(output_dir / "payments.csv", payment_rows, payment_fields)
-                    write_rows(output_dir / "convergence.csv", convergence_rows, convergence_fields)
+                        write_rows(output_dir / "summary.csv", [summary_row], summary_fields)
+                        write_rows(output_dir / "stage1_agents.csv", stage1_rows, stage1_fields)
+                        write_rows(output_dir / "pruning.csv", pruning_rows, pruning_fields)
+                        write_rows(output_dir / "payments.csv", payment_rows, payment_fields)
+                        write_rows(output_dir / "convergence.csv", convergence_rows, convergence_fields)
 
     print(f"\nDone. CSV outputs written to: {output_dir.resolve()}")
 

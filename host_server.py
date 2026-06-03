@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import minimize
 
 class HostServer:
-    def __init__(self, target_T, n_features, total_budget=10.0, test_seed=42):
+    def __init__(self, target_T, n_features, total_budget=10.0, test_seed=42, n_test=5):
         self.target_T = target_T
         self.n_features = n_features
         self.total_budget = float(total_budget)
@@ -11,9 +11,10 @@ class HostServer:
         self.I_list = []
         self.phase1_report = []
         self.phase4_report = []
+        self.n_test = int(n_test)
 
         np.random.seed(test_seed)
-        self.test_X = np.random.uniform(-1, 1, (5, self.n_features)) 
+        self.test_X = np.random.uniform(-1, 1, (self.n_test, self.n_features)) 
         
         # ⭐ 3. 同步生成對應的標準答案 test_y
         self.test_y = np.sum(self.test_X, axis=1)

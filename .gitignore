@@ -4,5 +4,12 @@
 /experiment_results
 /saved_results
 /result_pl
+/results_plots
+/ablation_outputs
+/experiment_outputs
+/experiment_outputs_*
+/李彥澂_Proposal/
+
+*.csv
 
 .DS_Store
