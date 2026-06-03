@@ -53,9 +53,10 @@ STATE_STYLES = {
     "start": ("Start", "#6b7280", "o"),
     "bfgs": ("ZO-BFGS", "#1f77b4", "s"),
     "secant": ("Secant", "#ff7f0e", "o"),
-    "annealed": ("Annealing accepted", "#d62728", "^"),
+    "secant_annealed": ("Secant + annealing", "#d62728", "^"),
     "switch": ("Switch to dynamic", "#9467bd", "D"),
     "dynamic": ("Dynamic/Tangent", "#2ca02c", "*"),
+    "dynamic_annealed": ("Dynamic/Tangent + annealing", "#16a34a", "P"),
     "stopped": ("Stopped", "#111827", "x"),
 }
 
@@ -212,6 +213,8 @@ def run_directional_optimizer(
                     success = True
                     if attempt > 0:
                         state_this_iter = f"{current_method}_annealed"
+                    else:
+                        state_this_iter = current_method
                     eta = min(0.5, current_eta * 1.5)
                     break
                 current_eta *= 0.5
@@ -435,8 +438,10 @@ def state_category(raw_state):
         return "bfgs"
     if "switch" in state:
         return "switch"
-    if "anneal" in state:
-        return "annealed"
+    if "dynamic" in state and "anneal" in state:
+        return "dynamic_annealed"
+    if "secant" in state and "anneal" in state:
+        return "secant_annealed"
     if "dynamic" in state:
         return "dynamic"
     if "secant" in state:
