@@ -49,6 +49,17 @@ METHOD_LABELS = {
 }
 
 
+STATE_STYLES = {
+    "start": ("Start", "#6b7280", "o"),
+    "bfgs": ("ZO-BFGS selected", "#1f77b4", "s"),
+    "secant": ("Secant", "#ff7f0e", "o"),
+    "annealed": ("Annealing accepted", "#d62728", "^"),
+    "switch": ("Switch to dynamic", "#9467bd", "D"),
+    "dynamic": ("Dynamic/Tangent", "#2ca02c", "*"),
+    "stopped": ("Stopped", "#111827", "x"),
+}
+
+
 def weighted_consensus_loss(server, S_array):
     total_loss = 0.0
     for agent, alpha in zip(server.trusted_agents, server.alphas):
@@ -416,6 +427,75 @@ def plot_convergence(output_dir, convergence, plotted_methods):
     plt.close()
 
 
+def state_category(raw_state):
+    state = str(raw_state).lower()
+    if "start" in state:
+        return "start"
+    if "bfgs" in state:
+        return "bfgs"
+    if "switch" in state:
+        return "switch"
+    if "anneal" in state:
+        return "annealed"
+    if "dynamic" in state:
+        return "dynamic"
+    if "secant" in state:
+        return "secant"
+    if "stop" in state or "zero_gradient" in state:
+        return "stopped"
+    return "stopped"
+
+
+def plot_current_dual_state_transition(output_dir, convergence, seed):
+    method = "current_dual_engine_bfgs_plus_adaptive"
+    rows = [
+        row for row in convergence
+        if row["method"] == method and row["seed"] == seed
+    ]
+    if not rows:
+        rows = [row for row in convergence if row["method"] == method]
+    if not rows:
+        return
+
+    rows = sorted(rows, key=lambda item: (item["seed"], item["iteration"]))
+    selected_seed = rows[0]["seed"]
+    rows = [row for row in rows if row["seed"] == selected_seed]
+
+    iterations = [row["iteration"] for row in rows]
+    errors = [row["target_error"] for row in rows]
+
+    plt.figure(figsize=(10, 5.8))
+    plt.plot(iterations, errors, color="#4b5563", linewidth=1.4, alpha=0.75)
+
+    used_labels = set()
+    for row in rows:
+        category = state_category(row["state"])
+        label, color, marker = STATE_STYLES[category]
+        legend_label = label if label not in used_labels else None
+        used_labels.add(label)
+        plt.scatter(
+            row["iteration"],
+            row["target_error"],
+            color=color,
+            marker=marker,
+            s=90 if marker != "*" else 140,
+            edgecolors="white" if marker not in {"x", "*"} else color,
+            linewidths=0.8,
+            label=legend_label,
+            zorder=3,
+        )
+
+    plt.yscale("log")
+    plt.xlabel("Iteration")
+    plt.ylabel("Target error |g(S)-T|")
+    plt.title(f"Current Dual Engine State Transition (seed={selected_seed})")
+    plt.grid(True, which="both", linestyle="--", alpha=0.35)
+    plt.legend(fontsize=8)
+    plt.tight_layout()
+    plt.savefig(output_dir / "current_dual_engine_state_transition.png", dpi=300)
+    plt.close()
+
+
 def run_ablation_study(args):
     output_dir = Path(args.output_dir)
     summary_rows = []
@@ -520,11 +600,14 @@ def run_ablation_study(args):
     write_csv(output_dir / "convergence.csv", convergence, convergence_fields)
     plotted_methods = parse_str_list(args.plot_methods)
     plot_convergence(output_dir, convergence, plotted_methods)
+    state_plot_seed = parse_int_list(args.seeds)[0] if args.state_plot_seed is None else args.state_plot_seed
+    plot_current_dual_state_transition(output_dir, convergence, state_plot_seed)
 
     print(f"\nAblation outputs written to: {output_dir}")
     print(f"- {output_dir / 'summary.csv'}")
     print(f"- {output_dir / 'convergence.csv'}")
     print(f"- {output_dir / 'optimizer_ablation_convergence.png'}")
+    print(f"- {output_dir / 'current_dual_engine_state_transition.png'}")
     print(f"Plotted methods: {', '.join(plotted_methods)}")
 
 
@@ -546,6 +629,12 @@ def build_parser():
     parser.add_argument("--k-red", type=int, default=None)
     parser.add_argument("--iterations", type=int, default=30)
     parser.add_argument("--output-dir", default="ablation_outputs/dual_engine")
+    parser.add_argument(
+        "--state-plot-seed",
+        type=int,
+        default=None,
+        help="Seed to visualize for the current dual-engine state transition plot.",
+    )
     parser.add_argument(
         "--plot-methods",
         default=(
