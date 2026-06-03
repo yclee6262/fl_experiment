@@ -51,7 +51,7 @@ METHOD_LABELS = {
 
 STATE_STYLES = {
     "start": ("Start", "#6b7280", "o"),
-    "bfgs": ("ZO-BFGS selected", "#1f77b4", "s"),
+    "bfgs": ("ZO-BFGS", "#1f77b4", "s"),
     "secant": ("Secant", "#ff7f0e", "o"),
     "annealed": ("Annealing accepted", "#d62728", "^"),
     "switch": ("Switch to dynamic", "#9467bd", "D"),
@@ -446,8 +446,8 @@ def state_category(raw_state):
     return "stopped"
 
 
-def plot_current_dual_state_transition(output_dir, convergence, seed):
-    method = "current_dual_engine_bfgs_plus_adaptive"
+def plot_adaptive_engine_state_transition(output_dir, convergence, seed):
+    method = "adaptive_secant_dynamic_annealing"
     rows = [
         row for row in convergence
         if row["method"] == method and row["seed"] == seed
@@ -488,11 +488,11 @@ def plot_current_dual_state_transition(output_dir, convergence, seed):
     plt.yscale("log")
     plt.xlabel("Iteration")
     plt.ylabel("Target error |g(S)-T|")
-    plt.title(f"Current Dual Engine State Transition (seed={selected_seed})")
+    plt.title(f"Adaptive Secant/Dynamic Engine State Transition (seed={selected_seed})")
     plt.grid(True, which="both", linestyle="--", alpha=0.35)
     plt.legend(fontsize=8)
     plt.tight_layout()
-    plt.savefig(output_dir / "current_dual_engine_state_transition.png", dpi=300)
+    plt.savefig(output_dir / "adaptive_engine_state_transition.png", dpi=300)
     plt.close()
 
 
@@ -601,13 +601,13 @@ def run_ablation_study(args):
     plotted_methods = parse_str_list(args.plot_methods)
     plot_convergence(output_dir, convergence, plotted_methods)
     state_plot_seed = parse_int_list(args.seeds)[0] if args.state_plot_seed is None else args.state_plot_seed
-    plot_current_dual_state_transition(output_dir, convergence, state_plot_seed)
+    plot_adaptive_engine_state_transition(output_dir, convergence, state_plot_seed)
 
     print(f"\nAblation outputs written to: {output_dir}")
     print(f"- {output_dir / 'summary.csv'}")
     print(f"- {output_dir / 'convergence.csv'}")
     print(f"- {output_dir / 'optimizer_ablation_convergence.png'}")
-    print(f"- {output_dir / 'current_dual_engine_state_transition.png'}")
+    print(f"- {output_dir / 'adaptive_engine_state_transition.png'}")
     print(f"Plotted methods: {', '.join(plotted_methods)}")
 
 
@@ -633,7 +633,7 @@ def build_parser():
         "--state-plot-seed",
         type=int,
         default=None,
-        help="Seed to visualize for the current dual-engine state transition plot.",
+        help="Seed to visualize for the adaptive secant/dynamic engine state transition plot.",
     )
     parser.add_argument(
         "--plot-methods",
