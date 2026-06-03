@@ -72,9 +72,9 @@ def run_fedavg_baseline(agents, n_features, target_T, global_rounds=15, local_ep
     return current_S, error_history
 
 def main():
-    TARGET_T = 1.1
+    TARGET_T = 0
     NUM_AGENTS = 20      # 擴大參與人數
-    POISON_RATIO = 0   # 設定 40% 的人是異質節點
+    POISON_RATIO = 0.3   # 設定 40% 的人是異質節點
     N = 10                # 設定是幾元多項式
     
     print(f"=== Phase 0: 準備資料與訓練本地神經網路 (共 {NUM_AGENTS} 個 Agent) ===")
@@ -211,7 +211,7 @@ def main():
     plt.legend(fontsize=12, loc='upper right', framealpha=0.9)
     
     # 儲存圖片
-    save_path = f"results_plots/fl_inversion_test_comparison_N{N}_T{TARGET_T}.png"
+    save_path = f"results_plots/fl_inversion_test_comparison_N{N}_T{TARGET_T}_rho{POISON_RATIO}.png"
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
     
     print(f"=== 🎉 實驗對比圖已儲存至：{save_path} ===")

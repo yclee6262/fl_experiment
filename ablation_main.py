@@ -614,10 +614,10 @@ def run_ablation_study(args):
 def build_parser():
     parser = argparse.ArgumentParser(description="Stage 3 dual-engine optimizer ablation.")
     parser.add_argument("--seeds", default="0,1,2")
-    parser.add_argument("--target", type=float, default=1.5)
+    parser.add_argument("--target", type=float, default=0)
     parser.add_argument("--num-agents", type=int, default=20)
     parser.add_argument("--poison-ratio", type=float, default=0.4)
-    parser.add_argument("--n-features", type=int, default=10)
+    parser.add_argument("--n-features", type=int, default=5)
     parser.add_argument("--samples-per-agent", type=int, default=500)
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--n-test", type=int, default=5)
