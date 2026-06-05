@@ -321,6 +321,12 @@ def build_server(args, seed):
         diversity_eta=args.diversity_eta,
         k_api=args.k_api,
         k_red=args.k_red,
+        enable_inverse_check=not args.disable_inverse_check,
+        inverse_target=args.inverse_target,
+        inverse_loss_threshold=args.inverse_loss_threshold,
+        inverse_steps=args.inverse_steps,
+        feasible_lower=args.feasible_lower,
+        feasible_upper=args.feasible_upper,
     )
     server.phase2_collect_proposals()
     return server
@@ -628,6 +634,16 @@ def build_parser():
     parser.add_argument("--n-test", type=int, default=5)
     parser.add_argument("--total-budget", type=float, default=10.0)
     parser.add_argument("--mse-threshold", type=float, default=0.1)
+    parser.add_argument("--inverse-target", type=float, default=0.0)
+    parser.add_argument("--inverse-loss-threshold", type=float, default=0.1)
+    parser.add_argument("--inverse-steps", type=int, default=500)
+    parser.add_argument("--feasible-lower", type=float, default=-1.0)
+    parser.add_argument("--feasible-upper", type=float, default=1.0)
+    parser.add_argument(
+        "--disable-inverse-check",
+        action="store_true",
+        help="Disable Stage 0 inverse-feasibility checking for ablation.",
+    )
     parser.add_argument("--budget-fraction", type=float, default=0.8)
     parser.add_argument("--diversity-eta", type=float, default=0.5)
     parser.add_argument("--k-api", type=int, default=None)

@@ -44,8 +44,14 @@ class HostServer:
         min_selection_score=0.0,
         k_api=None,
         k_red=None,
+        enable_inverse_check=True,
+        inverse_target=0.0,
+        inverse_loss_threshold=0.1,
+        inverse_steps=500,
+        feasible_lower=-1.0,
+        feasible_upper=1.0,
     ):
-        """Stage 1: blind-test, bid-aware, diversity-aware coalition selection."""
+        """Stage 0 qualification plus Stage 1 bid-aware coalition selection."""
         print("\n--- Phase 1: 盲測信任評估與投標式節點選擇 ---")
         self.trusted_agents = []
         self.alphas = []
@@ -73,6 +79,8 @@ class HostServer:
                     "diversity": 0.0,
                     "selection_score": 0.0,
                     "selected": False,
+                    "inverse_loss": "",
+                    "inverse_feasible": "",
                 }
                 qualified_reports.append(report)
                 print(f"Agent {agent.agent_id} 通過盲測 (MSE: {mse:.4f}, bid: {bid:.3f})")
@@ -81,6 +89,8 @@ class HostServer:
                     "agent_id": agent.agent_id,
                     "mse": float(mse),
                     "bid": float(bid),
+                    "inverse_loss": "",
+                    "inverse_feasible": "",
                     "selected": False,
                     "reason": "failed_mse_threshold",
                 })
@@ -88,6 +98,48 @@ class HostServer:
 
         if not qualified_reports:
             raise ValueError("No agents passed Stage 1 blind-test filtering.")
+
+        blind_test_passed_count = len(qualified_reports)
+        if enable_inverse_check:
+            inverse_qualified_reports = []
+            for report in qualified_reports:
+                agent = report["agent"]
+                candidate = agent.infer_parameters_D(inverse_target, steps=inverse_steps)
+                candidate = np.asarray(candidate, dtype=float)
+                feasible = bool(
+                    np.all(candidate >= feasible_lower)
+                    and np.all(candidate <= feasible_upper)
+                )
+                pred = agent.api_predict(candidate)[0]
+                inverse_loss = float(abs(pred - inverse_target))
+
+                report["inverse_loss"] = inverse_loss
+                report["inverse_feasible"] = feasible
+
+                if feasible and inverse_loss <= inverse_loss_threshold:
+                    inverse_qualified_reports.append(report)
+                    print(
+                        f"Agent {agent.agent_id} 通過反推能力檢查 "
+                        f"(T_qual={inverse_target:.4f}, inv_loss={inverse_loss:.4f})"
+                    )
+                else:
+                    self.phase1_report.append({
+                        "agent_id": report["agent_id"],
+                        "mse": report["mse"],
+                        "bid": report["bid"],
+                        "inverse_loss": inverse_loss,
+                        "inverse_feasible": feasible,
+                        "selected": False,
+                        "reason": "failed_inverse_feasibility",
+                    })
+                    print(
+                        f"Agent {agent.agent_id} 被剔除：反推能力檢查未通過 "
+                        f"(feasible={feasible}, inv_loss={inverse_loss:.4f})"
+                    )
+
+            qualified_reports = inverse_qualified_reports
+            if not qualified_reports:
+                raise ValueError("No agents passed Stage 0 inverse-feasibility checking.")
 
         total_raw_score = sum(report["raw_score"] for report in qualified_reports)
         for report in qualified_reports:
@@ -152,6 +204,8 @@ class HostServer:
                 "agent_id": report["agent_id"],
                 "mse": report["mse"],
                 "bid": report["bid"],
+                "inverse_loss": report["inverse_loss"],
+                "inverse_feasible": report["inverse_feasible"],
                 "alpha_pre": report["alpha_pre"],
                 "cost_performance": report["cost_performance"],
                 "diversity": report["diversity"],
@@ -162,7 +216,9 @@ class HostServer:
 
         print(
             f"Stage 1 完成：從 {len(all_agents)} 個 Agent 中，"
-            f"{len(qualified_reports)} 個通過盲測，最終選入 K={len(self.trusted_agents)} 個。"
+            f"{blind_test_passed_count} 個通過盲測，"
+            f"{len(qualified_reports)} 個通過完整 Stage 0，"
+            f"最終選入 K={len(self.trusted_agents)} 個。"
         )
 
     def _agent_bid(self, agent):
@@ -434,10 +490,12 @@ class HostServer:
         payment_reports = []
         for report in active_reports:
             alpha_share = report["alpha"] / alpha_sum if alpha_sum > 0 else 0.0
-            contribution_share = (
-                report["positive_contribution"] / contribution_sum
-                if contribution_sum > 0 else 0.0
-            )
+            if len(active_reports) == 1:
+                contribution_share = 1.0
+            elif np.isfinite(contribution_sum) and contribution_sum > 0:
+                contribution_share = report["positive_contribution"] / contribution_sum
+            else:
+                contribution_share = 0.0
             profit_share = omega_trust * alpha_share + omega_contribution * contribution_share
             payment = report["bid"] + profit_share * surplus
 

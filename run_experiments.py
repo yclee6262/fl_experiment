@@ -100,7 +100,7 @@ def filtering_metrics(num_agents, poison_ratio, phase1_report):
     filtered_ids = {
         row["agent_id"]
         for row in phase1_report
-        if row.get("reason") == "failed_mse_threshold"
+        if row.get("reason") in {"failed_mse_threshold", "failed_inverse_feasibility"}
     }
 
     true_poisoned_filtered = len(filtered_ids & poisoned_ids)
@@ -162,6 +162,12 @@ def run_one_setting(args, seed, n_features, poison_ratio, target):
         min_selection_score=args.min_selection_score,
         k_api=args.k_api,
         k_red=args.k_red,
+        enable_inverse_check=not args.disable_inverse_check,
+        inverse_target=args.inverse_target,
+        inverse_loss_threshold=args.inverse_loss_threshold,
+        inverse_steps=args.inverse_steps,
+        feasible_lower=args.feasible_lower,
+        feasible_upper=args.feasible_upper,
     )
 
     set_counter_stage(counter, "stage2")
@@ -218,7 +224,10 @@ def run_one_setting(args, seed, n_features, poison_ratio, target):
         "target_T": target,
         "num_agents": args.num_agents,
         "num_poisoned": metrics["num_poisoned"],
-        "passed_agents": sum(1 for row in server.phase1_report if row.get("reason") != "failed_mse_threshold"),
+        "passed_agents": sum(
+            1 for row in server.phase1_report
+            if row.get("reason") in {"selected", "not_selected_by_coalition_rule"}
+        ),
         "selected_agents": len(metrics["selected_ids"]),
         "final_coalition_ids": json.dumps(pruning_report["final_coalition_ids"]),
         "final_error": final_error,
@@ -255,6 +264,8 @@ def run_one_setting(args, seed, n_features, poison_ratio, target):
             "is_poisoned": row["agent_id"] in poisoned_ids,
             "mse": row.get("mse", ""),
             "bid": row.get("bid", ""),
+            "inverse_loss": row.get("inverse_loss", ""),
+            "inverse_feasible": row.get("inverse_feasible", ""),
             "alpha_pre": row.get("alpha_pre", ""),
             "cost_performance": row.get("cost_performance", ""),
             "diversity": row.get("diversity", ""),
@@ -322,6 +333,16 @@ def main():
     parser.add_argument("--custom-iterations", type=int, default=30)
     parser.add_argument("--total-budget", type=float, default=10.0)
     parser.add_argument("--mse-threshold", type=float, default=0.1)
+    parser.add_argument("--inverse-target", type=float, default=0.0)
+    parser.add_argument("--inverse-loss-threshold", type=float, default=0.1)
+    parser.add_argument("--inverse-steps", type=int, default=500)
+    parser.add_argument("--feasible-lower", type=float, default=-1.0)
+    parser.add_argument("--feasible-upper", type=float, default=1.0)
+    parser.add_argument(
+        "--disable-inverse-check",
+        action="store_true",
+        help="Disable Stage 0 inverse-feasibility checking for ablation.",
+    )
     parser.add_argument("--budget-fraction", type=float, default=0.8)
     parser.add_argument("--diversity-eta", type=float, default=0.5)
     parser.add_argument("--min-selection-score", type=float, default=0.0)
@@ -349,8 +370,8 @@ def main():
     ]
     stage1_fields = [
         "seed", "D", "n_test", "rho", "target_T", "agent_id", "is_poisoned",
-        "mse", "bid", "alpha_pre", "cost_performance", "diversity",
-        "selection_score", "selected", "reason",
+        "mse", "bid", "inverse_loss", "inverse_feasible", "alpha_pre",
+        "cost_performance", "diversity", "selection_score", "selected", "reason",
     ]
     pruning_fields = [
         "seed", "D", "n_test", "rho", "target_T", "round", "coalition_ids",
