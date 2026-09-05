@@ -226,13 +226,62 @@ class HostServer:
 
     def _weighted_consensus_loss(self, S_array, agents=None, alphas=None):
         """Evaluate the Stage 3/4 consensus loss at a candidate decision vector."""
+        return self._consensus_loss(
+            S_array,
+            agents=agents,
+            mode="fixed" if alphas is not None else "optimization",
+            weights=alphas,
+        )
+
+    def _consensus_loss(
+        self,
+        S_array,
+        agents=None,
+        mode="optimization",
+        weights=None,
+        trim_fraction=0.2,
+    ):
+        """Evaluate a consensus loss without conflating optimization and evaluation weights.
+
+        ``optimization`` preserves the existing behavior and uses ``self.alphas``.
+        ``fixed`` uses explicitly supplied weights. ``uniform``, ``median``, and
+        ``trimmed`` are alpha-independent evaluators for contribution experiments.
+        """
         agents = self.trusted_agents if agents is None else agents
-        alphas = self.alphas if alphas is None else alphas
-        total_loss = 0.0
-        for agent, alpha in zip(agents, alphas):
-            pred = agent.api_predict(S_array)[0]
-            total_loss += alpha * abs(pred - self.target_T)
-        return float(total_loss)
+        if not agents:
+            raise ValueError("Consensus loss requires at least one agent.")
+
+        losses = np.asarray(
+            [abs(agent.api_predict(S_array)[0] - self.target_T) for agent in agents],
+            dtype=float,
+        )
+
+        if mode in {"optimization", "fixed"}:
+            selected_weights = self.alphas if mode == "optimization" else weights
+            if selected_weights is None or len(selected_weights) != len(agents):
+                raise ValueError("Consensus weights must match the number of agents.")
+            selected_weights = np.asarray(selected_weights, dtype=float)
+            total = float(np.sum(selected_weights))
+            if total <= 0 or not np.isfinite(total):
+                raise ValueError("Consensus weights must have a finite positive sum.")
+            return float(np.dot(selected_weights / total, losses))
+
+        if mode == "uniform":
+            return float(np.mean(losses))
+        if mode == "median":
+            return float(np.median(losses))
+        if mode == "trimmed":
+            if not 0.0 <= trim_fraction < 0.5:
+                raise ValueError("trim_fraction must be in [0, 0.5).")
+            trim_count = int(np.floor(len(losses) * trim_fraction))
+            ordered = np.sort(losses)
+            if trim_count:
+                ordered = ordered[trim_count:-trim_count]
+            return float(np.mean(ordered))
+
+        raise ValueError(
+            "mode must be one of: optimization, fixed, uniform, median, trimmed."
+        )
 
     def phase2_collect_proposals(self):
         """請合格 Agent 利用虛設層反推初步參數"""
@@ -277,11 +326,23 @@ class HostServer:
         
         return final_S, error_history
 
-    def _compute_exclusion_reports(self, final_S, verbose=True):
+    def _compute_exclusion_reports(
+        self,
+        final_S,
+        verbose=True,
+        evaluation_mode="optimization",
+        evaluation_weights=None,
+        trim_fraction=0.2,
+    ):
         """Compute C_i by virtually excluding each currently trusted agent."""
         I_matrix = np.array(self.I_list)
         n_agents = len(self.trusted_agents)
-        base_loss = self._weighted_consensus_loss(final_S)
+        base_loss = self._consensus_loss(
+            final_S,
+            mode=evaluation_mode,
+            weights=evaluation_weights,
+            trim_fraction=trim_fraction,
+        )
         exclusion_reports = []
 
         for excluded_idx, excluded_agent in enumerate(self.trusted_agents):
@@ -297,12 +358,22 @@ class HostServer:
                     S_candidate = np.dot(betas, restricted_I)
                     # Keep evaluation on the full selected coalition so every C_i
                     # is compared against the same global consensus objective.
-                    return self._weighted_consensus_loss(S_candidate)
+                    return self._consensus_loss(
+                        S_candidate,
+                        mode=evaluation_mode,
+                        weights=evaluation_weights,
+                        trim_fraction=trim_fraction,
+                    )
 
                 initial_betas = np.ones(len(remaining_indices)) / len(remaining_indices)
                 result = minimize(restricted_loss_function, initial_betas, method="BFGS")
                 restricted_S = np.dot(result.x, restricted_I)
-                restricted_loss = self._weighted_consensus_loss(restricted_S)
+                restricted_loss = self._consensus_loss(
+                    restricted_S,
+                    mode=evaluation_mode,
+                    weights=evaluation_weights,
+                    trim_fraction=trim_fraction,
+                )
 
             marginal_contribution = restricted_loss - base_loss
             positive_contribution = max(float(marginal_contribution), 0.0)
