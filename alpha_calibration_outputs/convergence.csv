@@ -1,0 +1,28 @@
+iteration,target_error,state
+0,0.30505013,Start
+1,0.2724399,secant
+2,0.2073457,secant
+3,0.085204124,secant
+4,0.07792091,secant
+5,0.0533306,secant
+6,0.0533306,secant
+7,0.004868269,Annealing Triggered
+8,0.024426222,Annealing Triggered
+9,0.014938295,Annealing Triggered
+10,0.0060778856,Annealing Triggered
+11,0.005382061,Annealing Triggered
+12,0.00063967705,Annealing Triggered
+13,0.0062716007,Annealing Triggered
+14,0.0016461015,Annealing Triggered
+15,0.002616942,Annealing Triggered
+16,0.0016598701,dynamic
+17,0.0027526617,Annealing Triggered
+18,0.0016770959,dynamic
+19,0.001984775,Annealing Triggered
+20,0.0016829967,dynamic
+21,0.001856029,Annealing Triggered
+22,0.001686573,dynamic
+23,0.0018811226,Annealing Triggered
+24,0.0016900301,dynamic
+25,0.0017446876,Annealing Triggered
+26,0.0017092228,dynamic
