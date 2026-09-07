@@ -4,6 +4,7 @@ import numpy as np
 
 from alpha_weight_experiments import (
     contribution_distribution,
+    configure_controlled_coalition,
     initialize_optimization_weights,
     settle_with_separated_weights,
 )
@@ -21,6 +22,15 @@ class FakeAgent:
 
     def get_minimum_bid(self):
         return self.bid
+
+    def infer_parameters_D(self, _target, steps=500):
+        return np.zeros(1)
+
+
+class ControlledFakeAgent(FakeAgent):
+    def api_predict(self, X):
+        X = np.asarray(X)
+        return np.zeros(len(X) if X.ndim > 1 else 1)
 
 
 class AlphaWeightExperimentTests(unittest.TestCase):
@@ -90,6 +100,21 @@ class AlphaWeightExperimentTests(unittest.TestCase):
         self.assertAlmostEqual(rows[0]["surplus_share"], 0.5)
         self.assertAlmostEqual(rows[1]["surplus_share"], 0.5)
         self.assertNotEqual(rows[0]["optimization_weight"], rows[0]["surplus_share"])
+
+    def test_controlled_coalition_forces_poisoned_agent(self):
+        server = HostServer(target_T=0.0, n_features=1, n_test=2)
+        agents = [ControlledFakeAgent(agent_id, 0.0) for agent_id in range(1, 6)]
+        server.all_agents = agents
+        server.trusted_agents = [agents[0], agents[1]]
+        configure_controlled_coalition(
+            server,
+            poisoned_ids={4, 5},
+            coalition_size=3,
+            poison_count=1,
+        )
+        self.assertEqual([agent.agent_id for agent in server.trusted_agents], [4, 1, 2])
+        self.assertEqual(sum(agent.agent_id in {4, 5} for agent in server.trusted_agents), 1)
+        self.assertEqual(len(server.I_list), 3)
 
 
 if __name__ == "__main__":
