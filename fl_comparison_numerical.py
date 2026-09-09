@@ -158,7 +158,7 @@ def main():
     fedavg_errors = run_traditional_fl_baseline(dataloaders, aggregator="fedavg")
     krum_errors = run_traditional_fl_baseline(dataloaders, aggregator="krum")
     
-    # 3. 執行您的法五 (Ours: Subspace + BFGS)
+    # 3. 執行您的法五 (Ours: Subspace + best_of)
     print("\n🚀 啟動原創演算法 [Ours: Federated Subspace + Black-Box Optimization] ...")
     
     # (此處為模擬：在實務中，您的 Agent 已經各自 pre-train 好了)
@@ -181,7 +181,7 @@ def main():
     # Phase 1, 2, 3
     server.phase1_filter_agents(agents)
     server.phase2_collect_proposals()
-    final_S_ours = server.phase3_global_optimization() # 使用 BFGS 引擎
+    final_S_ours, _, _ = server.phase3_best_of_optimization(custom_iterations=30)
     
     ours_error = evaluate_S_with_ground_truth(final_S_ours)
     print(f"\n🎯 [Ours] 僅需 1 次通訊回合，最終 Absolute Error: {ours_error:.4f}")

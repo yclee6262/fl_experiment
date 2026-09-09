@@ -174,17 +174,15 @@ def run_one_setting(args, seed, n_features, poison_ratio, target):
     server.phase2_collect_proposals()
 
     set_counter_stage(counter, "stage3")
-    final_S, hist_custom, states_custom = server.phase3_custom_secant_optimization(
-        num_iterations=args.custom_iterations,
-        use_annealing=True,
-        allow_tangent=True,
+    final_S, hist_custom, states_custom = server.phase3_best_of_optimization(
+        custom_iterations=args.custom_iterations,
     )
 
     set_counter_stage(counter, "stage3_5")
     pruning_report = server.prune_negative_contributors(
         final_S,
         epsilon=args.pruning_epsilon,
-        optimizer="custom",
+        optimizer="best_of",
         custom_iterations=args.custom_iterations,
     )
     final_S = pruning_report["final_solution"]

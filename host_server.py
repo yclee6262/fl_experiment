@@ -291,40 +291,233 @@ class HostServer:
             self.I_list.append(I_i)
             print(f"Agent {agent.agent_id} 提議參數: {I_i}")
 
+    def _true_target_error(self, S_array):
+        """Synthetic ground-truth metric used only for experiment histories."""
+        y_value = np.sum(S_array)
+        if len(S_array) > 1:
+            y_value += np.sum(S_array[:-1] * S_array[1:])
+        return float(abs(y_value - self.target_T))
+
+    def _solve_subspace_bfgs(self, candidates, objective, history_metric=None):
+        candidates = np.asarray(candidates, dtype=float)
+        history = []
+
+        def beta_objective(betas):
+            return objective(np.dot(betas, candidates))
+
+        def callback(betas):
+            solution = np.dot(betas, candidates)
+            history.append(float((history_metric or objective)(solution)))
+
+        initial_betas = np.ones(len(candidates), dtype=float) / len(candidates)
+        result = minimize(beta_objective, initial_betas, method="BFGS", callback=callback)
+        solution = np.dot(result.x, candidates)
+        loss = float(objective(solution))
+        if not history:
+            history.append(float((history_metric or objective)(solution)))
+        return {
+            "solution": solution,
+            "loss": loss,
+            "history": history,
+            "states": ["bfgs"] * len(history),
+            "success": bool(result.success),
+            "message": str(result.message),
+        }
+
+    def _solve_subspace_custom(
+        self,
+        candidates,
+        objective,
+        num_iterations=50,
+        use_annealing=True,
+        allow_tangent=True,
+        direction_weights=None,
+        history_metric=None,
+        verbose=False,
+    ):
+        """Run the secant/tangent engine against an arbitrary subspace objective."""
+        candidates = np.asarray(candidates, dtype=float)
+        n_candidates = len(candidates)
+        S_current = np.mean(candidates, axis=0)
+        if direction_weights is None:
+            direction_weights = np.ones(n_candidates, dtype=float) / n_candidates
+        else:
+            direction_weights = np.asarray(direction_weights, dtype=float)
+            direction_weights = direction_weights / np.sum(direction_weights)
+
+        metric = history_metric or objective
+        history = [float(metric(S_current))]
+        states = ["Start"]
+        anchor_losses = [float(objective(candidate)) for candidate in candidates]
+        best_loss = float(objective(S_current))
+        global_best_S = S_current.copy()
+        global_best_loss = best_loss
+        eta = 0.1
+        current_method = "secant"
+        delta = 0.0001
+
+        for iteration in range(num_iterations):
+            gradient = np.zeros_like(S_current)
+            for index, anchor in enumerate(candidates):
+                direction = anchor - S_current
+                distance = np.linalg.norm(direction)
+                if distance < 1e-8:
+                    continue
+                unit_direction = direction / distance
+                if current_method == "secant":
+                    derivative = (anchor_losses[index] - best_loss) / distance
+                else:
+                    perturbed_loss = objective(S_current + delta * unit_direction)
+                    derivative = (perturbed_loss - best_loss) / delta
+                gradient += direction_weights[index] * derivative * unit_direction
+
+            gradient_norm = np.linalg.norm(gradient)
+            if gradient_norm <= 1e-8:
+                break
+            gradient = gradient / gradient_norm
+            current_eta = eta
+            success = False
+            state = current_method
+
+            if use_annealing:
+                for attempt in range(10):
+                    candidate_S = S_current - current_eta * gradient
+                    candidate_loss = float(objective(candidate_S))
+                    if candidate_loss < best_loss:
+                        if attempt > 0:
+                            state = "Annealing Triggered"
+                        S_current = candidate_S
+                        best_loss = candidate_loss
+                        if best_loss < global_best_loss:
+                            global_best_loss = best_loss
+                            global_best_S = S_current.copy()
+                        eta = min(0.5, current_eta * 1.5)
+                        success = True
+                        break
+                    current_eta /= 2.0
+            else:
+                candidate_S = S_current - current_eta * gradient
+                candidate_loss = float(objective(candidate_S))
+                if candidate_loss < best_loss:
+                    S_current = candidate_S
+                    best_loss = candidate_loss
+                    if best_loss < global_best_loss:
+                        global_best_loss = best_loss
+                        global_best_S = S_current.copy()
+                    success = True
+
+            if not success:
+                if current_method == "secant" and allow_tangent:
+                    current_method = "dynamic"
+                    eta = 0.5
+                else:
+                    break
+
+            history.append(float(metric(S_current)))
+            states.append(state)
+            if verbose:
+                print(
+                    f"  [Iter {iteration + 1} - {current_method}] "
+                    f"objective={best_loss:.6f}"
+                )
+
+        return {
+            "solution": global_best_S,
+            "loss": float(objective(global_best_S)),
+            "history": history,
+            "states": states,
+            "success": True,
+            "message": "custom search completed",
+        }
+
+    def optimize_candidate_subspace(
+        self,
+        candidates=None,
+        mode="optimization",
+        weights=None,
+        trim_fraction=0.2,
+        strategy="best_of",
+        custom_iterations=30,
+        use_annealing=True,
+        allow_tangent=True,
+        history_metric=None,
+        verbose=False,
+    ):
+        """Optimize one candidate subspace and select engines by one objective."""
+        candidates = np.asarray(self.I_list if candidates is None else candidates, dtype=float)
+        if candidates.ndim != 2 or not len(candidates):
+            raise ValueError("Candidate subspace must contain at least one vector.")
+
+        def objective(S_array):
+            return self._consensus_loss(
+                S_array,
+                mode=mode,
+                weights=weights,
+                trim_fraction=trim_fraction,
+            )
+
+        results = {}
+        if strategy in {"bfgs", "best_of"}:
+            results["bfgs"] = self._solve_subspace_bfgs(
+                candidates, objective, history_metric=history_metric
+            )
+        if strategy in {"custom", "best_of"}:
+            direction_weights = (
+                self.alphas
+                if mode == "optimization" and len(candidates) == len(self.alphas)
+                else None
+            )
+            results["custom"] = self._solve_subspace_custom(
+                candidates,
+                objective,
+                num_iterations=custom_iterations,
+                use_annealing=use_annealing,
+                allow_tangent=allow_tangent,
+                direction_weights=direction_weights,
+                history_metric=history_metric,
+                verbose=verbose,
+            )
+        if not results:
+            raise ValueError("strategy must be one of: custom, bfgs, best_of.")
+
+        finite_results = {
+            name: result for name, result in results.items()
+            if np.isfinite(result["loss"])
+        }
+        if not finite_results:
+            raise ValueError("Every subspace optimizer returned a non-finite loss.")
+        chosen_engine, chosen = min(
+            finite_results.items(), key=lambda item: item[1]["loss"]
+        )
+        output = dict(chosen)
+        output["chosen_engine"] = chosen_engine
+        output["engine_losses"] = {
+            name: float(result["loss"]) for name, result in results.items()
+        }
+        self.last_subspace_optimization = output
+        return output
+
     def phase3_global_optimization(self):
         """使用 SciPy BFGS 計算最佳混合比例 (Betas)"""
         print("\n--- Phase 3: 全域最佳化 (BFGS 演算法) ---")
-        I_matrix = np.array(self.I_list)
-        error_history = []
-        
-        def total_loss_function(betas):
-            S_current = np.dot(betas, I_matrix)
-            total_loss = 0.0
+        result = self.optimize_candidate_subspace(
+            strategy="bfgs", history_metric=self._true_target_error
+        )
+        return result["solution"], result["history"]
 
-            # 呼叫每個 Agent 的 API 算預測值
-            for i, agent in enumerate(self.trusted_agents):
-                pred_i = agent.api_predict(S_current)[0]
-                # 加權誤差: alpha * |f(S) - T|
-                total_loss += self.alphas[i] * abs(pred_i - self.target_T)
-            return total_loss
-
-        def callback(betas):
-            S_current = np.dot(betas, I_matrix)
-            # 代入真實公式 (這裡假設在 Host 裡也能算真實 y 來當作評估指標)
-            y_val = np.sum(S_current)
-            if len(S_current) > 1: 
-                y_val += np.sum(S_current[:-1] * S_current[1:])
-            error_history.append(abs(y_val - self.target_T))
-        
-
-        # 初始猜測：平均分配
-        initial_betas = np.ones(len(self.trusted_agents)) / len(self.trusted_agents)
-        
-        result = minimize(total_loss_function, initial_betas, method='BFGS', callback=callback)
-        best_betas = result.x
-        final_S = np.dot(best_betas, I_matrix)
-        
-        return final_S, error_history
+    def phase3_best_of_optimization(self, custom_iterations=30):
+        """Run both Stage 3 engines and keep the lower-L_opt solution."""
+        print("\n--- Phase 3: 全域最佳化 (best_of: BFGS vs custom) ---")
+        result = self.optimize_candidate_subspace(
+            strategy="best_of",
+            custom_iterations=custom_iterations,
+            history_metric=self._true_target_error,
+        )
+        print(
+            f"best_of 選擇 {result['chosen_engine']}，"
+            f"L_opt={result['loss']:.6f}，engine losses={result['engine_losses']}"
+        )
+        return result["solution"], result["history"], result["states"]
 
     def _compute_exclusion_reports(
         self,
@@ -333,16 +526,28 @@ class HostServer:
         evaluation_mode="optimization",
         evaluation_weights=None,
         trim_fraction=0.2,
+        optimizer="best_of",
+        custom_iterations=30,
+        return_summary=False,
     ):
-        """Compute C_i by virtually excluding each currently trusted agent."""
+        """Compute C_i from symmetric full/LOO optima under the same L_eval."""
         I_matrix = np.array(self.I_list)
         n_agents = len(self.trusted_agents)
-        base_loss = self._consensus_loss(
+        delivered_solution_eval_loss = self._consensus_loss(
             final_S,
             mode=evaluation_mode,
             weights=evaluation_weights,
             trim_fraction=trim_fraction,
         )
+        full_result = self.optimize_candidate_subspace(
+            I_matrix,
+            mode=evaluation_mode,
+            weights=evaluation_weights,
+            trim_fraction=trim_fraction,
+            strategy=optimizer,
+            custom_iterations=custom_iterations,
+        )
+        base_loss = full_result["loss"]
         exclusion_reports = []
 
         for excluded_idx, excluded_agent in enumerate(self.trusted_agents):
@@ -351,29 +556,22 @@ class HostServer:
             if not remaining_indices:
                 restricted_loss = float("inf")
                 restricted_S = None
+                restricted_engine = None
+                restricted_engine_losses = {}
             else:
                 restricted_I = I_matrix[remaining_indices]
-
-                def restricted_loss_function(betas):
-                    S_candidate = np.dot(betas, restricted_I)
-                    # Keep evaluation on the full selected coalition so every C_i
-                    # is compared against the same global consensus objective.
-                    return self._consensus_loss(
-                        S_candidate,
-                        mode=evaluation_mode,
-                        weights=evaluation_weights,
-                        trim_fraction=trim_fraction,
-                    )
-
-                initial_betas = np.ones(len(remaining_indices)) / len(remaining_indices)
-                result = minimize(restricted_loss_function, initial_betas, method="BFGS")
-                restricted_S = np.dot(result.x, restricted_I)
-                restricted_loss = self._consensus_loss(
-                    restricted_S,
+                restricted_result = self.optimize_candidate_subspace(
+                    restricted_I,
                     mode=evaluation_mode,
                     weights=evaluation_weights,
                     trim_fraction=trim_fraction,
+                    strategy=optimizer,
+                    custom_iterations=custom_iterations,
                 )
+                restricted_S = restricted_result["solution"]
+                restricted_loss = restricted_result["loss"]
+                restricted_engine = restricted_result["chosen_engine"]
+                restricted_engine_losses = restricted_result["engine_losses"]
 
             marginal_contribution = restricted_loss - base_loss
             positive_contribution = max(float(marginal_contribution), 0.0)
@@ -387,6 +585,8 @@ class HostServer:
                 "marginal_contribution": float(marginal_contribution),
                 "positive_contribution": positive_contribution,
                 "restricted_solution": restricted_S,
+                "restricted_engine": restricted_engine,
+                "restricted_engine_losses": restricted_engine_losses,
             }
             exclusion_reports.append(report)
 
@@ -398,6 +598,23 @@ class HostServer:
                     f"C_i+={positive_contribution:.6f}"
                 )
 
+        summary = {
+            "delivered_solution": np.asarray(final_S, dtype=float),
+            "delivered_solution_eval_loss": float(delivered_solution_eval_loss),
+            "full_evaluation_solution": full_result["solution"],
+            "full_evaluation_loss": float(base_loss),
+            "full_evaluation_engine": full_result["chosen_engine"],
+            "full_evaluation_engine_losses": full_result["engine_losses"],
+            "optimizer": optimizer,
+        }
+        self.last_exclusion_summary = summary
+        if verbose:
+            print(
+                f"L_eval delivered={delivered_solution_eval_loss:.6f}; "
+                f"full optimum={base_loss:.6f} ({full_result['chosen_engine']})"
+            )
+        if return_summary:
+            return base_loss, exclusion_reports, summary
         return base_loss, exclusion_reports
 
     def _remove_trusted_agent_at(self, index):
@@ -424,14 +641,18 @@ class HostServer:
                 num_iterations=custom_iterations
             )
             return final_S, history, states
-        raise ValueError("optimizer must be either 'custom' or 'bfgs'.")
+        if optimizer == "best_of":
+            return self.phase3_best_of_optimization(
+                custom_iterations=custom_iterations
+            )
+        raise ValueError("optimizer must be one of: custom, bfgs, best_of.")
 
     def prune_negative_contributors(
         self,
         final_S,
         epsilon=1e-6,
         max_pruning_rounds=None,
-        optimizer="custom",
+        optimizer="best_of",
         custom_iterations=30,
     ):
         """Iteratively remove the most negative-contribution agent and re-optimize."""
@@ -611,124 +832,13 @@ class HostServer:
     def phase3_custom_secant_optimization(self, num_iterations=50, use_annealing=True, allow_tangent=True):
         """Phase 3 (Alternative): 使用原創的割線/切線法進行子空間尋路 (支援消融實驗)"""
         print("\n--- Phase 3: 全域最佳化 (啟動割線/切線退火引擎) ---")
-        
-        # 1. 將 Agent 提議的參數轉為矩陣，並計算起點 (平均值 M^0)
-        I_matrix = np.array(self.I_list)
-        n_agents = len(self.trusted_agents)
-        S_current = np.mean(I_matrix, axis=0) # 從平均點出發
-        
-        error_history = []
-        states_history = [] # 新增：紀錄每次迭代的演算法狀態
-        
-        # 內部評估函數：呼叫 API 並計算總誤差 (Loss)
-        def evaluate_S(S_array):
-            total_loss = 0.0
-            for i, agent in enumerate(self.trusted_agents):
-                pred_i = agent.api_predict(S_array)[0]
-                total_loss += self.alphas[i] * abs(pred_i - self.target_T)
-            return total_loss
-
-        # 2. 預先計算各個錨點 (I_i) 的 Loss，給割線法當作斜率參考
-        loss_anchors = [evaluate_S(I_i) for I_i in self.I_list]
-        
-        best_loss = evaluate_S(S_current)
-        eta = 0.1
-        current_method = "secant"
-        delta = 0.0001 # 切線法的微小偏移量
-
-        # 紀錄歷史最佳解
-        global_best_S = S_current.copy()
-        global_best_loss = best_loss
-        
-        # --- 紀錄起點 (Iter 0) 的真實誤差與狀態 ---
-        y_val_start = np.sum(S_current)
-        if len(S_current) > 1: 
-            y_val_start += np.sum(S_current[:-1] * S_current[1:])
-        error_history.append(abs(y_val_start - self.target_T))
-        states_history.append("Start")
-        
-        # 3. 開始手動尋路迴圈
-        for k in range(num_iterations):
-            grad_S = np.zeros_like(S_current)
-            
-            # --- 步驟 A：計算合成梯度 ---
-            for i in range(n_agents):
-                direction = self.I_list[i] - S_current
-                dist = np.linalg.norm(direction)
-                if dist < 1e-8: continue
-                unit_dir = direction / dist
-                
-                if current_method == "secant":
-                    # 割線法：用端點 Loss 與目前 Loss 的高低差當作斜率
-                    deriv = (loss_anchors[i] - best_loss) / dist
-                else:
-                    # 切線法 (動態方向)：往前踩一小步 delta 測試真實斜率
-                    S_perturb = S_current + delta * unit_dir
-                    loss_p = evaluate_S(S_perturb)
-                    deriv = (loss_p - best_loss) / delta
-                    
-                # 累加各個方向的梯度 (乘上信任權重 alpha)
-                grad_S += self.alphas[i] * deriv * unit_dir
-                
-            grad_norm = np.linalg.norm(grad_S)
-            if grad_norm > 1e-8:
-                grad_S = grad_S / grad_norm 
-            else:
-                print(f"  [Iter {k+1}] 梯度趨近於零，提早收斂。")
-                break
-
-            # --- 步驟 B：退火與步長更新機制 (加入消融開關) ---
-            current_eta = eta
-            success = False
-            state_this_iter = current_method # 預設狀態為當前的引擎
-            
-            if use_annealing:
-                for attempt in range(10): # 最多嘗試退火 10 次
-                    S_try = S_current - current_eta * grad_S
-                    try_loss = evaluate_S(S_try)
-                    
-                    if try_loss < best_loss:
-                        if attempt > 0:
-                            state_this_iter = "Annealing Triggered" # 標記成功觸發退火
-                        print(f"  [Iter {k+1} - {current_method}] ✅ 步長 {current_eta:.4f} -> Loss: {try_loss:.4f}")
-                        S_current = S_try
-                        best_loss = try_loss
-
-                        if best_loss < global_best_loss:
-                            global_best_loss = best_loss
-                            global_best_S = S_current.copy()
-
-                        eta = min(0.5, current_eta * 1.5) # 樂觀加速
-                        success = True
-                        break
-                    else:
-                        current_eta /= 2.0 # 退火減半
-            else:
-                # 關閉退火：直接往前走一步，不測試縮減步長
-                S_try = S_current - current_eta * grad_S
-                try_loss = evaluate_S(S_try)
-                if try_loss < best_loss:
-                    print(f"  [Iter {k+1} - {current_method}] ✅ 無退火步長 {current_eta:.4f} -> Loss: {try_loss:.4f}")
-                    S_current = S_try
-                    best_loss = try_loss
-                    success = True
-                    
-            # --- 步驟 C：引擎切換機制 (加入消融開關) ---
-            if not success:
-                if current_method == "secant" and allow_tangent:
-                    print(f"  [Iter {k+1}] 割線法失真，切換至高精度切線法！")
-                    current_method = "dynamic"
-                    eta = 0.5 
-                else:
-                    print(f"  [Iter {k+1}] 高精度引擎亦達極限 (或不允許切換)，演算法收斂。")
-                    break
-
-            # --- 計算真實誤差並紀錄 ---
-            y_val = np.sum(S_current)
-            if len(S_current) > 1: 
-                y_val += np.sum(S_current[:-1] * S_current[1:])
-            error_history.append(abs(y_val - self.target_T))
-            states_history.append(state_this_iter)
-
-        print(f"✅ 法二法三引擎尋路完成！最終決策變數 S = {S_current}")
-        return global_best_S, error_history, states_history
+        result = self.optimize_candidate_subspace(
+            strategy="custom",
+            custom_iterations=num_iterations,
+            use_annealing=use_annealing,
+            allow_tangent=allow_tangent,
+            history_metric=self._true_target_error,
+            verbose=True,
+        )
+        print(f"✅ 法二法三引擎尋路完成！最終決策變數 S = {result['solution']}")
+        return result["solution"], result["history"], result["states"]

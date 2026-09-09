@@ -75,11 +75,15 @@ def run_stage3(server, args):
     if args.optimizer == "bfgs":
         final_S, history = server.phase3_global_optimization()
         states = ["bfgs"] * len(history)
-    else:
+    elif args.optimizer == "custom":
         final_S, history, states = server.phase3_custom_secant_optimization(
             num_iterations=args.custom_iterations,
             use_annealing=True,
             allow_tangent=True,
+        )
+    else:
+        final_S, history, states = server.phase3_best_of_optimization(
+            custom_iterations=args.custom_iterations
         )
     return final_S, history, states
 
@@ -117,6 +121,10 @@ def calibrate_alphas(server, args):
                 "loss_without_agent": row["loss_without_agent"],
                 "marginal_contribution": row["marginal_contribution"],
                 "positive_contribution": row["positive_contribution"],
+                "leave_one_out_engine": row["restricted_engine"],
+                "leave_one_out_engine_losses": json.dumps(
+                    row["restricted_engine_losses"], sort_keys=True
+                ),
                 "contribution_share": float(contrib_share[row["index"]]),
             })
 
@@ -258,7 +266,9 @@ def run():
         contribution_rows,
         [
             "round", "agent_id", "alpha", "base_loss", "loss_without_agent",
-            "marginal_contribution", "positive_contribution", "contribution_share",
+            "marginal_contribution", "positive_contribution",
+            "leave_one_out_engine", "leave_one_out_engine_losses",
+            "contribution_share",
         ],
     )
     write_csv(
@@ -328,7 +338,11 @@ def build_parser():
     parser.add_argument("--min-selection-score", type=float, default=0.0)
     parser.add_argument("--k-api", type=int, default=None)
     parser.add_argument("--k-red", type=int, default=None)
-    parser.add_argument("--optimizer", choices=["custom", "bfgs"], default="custom")
+    parser.add_argument(
+        "--optimizer",
+        choices=["best_of", "custom", "bfgs"],
+        default="best_of",
+    )
     parser.add_argument("--custom-iterations", type=int, default=30)
     parser.add_argument("--max-calibration-rounds", type=int, default=3)
     parser.add_argument("--alpha-update-rate", type=float, default=0.5)

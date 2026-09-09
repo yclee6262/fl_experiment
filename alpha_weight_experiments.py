@@ -91,11 +91,15 @@ def run_stage3(server, optimizer, custom_iterations):
     if optimizer == "bfgs":
         final_S, history = server.phase3_global_optimization()
         states = ["bfgs"] * len(history)
-    else:
+    elif optimizer == "custom":
         final_S, history, states = server.phase3_custom_secant_optimization(
             num_iterations=custom_iterations,
             use_annealing=True,
             allow_tangent=True,
+        )
+    else:
+        final_S, history, states = server.phase3_best_of_optimization(
+            custom_iterations=custom_iterations
         )
     return np.asarray(final_S, dtype=float), history, states
 
@@ -234,15 +238,19 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
         final_S, _, _ = run_stage3(
             server, config["optimizer"], config["custom_iterations"]
         )
+        stage3_summary = server.last_subspace_optimization
         target_error = abs(true_function(final_S) - server.target_T)
 
         counter["stage"] = "contribution"
-        final_eval_loss, exclusion_reports = server._compute_exclusion_reports(
+        final_eval_loss, exclusion_reports, exclusion_summary = server._compute_exclusion_reports(
             final_S,
             verbose=False,
             evaluation_mode=evaluation_mode,
             evaluation_weights=evaluation_weights,
             trim_fraction=config["trim_fraction"],
+            optimizer="best_of",
+            custom_iterations=config["custom_iterations"],
+            return_summary=True,
         )
         positive_contribution = np.asarray(
             [report["positive_contribution"] for report in exclusion_reports],
@@ -309,7 +317,15 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                 **config["identity"],
                 "round": round_idx,
                 "target_error": float(target_error),
+                "stage3_engine": stage3_summary["chosen_engine"],
+                "stage3_engine_losses": json.dumps(
+                    stage3_summary["engine_losses"], sort_keys=True
+                ),
                 "evaluation_loss": float(final_eval_loss),
+                "delivered_solution_evaluation_loss": float(
+                    exclusion_summary["delivered_solution_eval_loss"]
+                ),
+                "full_evaluation_engine": exclusion_summary["full_evaluation_engine"],
                 "consistency_l1": consistency_l1,
                 "update_l1": update_l1,
                 "eta_used": float(eta_used),
@@ -337,6 +353,10 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                     "optimization_before": float(alpha_before[idx]),
                     "marginal_contribution": float(report["marginal_contribution"]),
                     "positive_contribution": float(report["positive_contribution"]),
+                    "leave_one_out_engine": report["restricted_engine"],
+                    "leave_one_out_engine_losses": json.dumps(
+                        report["restricted_engine_losses"], sort_keys=True
+                    ),
                     "contribution_share": (
                         float(q_for_update[idx]) if informative else None
                     ),
@@ -401,6 +421,13 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
         ),
         "final_target_error": float(abs(true_function(final_S) - server.target_T)),
         "final_evaluation_loss": float(final_eval_loss),
+        "final_delivered_solution_evaluation_loss": float(
+            exclusion_summary["delivered_solution_eval_loss"]
+        ),
+        "final_full_evaluation_engine": exclusion_summary["full_evaluation_engine"],
+        "final_full_evaluation_engine_losses": json.dumps(
+            exclusion_summary["full_evaluation_engine_losses"], sort_keys=True
+        ),
         "final_consistency_l1": round_rows[-1]["consistency_l1"],
         "selected_poison_weight": selected_poison_weight,
         "stage3_requests": counter["requests"]["stage3"],
@@ -642,7 +669,11 @@ def build_parser():
     )
     parser.add_argument("--controlled-coalition-size", type=int, default=5)
     parser.add_argument("--controlled-poison-count", type=int, default=1)
-    parser.add_argument("--optimizer", choices=["custom", "bfgs"], default="custom")
+    parser.add_argument(
+        "--optimizer",
+        choices=["best_of", "custom", "bfgs"],
+        default="best_of",
+    )
     parser.add_argument("--custom-iterations", type=int, default=30)
     return parser
 

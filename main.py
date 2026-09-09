@@ -97,31 +97,29 @@ def main():
     # Phase 2: 反推
     server.phase2_collect_proposals()
     
-    # Phase 3: 黑箱最佳化 (雙引擎對決！)
+    # Phase 3: 黑箱最佳化（兩個引擎使用同一 L_opt，保留較佳解）
     print("\n" + "="*50)
     print("子空間法開始，目標 T = {}".format(TARGET_T))
     print("="*50)
     
-    # 引擎 1：工業級 SciPy BFGS
-    final_S_bfgs, hist_bfgs = server.phase3_global_optimization()
-    
-    # 引擎 2：割線/切線法
-    final_S_custom, hist_custom, states_custom = server.phase3_custom_secant_optimization(num_iterations=30)
+    final_S_best, hist_best, states_best = server.phase3_best_of_optimization(
+        custom_iterations=30
+    )
 
     # Phase 3.5: 移除負邊際貢獻者並重新最佳化
     pruning_report = server.prune_negative_contributors(
-        final_S_custom,
+        final_S_best,
         epsilon=1e-6,
-        optimizer="custom",
+        optimizer="best_of",
         custom_iterations=30,
     )
-    final_S_custom = pruning_report["final_solution"]
+    final_S_best = pruning_report["final_solution"]
     if pruning_report["final_history"]:
-        hist_custom = pruning_report["final_history"]
-        states_custom = pruning_report["final_states"]
+        hist_best = pruning_report["final_history"]
+        states_best = pruning_report["final_states"]
 
     # Phase 4: 對 pruning 後的穩定 coalition 做子空間排除法分潤
-    profit_report = server.phase4_profit_sharing(final_S_custom)
+    profit_report = server.phase4_profit_sharing(final_S_best)
 
     final_S_fedavg, hist_fedavg = run_fedavg_baseline(all_agents, N, TARGET_T, global_rounds=15)
     
@@ -140,20 +138,13 @@ def main():
             y_val += np.sum(S[:-1] * S[1:])
         return y_val
     
-    # 計算 BFGS 的真實 y
-    y_bfgs = calculate_true_y(final_S_bfgs)
-    
-    # 計算自創引擎的真實 y
-    y_custom = calculate_true_y(final_S_custom)
+    y_best = calculate_true_y(final_S_best)
     
     print(f"目標 T: {TARGET_T}")
     print(f"目標公式: {formula_str}")
     # 為了版面整潔，將高維度變數陣列四捨五入印出
-    S_bfgs_str = np.array2string(final_S_bfgs, formatter={'float_kind':lambda x: "%.4f" % x})
-    S_custom_str = np.array2string(final_S_custom, formatter={'float_kind':lambda x: "%.4f" % x})
-    
-    print(f"[SciPy BFGS 引擎] 求得變數: {S_bfgs_str} | 代入目標公式 y={y_bfgs:.4f}")
-    print(f"[法二法三引擎] 求得變數: {S_custom_str} | 代入目標公式 y={y_custom:.4f}")
+    S_best_str = np.array2string(final_S_best, formatter={'float_kind':lambda x: "%.4f" % x})
+    print(f"[best_of 子空間引擎] 求得變數: {S_best_str} | 代入目標公式 y={y_best:.4f}")
 
     print("\n=== 負貢獻 Pruning 結果 ===")
     print(f"最終 coalition: {pruning_report['final_coalition_ids']}")
@@ -185,17 +176,13 @@ def main():
     
     # 由於 BFGS 收斂的迭代次數不固定，我們分別產生各自的 X 軸
     x_fedavg = range(1, len(hist_fedavg) + 1)
-    x_bfgs = range(1, len(hist_bfgs) + 1)
-    x_custom = range(1, len(hist_custom) + 1)
+    x_best = range(1, len(hist_best) + 1)
     
     # 畫出三條線 (使用您熟悉的配色與標記)
     plt.plot(x_fedavg, hist_fedavg, label='Baseline: Traditional FedAvg', 
              color='red', marker='x', linestyle=':', linewidth=2)
              
-    plt.plot(x_bfgs, hist_bfgs, label='Ours: Subspace (BFGS)', 
-             color='orange', marker='s', linestyle='--', alpha=0.8, linewidth=2.5)
-             
-    plt.plot(x_custom, hist_custom, label='Ours: Subspace (Secant/Tangent Engine)', 
+    plt.plot(x_best, hist_best, label='Ours: Subspace (best_of)',
              color='green', marker='*', linewidth=3.5, markersize=12)
     
     # 標題與標籤設定

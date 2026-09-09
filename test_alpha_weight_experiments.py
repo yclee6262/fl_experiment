@@ -34,6 +34,72 @@ class ControlledFakeAgent(FakeAgent):
 
 
 class AlphaWeightExperimentTests(unittest.TestCase):
+    def test_best_of_selects_the_lower_objective_engine(self):
+        server = HostServer(target_T=0.0, n_features=1)
+        server.trusted_agents = [FakeAgent(1, 0.0)]
+        server.alphas = [1.0]
+        server.I_list = [np.asarray([1.0])]
+
+        server._solve_subspace_bfgs = lambda *args, **kwargs: {
+            "solution": np.asarray([1.0]),
+            "loss": 2.0,
+            "history": [2.0],
+            "states": ["bfgs"],
+            "success": True,
+            "message": "",
+        }
+        server._solve_subspace_custom = lambda *args, **kwargs: {
+            "solution": np.asarray([0.0]),
+            "loss": 1.0,
+            "history": [1.0],
+            "states": ["custom"],
+            "success": True,
+            "message": "",
+        }
+
+        result = server.optimize_candidate_subspace(strategy="best_of")
+        self.assertEqual(result["chosen_engine"], "custom")
+        self.assertEqual(result["engine_losses"], {"bfgs": 2.0, "custom": 1.0})
+
+    def test_exclusion_uses_eval_optimized_full_baseline_and_best_of_everywhere(self):
+        server = HostServer(target_T=0.0, n_features=1)
+        server.trusted_agents = [
+            FakeAgent(1, 0.0),
+            FakeAgent(2, 0.0),
+            FakeAgent(3, 0.0),
+        ]
+        server.alphas = [1.0 / 3.0] * 3
+        server.I_list = [np.asarray([1.0]), np.asarray([2.0]), np.asarray([3.0])]
+        calls = []
+
+        def fake_optimize(candidates, **kwargs):
+            calls.append((len(candidates), kwargs["strategy"], kwargs["mode"]))
+            loss = 1.0 if len(candidates) == 3 else 2.0
+            return {
+                "solution": np.asarray([float(len(candidates))]),
+                "loss": loss,
+                "history": [loss],
+                "states": ["bfgs"],
+                "chosen_engine": "bfgs",
+                "engine_losses": {"bfgs": loss, "custom": loss + 1.0},
+            }
+
+        server.optimize_candidate_subspace = fake_optimize
+        base_loss, reports, summary = server._compute_exclusion_reports(
+            np.asarray([99.0]),
+            verbose=False,
+            evaluation_mode="uniform",
+            return_summary=True,
+        )
+
+        self.assertEqual(base_loss, 1.0)
+        self.assertEqual([call[0] for call in calls], [3, 2, 2, 2])
+        self.assertTrue(all(call[1] == "best_of" for call in calls))
+        self.assertTrue(all(call[2] == "uniform" for call in calls))
+        self.assertTrue(all(row["marginal_contribution"] == 1.0 for row in reports))
+        self.assertEqual(summary["full_evaluation_loss"], 1.0)
+        self.assertEqual(summary["delivered_solution_eval_loss"], 0.0)
+
     def test_initialization_keeps_reputation_separate(self):
         reputation = np.asarray([0.6, 0.3, 0.1])
         rng = np.random.default_rng(7)
