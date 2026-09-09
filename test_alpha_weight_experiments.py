@@ -1,8 +1,10 @@
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 
 from alpha_weight_experiments import (
+    calibrate_one_condition,
     contribution_distribution,
     configure_controlled_coalition,
     initialize_optimization_weights,
@@ -31,6 +33,57 @@ class ControlledFakeAgent(FakeAgent):
     def api_predict(self, X):
         X = np.asarray(X)
         return np.zeros(len(X) if X.ndim > 1 else 1)
+
+
+class GuardedCalibrationServer:
+    """Minimal server that makes the last guarded proposal fail L_eval."""
+
+    def __init__(self):
+        self.target_T = 0.0
+        self.total_budget = 10.0
+        self.trusted_agents = [FakeAgent(1, 0.0), FakeAgent(2, 0.0)]
+        self.alphas = [0.5, 0.5]
+        self.last_subspace_optimization = None
+
+    @staticmethod
+    def _agent_bid(agent):
+        return agent.get_minimum_bid()
+
+    def _compute_exclusion_reports(self, _solution, **_kwargs):
+        first_alpha = float(self.alphas[0])
+        if np.isclose(first_alpha, 0.5):
+            evaluation_loss = 1.0
+            positive_contributions = (1.0, 0.0)
+        elif np.isclose(first_alpha, 0.75):
+            evaluation_loss = 0.5
+            positive_contributions = (1.0, 0.0)
+        else:
+            evaluation_loss = 2.0
+            positive_contributions = (0.0, 1.0)
+        reports = [
+            {
+                "agent_id": 1,
+                "marginal_contribution": positive_contributions[0],
+                "positive_contribution": positive_contributions[0],
+                "restricted_optimization_loss": evaluation_loss + 1.0,
+                "restricted_engine": "custom",
+                "restricted_engine_losses": {"custom": evaluation_loss + 1.0},
+            },
+            {
+                "agent_id": 2,
+                "marginal_contribution": positive_contributions[1],
+                "positive_contribution": positive_contributions[1],
+                "restricted_optimization_loss": evaluation_loss,
+                "restricted_engine": "custom",
+                "restricted_engine_losses": {"custom": evaluation_loss},
+            },
+        ]
+        summary = {
+            "delivered_solution_eval_loss": evaluation_loss,
+            "full_solution_source": "stage3_l_opt",
+            "loo_search_objective": "l_opt_current_alpha",
+        }
+        return evaluation_loss, reports, summary
 
 
 class AlphaWeightExperimentTests(unittest.TestCase):
@@ -174,6 +227,53 @@ class AlphaWeightExperimentTests(unittest.TestCase):
         self.assertAlmostEqual(rows[0]["surplus_share"], 0.5)
         self.assertAlmostEqual(rows[1]["surplus_share"], 0.5)
         self.assertNotEqual(rows[0]["optimization_weight"], rows[0]["surplus_share"])
+
+    def test_guarded_final_rejection_keeps_last_accepted_state(self):
+        server = GuardedCalibrationServer()
+        config = {
+            "condition_seed": 7,
+            "initialization": "uniform",
+            "evaluator": "uniform",
+            "update_rate": 0.5,
+            "update_policy": "guarded",
+            "minimum_update_rate": 0.1,
+            "evaluation_tolerance": 0.1,
+            "exploration_mass": 0.0,
+            "trim_fraction": 0.0,
+            "optimizer": "best_of",
+            "custom_iterations": 2,
+            "max_rounds": 3,
+            "tolerance": 1e-9,
+            "payment_reputation_mix": 0.5,
+            "identity": {"experiment": "guarded_regression"},
+        }
+
+        def fake_stage3(fake_server, _optimizer, _iterations):
+            fake_server.last_subspace_optimization = {
+                "chosen_engine": "custom",
+                "engine_losses": {"custom": 0.0},
+            }
+            return np.asarray([fake_server.alphas[0]]), [], []
+
+        with patch("alpha_weight_experiments.run_stage3", side_effect=fake_stage3):
+            summary, rounds, _agents, payments = calibrate_one_condition(
+                server,
+                config,
+                reputation=np.asarray([0.5, 0.5]),
+                poisoned_ids=set(),
+            )
+
+        np.testing.assert_allclose(server.alphas, [0.75, 0.25])
+        self.assertEqual(summary["final_accepted_round"], 1)
+        self.assertEqual(summary["updates_accepted"], 1)
+        self.assertEqual(summary["gate_triggers"], 1)
+        self.assertAlmostEqual(summary["final_evaluation_loss"], 0.5)
+        self.assertAlmostEqual(summary["final_target_error"], 0.75)
+        self.assertEqual(summary["final_contribution_weights"], "[1.0, 0.0]")
+        self.assertFalse(rounds[-1]["current_state_accepted"])
+        self.assertFalse(rounds[-1]["update_accepted"])
+        self.assertEqual(payments[0]["agent_id"], 1)
+        self.assertAlmostEqual(payments[0]["optimization_weight"], 0.75)
 
     def test_controlled_coalition_forces_poisoned_agent(self):
         server = HostServer(target_T=0.0, n_features=1, n_test=2)

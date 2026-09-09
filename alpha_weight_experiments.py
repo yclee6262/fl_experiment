@@ -217,15 +217,10 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
     counter = attach_query_counter(server.trusted_agents)
     round_rows = []
     agent_rows = []
-    final_S = None
-    final_q = None
-    final_positive_contribution = None
-    final_eval_loss = None
     converged = False
     stop_reason = "max_rounds"
-    previous_consistency = None
-    previous_eval_loss = None
-    accepted_alpha = alpha.copy()
+    accepted_state = None
+    pending_update = False
     eta_current = float(config["update_rate"])
 
     evaluation_mode, evaluation_weights = evaluator_arguments(
@@ -235,15 +230,15 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
     for round_idx in range(config["max_rounds"]):
         alpha_before = np.asarray(server.alphas, dtype=float)
         counter["stage"] = "stage3"
-        final_S, _, _ = run_stage3(
+        current_S, _, _ = run_stage3(
             server, config["optimizer"], config["custom_iterations"]
         )
         stage3_summary = server.last_subspace_optimization
-        target_error = abs(true_function(final_S) - server.target_T)
+        target_error = abs(true_function(current_S) - server.target_T)
 
         counter["stage"] = "contribution"
-        final_eval_loss, exclusion_reports, exclusion_summary = server._compute_exclusion_reports(
-            final_S,
+        current_eval_loss, exclusion_reports, exclusion_summary = server._compute_exclusion_reports(
+            current_S,
             verbose=False,
             evaluation_mode=evaluation_mode,
             evaluation_weights=evaluation_weights,
@@ -263,19 +258,72 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
 
         informative = q is not None
         gate_triggered = False
-        update_accepted = False
-        eta_used = eta_current
+        reference_eval_loss = (
+            None if accepted_state is None else accepted_state["evaluation_loss"]
+        )
+        reference_consistency = (
+            None if accepted_state is None else accepted_state["consistency_l1"]
+        )
         if informative:
             consistency_l1 = float(np.sum(np.abs(alpha_before - q)))
+        else:
+            consistency_l1 = None
+
+        if (
+            config["update_policy"] == "guarded"
+            and pending_update
+            and reference_eval_loss is not None
+            and current_eval_loss
+            > reference_eval_loss + config["evaluation_tolerance"]
+        ):
+            gate_triggered = True
+
+        current_state_accepted = not gate_triggered
+        update_accepted = bool(pending_update and current_state_accepted)
+        if current_state_accepted:
+            accepted_state = {
+                "round": round_idx,
+                "alpha": alpha_before.copy(),
+                "solution": current_S.copy(),
+                "q": None if q is None else q.copy(),
+                "positive_contribution": positive_contribution.copy(),
+                "evaluation_loss": float(current_eval_loss),
+                "target_error": float(target_error),
+                "consistency_l1": consistency_l1,
+                "exclusion_summary": copy.deepcopy(exclusion_summary),
+            }
+
+        eta_used = eta_current
+        proposal_generated = False
+        if informative:
             if config["update_rate"] == 0:
                 alpha_after = alpha_before.copy()
                 stop_reason = "no_update_baseline"
-                update_accepted = False
+            elif gate_triggered:
+                eta_current = max(
+                    config["minimum_update_rate"], eta_current / 2.0
+                )
+                eta_used = eta_current
+                accepted_alpha = accepted_state["alpha"]
+                accepted_q = accepted_state["q"]
+                if accepted_q is None:
+                    alpha_after = accepted_alpha.copy()
+                    stop_reason = "uninformative_accepted_state"
+                else:
+                    alpha_after = normalize(
+                        (1.0 - eta_used) * accepted_alpha
+                        + eta_used * accepted_q
+                    )
+                    proposal_generated = True
+            elif consistency_l1 < config["tolerance"]:
+                alpha_after = alpha_before.copy()
+                converged = True
+                stop_reason = "fixed_point_tolerance"
             else:
                 if (
                     config["update_policy"] == "adaptive"
-                    and previous_consistency is not None
-                    and consistency_l1 > previous_consistency
+                    and reference_consistency is not None
+                    and consistency_l1 > reference_consistency
                 ):
                     eta_current = max(
                         config["minimum_update_rate"], eta_current / 2.0
@@ -284,27 +332,14 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                 candidate_alpha = normalize(
                     (1.0 - eta_used) * alpha_before + eta_used * q
                 )
-                if (
-                    config["update_policy"] == "guarded"
-                    and previous_eval_loss is not None
-                    and final_eval_loss
-                    > previous_eval_loss + config["evaluation_tolerance"]
-                ):
-                    gate_triggered = True
-                    eta_current = max(
-                        config["minimum_update_rate"], eta_current / 2.0
-                    )
-                    eta_used = eta_current
-                    alpha_after = accepted_alpha.copy()
-                else:
-                    alpha_after = candidate_alpha
-                    if config["update_policy"] == "guarded":
-                        accepted_alpha = alpha_before.copy()
-                update_accepted = not gate_triggered
-            update_l1 = float(np.sum(np.abs(alpha_after - alpha_before)))
+                alpha_after = candidate_alpha
+                proposal_generated = True
+            update_origin = (
+                accepted_state["alpha"] if gate_triggered else alpha_before
+            )
+            update_l1 = float(np.sum(np.abs(alpha_after - update_origin)))
         else:
             q_for_update = alpha_before.copy()
-            consistency_l1 = None
             update_l1 = 0.0
             alpha_after = alpha_before.copy()
             stop_reason = "uninformative_contribution"
@@ -321,7 +356,7 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                 "stage3_engine_losses": json.dumps(
                     stage3_summary["engine_losses"], sort_keys=True
                 ),
-                "evaluation_loss": float(final_eval_loss),
+                "evaluation_loss": float(current_eval_loss),
                 "delivered_solution_evaluation_loss": float(
                     exclusion_summary["delivered_solution_eval_loss"]
                 ),
@@ -332,11 +367,13 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                 "eta_used": float(eta_used),
                 "update_policy": config["update_policy"],
                 "update_accepted": update_accepted,
+                "current_state_accepted": current_state_accepted,
+                "proposal_generated": proposal_generated,
                 "gate_triggered": gate_triggered,
                 "eval_loss_delta": (
                     None
-                    if previous_eval_loss is None
-                    else float(final_eval_loss - previous_eval_loss)
+                    if reference_eval_loss is None
+                    else float(current_eval_loss - reference_eval_loss)
                 ),
                 "informative": informative,
                 "stage3_requests_cumulative": counter["requests"]["stage3"],
@@ -368,22 +405,28 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                 }
             )
 
-        final_q = q if informative else None
-        final_positive_contribution = positive_contribution
         server.alphas = [float(value) for value in alpha_after]
-        if informative:
-            previous_consistency = consistency_l1
-            if config["update_policy"] != "guarded" or update_accepted:
-                previous_eval_loss = final_eval_loss
-        if not informative or config["update_rate"] == 0:
+        pending_update = proposal_generated
+        if (
+            not informative
+            or config["update_rate"] == 0
+            or converged
+            or stop_reason == "uninformative_accepted_state"
+        ):
             break
-        if consistency_l1 < config["tolerance"]:
-            converged = True
-            stop_reason = "fixed_point_tolerance"
-            break
-        if round_idx == config["max_rounds"] - 1:
-            # Keep alpha aligned with the solution evaluated in this final round.
-            server.alphas = [float(value) for value in alpha_before]
+
+    if accepted_state is None:
+        raise RuntimeError("Calibration finished without an accepted evaluated state.")
+
+    # A proposal is only provisional until Stage 3 and L_eval evaluate it.  Always
+    # settle and summarize the last accepted state, never an untested next alpha or
+    # a final-round proposal rejected by the guarded evaluator.
+    final_S = accepted_state["solution"]
+    final_q = accepted_state["q"]
+    final_positive_contribution = accepted_state["positive_contribution"]
+    final_eval_loss = accepted_state["evaluation_loss"]
+    exclusion_summary = accepted_state["exclusion_summary"]
+    server.alphas = [float(value) for value in accepted_state["alpha"]]
 
     payment_status, payment_rows, paid_total = settle_with_separated_weights(
         server,
@@ -414,6 +457,7 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
             [float(x) for x in final_q] if final_q is not None else []
         ),
         "rounds_executed": len(round_rows),
+        "final_accepted_round": int(accepted_state["round"]),
         "converged": converged,
         "stop_reason": stop_reason,
         "final_eta_used": float(round_rows[-1]["eta_used"]),
@@ -423,14 +467,14 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
         "gate_triggers": int(
             sum(bool(row["gate_triggered"]) for row in round_rows)
         ),
-        "final_target_error": float(abs(true_function(final_S) - server.target_T)),
+        "final_target_error": float(accepted_state["target_error"]),
         "final_evaluation_loss": float(final_eval_loss),
         "final_delivered_solution_evaluation_loss": float(
             exclusion_summary["delivered_solution_eval_loss"]
         ),
         "final_full_solution_source": exclusion_summary["full_solution_source"],
         "final_loo_search_objective": exclusion_summary["loo_search_objective"],
-        "final_consistency_l1": round_rows[-1]["consistency_l1"],
+        "final_consistency_l1": accepted_state["consistency_l1"],
         "selected_poison_weight": selected_poison_weight,
         "stage3_requests": counter["requests"]["stage3"],
         "contribution_requests": counter["requests"]["contribution"],
