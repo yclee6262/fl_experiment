@@ -325,7 +325,8 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                 "delivered_solution_evaluation_loss": float(
                     exclusion_summary["delivered_solution_eval_loss"]
                 ),
-                "full_evaluation_engine": exclusion_summary["full_evaluation_engine"],
+                "full_solution_source": exclusion_summary["full_solution_source"],
+                "loo_search_objective": exclusion_summary["loo_search_objective"],
                 "consistency_l1": consistency_l1,
                 "update_l1": update_l1,
                 "eta_used": float(eta_used),
@@ -353,6 +354,9 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                     "optimization_before": float(alpha_before[idx]),
                     "marginal_contribution": float(report["marginal_contribution"]),
                     "positive_contribution": float(report["positive_contribution"]),
+                    "leave_one_out_optimization_loss": float(
+                        report["restricted_optimization_loss"]
+                    ),
                     "leave_one_out_engine": report["restricted_engine"],
                     "leave_one_out_engine_losses": json.dumps(
                         report["restricted_engine_losses"], sort_keys=True
@@ -424,10 +428,8 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
         "final_delivered_solution_evaluation_loss": float(
             exclusion_summary["delivered_solution_eval_loss"]
         ),
-        "final_full_evaluation_engine": exclusion_summary["full_evaluation_engine"],
-        "final_full_evaluation_engine_losses": json.dumps(
-            exclusion_summary["full_evaluation_engine_losses"], sort_keys=True
-        ),
+        "final_full_solution_source": exclusion_summary["full_solution_source"],
+        "final_loo_search_objective": exclusion_summary["loo_search_objective"],
         "final_consistency_l1": round_rows[-1]["consistency_l1"],
         "selected_poison_weight": selected_poison_weight,
         "stage3_requests": counter["requests"]["stage3"],
@@ -624,8 +626,11 @@ def build_parser():
     parser.add_argument(
         "--evaluators",
         type=lambda x: parse_csv(x, str),
-        default=["optimization", "uniform"],
-        help="Comma-separated: optimization,reputation,uniform,median,trimmed",
+        default=["trimmed"],
+        help=(
+            "Comma-separated: trimmed (primary), uniform/median/reputation "
+            "ablations, optimization circular baseline"
+        ),
     )
     parser.add_argument(
         "--update-rates", type=lambda x: parse_csv(x, float), default=[0.0, 0.3]
@@ -633,7 +638,7 @@ def build_parser():
     parser.add_argument(
         "--update-policies",
         type=lambda x: parse_csv(x, str),
-        default=["fixed"],
+        default=["guarded"],
         help="Comma-separated: fixed,adaptive,guarded",
     )
     parser.add_argument("--max-calibration-rounds", type=int, default=6)

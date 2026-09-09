@@ -61,7 +61,7 @@ class AlphaWeightExperimentTests(unittest.TestCase):
         self.assertEqual(result["chosen_engine"], "custom")
         self.assertEqual(result["engine_losses"], {"bfgs": 2.0, "custom": 1.0})
 
-    def test_exclusion_uses_eval_optimized_full_baseline_and_best_of_everywhere(self):
+    def test_exclusion_reruns_l_opt_and_scores_delivered_solutions_with_l_eval(self):
         server = HostServer(target_T=0.0, n_features=1)
         server.trusted_agents = [
             FakeAgent(1, 0.0),
@@ -72,33 +72,41 @@ class AlphaWeightExperimentTests(unittest.TestCase):
         server.I_list = [np.asarray([1.0]), np.asarray([2.0]), np.asarray([3.0])]
         calls = []
 
+        server._consensus_loss = lambda S, **kwargs: float(np.asarray(S)[0])
+
         def fake_optimize(candidates, **kwargs):
             calls.append((len(candidates), kwargs["strategy"], kwargs["mode"]))
-            loss = 1.0 if len(candidates) == 3 else 2.0
+            solution_value = 10.0 + len(calls)
             return {
-                "solution": np.asarray([float(len(candidates))]),
-                "loss": loss,
-                "history": [loss],
+                "solution": np.asarray([solution_value]),
+                "loss": 0.5,
+                "history": [0.5],
                 "states": ["bfgs"],
                 "chosen_engine": "bfgs",
-                "engine_losses": {"bfgs": loss, "custom": loss + 1.0},
+                "engine_losses": {"bfgs": 0.5, "custom": 0.75},
             }
 
         server.optimize_candidate_subspace = fake_optimize
         base_loss, reports, summary = server._compute_exclusion_reports(
-            np.asarray([99.0]),
+            np.asarray([10.0]),
             verbose=False,
             evaluation_mode="uniform",
             return_summary=True,
         )
 
-        self.assertEqual(base_loss, 1.0)
-        self.assertEqual([call[0] for call in calls], [3, 2, 2, 2])
+        self.assertEqual(base_loss, 10.0)
+        self.assertEqual([call[0] for call in calls], [2, 2, 2])
         self.assertTrue(all(call[1] == "best_of" for call in calls))
-        self.assertTrue(all(call[2] == "uniform" for call in calls))
-        self.assertTrue(all(row["marginal_contribution"] == 1.0 for row in reports))
-        self.assertEqual(summary["full_evaluation_loss"], 1.0)
-        self.assertEqual(summary["delivered_solution_eval_loss"], 0.0)
+        self.assertTrue(all(call[2] == "optimization" for call in calls))
+        self.assertEqual(
+            [row["marginal_contribution"] for row in reports], [1.0, 2.0, 3.0]
+        )
+        self.assertTrue(
+            all(row["restricted_optimization_loss"] == 0.5 for row in reports)
+        )
+        self.assertEqual(summary["delivered_solution_eval_loss"], 10.0)
+        self.assertEqual(summary["full_solution_source"], "stage3_l_opt")
+        self.assertEqual(summary["loo_search_objective"], "l_opt_current_alpha")
 
     def test_initialization_keeps_reputation_separate(self):
         reputation = np.asarray([0.6, 0.3, 0.1])

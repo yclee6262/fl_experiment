@@ -121,6 +121,9 @@ def calibrate_alphas(server, args):
                 "loss_without_agent": row["loss_without_agent"],
                 "marginal_contribution": row["marginal_contribution"],
                 "positive_contribution": row["positive_contribution"],
+                "leave_one_out_optimization_loss": row[
+                    "restricted_optimization_loss"
+                ],
                 "leave_one_out_engine": row["restricted_engine"],
                 "leave_one_out_engine_losses": json.dumps(
                     row["restricted_engine_losses"], sort_keys=True
@@ -267,6 +270,7 @@ def run():
         [
             "round", "agent_id", "alpha", "base_loss", "loss_without_agent",
             "marginal_contribution", "positive_contribution",
+            "leave_one_out_optimization_loss",
             "leave_one_out_engine", "leave_one_out_engine_losses",
             "contribution_share",
         ],

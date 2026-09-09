@@ -523,31 +523,22 @@ class HostServer:
         self,
         final_S,
         verbose=True,
-        evaluation_mode="optimization",
+        evaluation_mode="trimmed",
         evaluation_weights=None,
         trim_fraction=0.2,
         optimizer="best_of",
         custom_iterations=30,
         return_summary=False,
     ):
-        """Compute C_i from symmetric full/LOO optima under the same L_eval."""
+        """Score operational full/LOO Stage 3 solutions with a fixed L_eval."""
         I_matrix = np.array(self.I_list)
         n_agents = len(self.trusted_agents)
-        delivered_solution_eval_loss = self._consensus_loss(
+        base_loss = self._consensus_loss(
             final_S,
             mode=evaluation_mode,
             weights=evaluation_weights,
             trim_fraction=trim_fraction,
         )
-        full_result = self.optimize_candidate_subspace(
-            I_matrix,
-            mode=evaluation_mode,
-            weights=evaluation_weights,
-            trim_fraction=trim_fraction,
-            strategy=optimizer,
-            custom_iterations=custom_iterations,
-        )
-        base_loss = full_result["loss"]
         exclusion_reports = []
 
         for excluded_idx, excluded_agent in enumerate(self.trusted_agents):
@@ -558,18 +549,25 @@ class HostServer:
                 restricted_S = None
                 restricted_engine = None
                 restricted_engine_losses = {}
+                restricted_optimization_loss = float("inf")
             else:
                 restricted_I = I_matrix[remaining_indices]
                 restricted_result = self.optimize_candidate_subspace(
                     restricted_I,
-                    mode=evaluation_mode,
-                    weights=evaluation_weights,
-                    trim_fraction=trim_fraction,
+                    # Re-run the operational Stage 3 objective with the current
+                    # alpha. L_eval is a fixed judge, not the search objective.
+                    mode="optimization",
                     strategy=optimizer,
                     custom_iterations=custom_iterations,
                 )
                 restricted_S = restricted_result["solution"]
-                restricted_loss = restricted_result["loss"]
+                restricted_optimization_loss = restricted_result["loss"]
+                restricted_loss = self._consensus_loss(
+                    restricted_S,
+                    mode=evaluation_mode,
+                    weights=evaluation_weights,
+                    trim_fraction=trim_fraction,
+                )
                 restricted_engine = restricted_result["chosen_engine"]
                 restricted_engine_losses = restricted_result["engine_losses"]
 
@@ -582,6 +580,7 @@ class HostServer:
                 "alpha": float(self.alphas[excluded_idx]),
                 "bid": float(self._agent_bid(excluded_agent)),
                 "loss_without_agent": float(restricted_loss),
+                "restricted_optimization_loss": float(restricted_optimization_loss),
                 "marginal_contribution": float(marginal_contribution),
                 "positive_contribution": positive_contribution,
                 "restricted_solution": restricted_S,
@@ -600,18 +599,18 @@ class HostServer:
 
         summary = {
             "delivered_solution": np.asarray(final_S, dtype=float),
-            "delivered_solution_eval_loss": float(delivered_solution_eval_loss),
-            "full_evaluation_solution": full_result["solution"],
-            "full_evaluation_loss": float(base_loss),
-            "full_evaluation_engine": full_result["chosen_engine"],
-            "full_evaluation_engine_losses": full_result["engine_losses"],
-            "optimizer": optimizer,
+            "delivered_solution_eval_loss": float(base_loss),
+            "full_stage3_eval_loss": float(base_loss),
+            "full_solution_source": "stage3_l_opt",
+            "loo_search_objective": "l_opt_current_alpha",
+            "evaluation_mode": evaluation_mode,
+            "loo_optimizer": optimizer,
         }
         self.last_exclusion_summary = summary
         if verbose:
             print(
-                f"L_eval delivered={delivered_solution_eval_loss:.6f}; "
-                f"full optimum={base_loss:.6f} ({full_result['chosen_engine']})"
+                f"L_eval(Stage 3 delivered solution)={base_loss:.6f}; "
+                f"LOO search objective=L_opt(current alpha), optimizer={optimizer}"
             )
         if return_summary:
             return base_loss, exclusion_reports, summary
