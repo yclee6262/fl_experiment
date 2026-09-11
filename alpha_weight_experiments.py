@@ -16,7 +16,7 @@ from pathlib import Path
 
 import numpy as np
 
-from host_server import HostServer
+from host_server import HostServer, payment_contributions
 from run_experiments import build_agents, true_function
 
 
@@ -291,6 +291,12 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                 "target_error": float(target_error),
                 "consistency_l1": consistency_l1,
                 "exclusion_summary": copy.deepcopy(exclusion_summary),
+                "payment_reports": [
+                    {key: report[key] for key in (
+                        'marginal_contribution', 'restricted_optimization_loss'
+                    )}
+                    for report in exclusion_reports
+                ],
             }
 
         eta_used = eta_current
@@ -428,15 +434,23 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
     exclusion_summary = accepted_state["exclusion_summary"]
     server.alphas = [float(value) for value in accepted_state["alpha"]]
 
+    counter['stage'] = 'payment'
+    q_pay, payment_positive, payment_source, fallback_reason = payment_contributions(
+        accepted_state['payment_reports'],
+        lambda: server._consensus_loss(final_S, mode='optimization'),
+    )
+
     payment_status, payment_rows, paid_total = settle_with_separated_weights(
         server,
         reputation,
-        final_q if stop_reason != "uninformative_contribution" else None,
-        final_positive_contribution,
+        q_pay,
+        payment_positive,
         config["payment_reputation_mix"],
     )
     for row in payment_rows:
         row.update(config["identity"])
+        row['payment_contribution_source'] = payment_source
+        row['payment_fallback_reason'] = fallback_reason
 
     final_alpha = np.asarray(server.alphas, dtype=float)
     selected_poison_weight = float(
@@ -479,6 +493,10 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
         "stage3_requests": counter["requests"]["stage3"],
         "contribution_requests": counter["requests"]["contribution"],
         "payment_status": payment_status,
+        'payment_contribution_source': payment_source,
+        'payment_fallback_reason': fallback_reason,
+        'payment_contribution_weights': json.dumps([] if q_pay is None else q_pay.tolist()),
+        'payment_requests': counter['requests']['payment'],
         "paid_total": paid_total,
     }
     return summary, round_rows, agent_rows, payment_rows

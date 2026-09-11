@@ -10,7 +10,7 @@ from alpha_weight_experiments import (
     initialize_optimization_weights,
     settle_with_separated_weights,
 )
-from host_server import HostServer
+from host_server import HostServer, payment_contributions
 
 
 class FakeAgent:
@@ -87,6 +87,49 @@ class GuardedCalibrationServer:
 
 
 class AlphaWeightExperimentTests(unittest.TestCase):
+    def test_payment_fallback_uses_opt_and_does_not_modify_eval_reports(self):
+        reports = [
+            {'marginal_contribution': -0.1, 'restricted_optimization_loss': 0.7},
+            {'marginal_contribution': 0.0, 'restricted_optimization_loss': 0.3},
+            {'marginal_contribution': -0.2, 'restricted_optimization_loss': 0.05},
+        ]
+        q, positives, source, reason = payment_contributions(reports, lambda: 0.1)
+        np.testing.assert_allclose(q, [0.75, 0.25, 0])
+        self.assertEqual(source, 'opt_fallback')
+        self.assertEqual(reports[0]['marginal_contribution'], -0.1)
+
+    def test_payment_primary_does_not_query_fallback(self):
+        q, _, source, _ = payment_contributions(
+            [{'marginal_contribution': 3}, {'marginal_contribution': 1}],
+            lambda: self.fail('Primary payment must not evaluate fallback'),
+        )
+        np.testing.assert_allclose(q, [0.75, 0.25])
+        self.assertEqual(source, 'eval')
+
+    def test_payment_rejects_both_nonpositive_and_invalid_scores(self):
+        reports = [{'marginal_contribution': 0, 'restricted_optimization_loss': 0.1}]
+        q, _, source, _ = payment_contributions(reports, lambda: 0.2)
+        self.assertIsNone(q)
+        self.assertEqual(source, 'none')
+        with self.assertRaises(ValueError):
+            payment_contributions([{'marginal_contribution': float('nan')}], lambda: 0)
+
+    def test_stage4_fallback_pays_only_remaining_positive_agents(self):
+        server = HostServer(target_T=0, n_features=1, total_budget=10)
+        server.trusted_agents = [FakeAgent(2, 0), FakeAgent(3, 0)]
+        server.I_list = [np.zeros(1), np.ones(1)]
+        server.alphas = [0.5, 0.5]
+        reports = [dict(agent_id=i, alpha=0.5, bid=1.0,
+                        marginal_contribution=-0.1, positive_contribution=0.0,
+                        restricted_optimization_loss=loss)
+                   for i, loss in [(2, 0.3), (3, 0.05)]]
+        server._compute_exclusion_reports = lambda S: (0.2, reports)
+        server._consensus_loss = lambda S, **kwargs: 0.1
+        result = server.phase4_profit_sharing(np.zeros(1))
+        self.assertEqual(result['payment_contribution_source'], 'opt_fallback')
+        self.assertEqual(result['active_agent_ids'], [2])
+        self.assertAlmostEqual(result['paid_total'], 10)
+
     def test_best_of_selects_the_lower_objective_engine(self):
         server = HostServer(target_T=0.0, n_features=1)
         server.trusted_agents = [FakeAgent(1, 0.0)]

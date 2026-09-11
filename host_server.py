@@ -1,6 +1,31 @@
 import numpy as np
 from scipy.optimize import minimize
 
+
+def payment_contributions(reports, full_opt_loss, threshold=1e-8):
+    """Select payment-only contributions; keep calibration reports unchanged.
+
+    full_opt_loss is lazy: no additional model queries unless fallback is needed.
+    The single-agent exclusion sentinel (+inf) represents an empty subspace.
+    """
+    raw = np.asarray([r['marginal_contribution'] for r in reports], dtype=float)
+    single = len(raw) == 1 and np.isposinf(raw[0])
+    if not single and not np.all(np.isfinite(raw)):
+        raise ValueError('Non-finite evaluation contributions cannot trigger payment fallback.')
+    source, reason = 'eval', ''
+    positives = np.where(raw > threshold, raw, 0.0)
+    if not np.any(positives):
+        baseline = float(full_opt_loss())
+        raw = np.asarray([r['restricted_optimization_loss'] - baseline for r in reports])
+        if not np.isfinite(baseline) or not np.all(np.isfinite(raw)):
+            raise ValueError('Non-finite optimization contributions in payment fallback.')
+        positives = np.where(raw > threshold, raw, 0.0)
+        source, reason = 'opt_fallback', 'no_positive_eval_contribution'
+    if not np.any(positives):
+        return None, positives, 'none', 'no_positive_eval_or_opt_contribution'
+    q = np.ones(1) if single else positives / positives.sum()
+    return q, positives, source, reason
+
 class HostServer:
     def __init__(self, target_T, n_features, total_budget=10.0, test_seed=42, n_test=5):
         self.target_T = target_T
@@ -739,13 +764,29 @@ class HostServer:
         total_budget = self.total_budget if total_budget is None else float(total_budget)
         base_loss, exclusion_reports = self._compute_exclusion_reports(final_S)
 
+        q_pay, payment_positive, source, reason = payment_contributions(
+            exclusion_reports,
+            lambda: self._consensus_loss(final_S, mode='optimization'),
+            min_positive_contribution,
+        )
+        payment_meta = {
+            'payment_contribution_source': source,
+            'payment_fallback_reason': reason,
+        }
+        exclusion_reports = [
+            dict(report, payment_positive_contribution=float(payment_positive[i]),
+                 payment_contribution_share=None if q_pay is None else float(q_pay[i]))
+            for i, report in enumerate(exclusion_reports)
+        ]
+
         active_reports = [
             report for report in exclusion_reports
-            if report["positive_contribution"] > min_positive_contribution
+            if report['payment_positive_contribution'] > 0
         ]
 
         if not active_reports:
             self.phase4_report = {
+                **payment_meta,
                 "base_loss": base_loss,
                 "total_budget": total_budget,
                 "active_agent_ids": [],
@@ -758,6 +799,7 @@ class HostServer:
         bid_sum = sum(report["bid"] for report in active_reports)
         if bid_sum > total_budget:
             self.phase4_report = {
+                **payment_meta,
                 "base_loss": base_loss,
                 "total_budget": total_budget,
                 "active_agent_ids": [report["agent_id"] for report in active_reports],
@@ -781,16 +823,13 @@ class HostServer:
         payment_reports = []
         for report in active_reports:
             alpha_share = report["alpha"] / alpha_sum if alpha_sum > 0 else 0.0
-            if len(active_reports) == 1:
-                contribution_share = 1.0
-            elif np.isfinite(contribution_sum) and contribution_sum > 0:
-                contribution_share = report["positive_contribution"] / contribution_sum
-            else:
-                contribution_share = 0.0
+            contribution_share = report['payment_contribution_share']
             profit_share = omega_trust * alpha_share + omega_contribution * contribution_share
             payment = report["bid"] + profit_share * surplus
 
             payment_report = {
+                **payment_meta,
+                'payment_positive_contribution': report['payment_positive_contribution'],
                 "agent_id": report["agent_id"],
                 "alpha": report["alpha"],
                 "bid": report["bid"],
@@ -812,6 +851,7 @@ class HostServer:
 
         paid_total = sum(report["payment"] for report in payment_reports)
         self.phase4_report = {
+            **payment_meta,
             "base_loss": base_loss,
             "total_budget": total_budget,
             "minimum_bid_sum": bid_sum,
