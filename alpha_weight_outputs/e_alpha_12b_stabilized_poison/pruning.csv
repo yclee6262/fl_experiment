@@ -1,0 +1,29 @@
+seed,dimension,poison_ratio,target,initialization,initialization_replicate,evaluator,update_rate,update_policy,coalition_mode,controlled_coalition_size,controlled_poison_count,coalition_round,coalition_ids,stage3a_stop_reason,solver_audit_status,pruning_candidate_agent_id,pruning_candidate_contribution,removed_agent_id,status
+0,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+1,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+2,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,3,-1.4831622441610279e-05,3,removed_negative_contributor
+2,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,1,"[15, 1, 2, 4]",max_rounds,not_needed,,,,stable
+3,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,1,-8.329997460047346e-05,1,removed_negative_contributor
+3,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,1,"[15, 2, 3, 4]",max_rounds,not_needed,,,,stable
+4,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+5,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+6,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+7,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+8,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+9,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,recovered_informative,,,,stable
+10,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,15,-0.0022129733115434647,15,removed_negative_contributor
+10,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,1,"[1, 2, 3, 4]",max_rounds,not_needed,3,-0.0009054590482264757,3,removed_negative_contributor
+10,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,2,"[1, 2, 4]",max_rounds,recovered_informative,,,,stable
+11,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+12,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+13,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,4,-0.000936141237616539,4,removed_negative_contributor
+13,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,1,"[15, 1, 2, 3]",max_rounds,not_needed,1,-2.9327813535928726e-05,1,removed_negative_contributor
+13,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,2,"[15, 2, 3]",max_rounds,recovered_informative,,,,stable
+14,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,1,-0.0008077894647916155,1,removed_negative_contributor
+14,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,1,"[15, 2, 3, 4]",max_rounds,not_needed,,,,stable
+15,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+16,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+17,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",audited_uninformative,audited_uninformative,15,-0.008708835889895758,15,removed_negative_contributor
+17,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,1,"[1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+18,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
+19,2,0.3,0.0,uniform,0,trimmed,0.5,guarded,controlled,5,1,0,"[15, 1, 2, 3, 4]",max_rounds,not_needed,,,,stable
