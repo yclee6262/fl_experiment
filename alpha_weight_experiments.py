@@ -50,20 +50,25 @@ def initialize_optimization_weights(kind, reputation, rng):
     raise ValueError(f"Unknown initialization: {kind}")
 
 
-def contribution_distribution(exclusion_reports, exploration_mass=0.0):
+def raw_contribution_distribution(exclusion_reports):
     positives = np.asarray(
-        [
-            row["positive_contribution"]
-            if np.isfinite(row["positive_contribution"])
-            else 0.0
-            for row in exclusion_reports
-        ],
+        [row["positive_contribution"] for row in exclusion_reports],
         dtype=float,
     )
+    if len(positives) == 1 and np.isposinf(positives[0]):
+        return np.ones(1, dtype=float)
+    if not np.all(np.isfinite(positives)):
+        raise ValueError("Contribution scores must be finite.")
     total = float(np.sum(positives))
     if total <= 0:
         return None
-    distribution = positives / total
+    return normalize(positives / total)
+
+
+def apply_exploration_floor(distribution, exploration_mass=0.0):
+    if distribution is None:
+        return None
+    distribution = normalize(distribution)
     if not 0.0 <= exploration_mass < 1.0:
         raise ValueError("exploration_mass must be in [0, 1).")
     if exploration_mass:
@@ -74,32 +79,45 @@ def contribution_distribution(exclusion_reports, exploration_mass=0.0):
     return normalize(distribution)
 
 
+def contribution_distribution(exclusion_reports, exploration_mass=0.0):
+    """Compatibility wrapper returning the alpha-update target q_cal."""
+    return apply_exploration_floor(
+        raw_contribution_distribution(exclusion_reports),
+        exploration_mass=exploration_mass,
+    )
+
+
 def attach_query_counter(agents):
     counter = {"stage": "unassigned", "requests": defaultdict(int)}
     for agent in agents:
-        original = agent.api_predict
+        original = getattr(agent.api_predict, "_uncounted_original", agent.api_predict)
 
         def counted(X_array, _original=original):
             counter["requests"][counter["stage"]] += 1
             return _original(X_array)
 
+        counted._uncounted_original = original
         agent.api_predict = counted
     return counter
 
 
-def run_stage3(server, optimizer, custom_iterations):
+def run_stage3(server, optimizer, custom_iterations, initial_solution=None):
     if optimizer == "bfgs":
-        final_S, history = server.phase3_global_optimization()
+        final_S, history = server.phase3_global_optimization(
+            initial_solution=initial_solution
+        )
         states = ["bfgs"] * len(history)
     elif optimizer == "custom":
         final_S, history, states = server.phase3_custom_secant_optimization(
             num_iterations=custom_iterations,
             use_annealing=True,
             allow_tangent=True,
+            initial_solution=initial_solution,
         )
     else:
         final_S, history, states = server.phase3_best_of_optimization(
-            custom_iterations=custom_iterations
+            custom_iterations=custom_iterations,
+            initial_solution=initial_solution,
         )
     return np.asarray(final_S, dtype=float), history, states
 
@@ -159,6 +177,40 @@ def settle_with_separated_weights(
     return "ok", rows, float(sum(row["payment"] for row in rows))
 
 
+def settle_calibration_state(server, accepted_state, reputation, config, counter=None):
+    """Settle exactly one final accepted state after coalition stabilization."""
+    final_S = accepted_state["solution"]
+    if counter is not None:
+        counter["stage"] = "payment"
+    q_pay, payment_positive, payment_source, fallback_reason = payment_contributions(
+        accepted_state["payment_reports"],
+        lambda: server._consensus_loss(final_S, mode="optimization"),
+    )
+    payment_status, payment_rows, paid_total = settle_with_separated_weights(
+        server,
+        reputation,
+        q_pay,
+        payment_positive,
+        config["payment_reputation_mix"],
+    )
+    for row in payment_rows:
+        row.update(config["identity"])
+        row["payment_contribution_source"] = payment_source
+        row["payment_fallback_reason"] = fallback_reason
+    return {
+        "payment_status": payment_status,
+        "payment_contribution_source": payment_source,
+        "payment_fallback_reason": fallback_reason,
+        "payment_contribution_weights": json.dumps(
+            [] if q_pay is None else q_pay.tolist()
+        ),
+        "payment_requests": (
+            0 if counter is None else counter["requests"]["payment"]
+        ),
+        "paid_total": paid_total,
+    }, payment_rows
+
+
 def agent_reputation_weights(server, agents):
     """Build a deterministic reputation prior for a controlled coalition."""
     raw_scores = []
@@ -208,18 +260,26 @@ def configure_controlled_coalition(server, poisoned_ids, coalition_size, poison_
     server.phase2_collect_proposals()
 
 
-def calibrate_one_condition(server, config, reputation, poisoned_ids):
+def calibrate_one_condition(
+    server,
+    config,
+    reputation,
+    poisoned_ids,
+    settle_payment=True,
+):
     rng = np.random.default_rng(config["condition_seed"])
     alpha = initialize_optimization_weights(
         config["initialization"], reputation, rng
     )
     server.alphas = [float(value) for value in alpha]
     counter = attach_query_counter(server.trusted_agents)
+    server.last_query_counter = counter
     round_rows = []
     agent_rows = []
     converged = False
     stop_reason = "max_rounds"
     accepted_state = None
+    terminal_state = None
     pending_update = False
     eta_current = float(config["update_rate"])
 
@@ -229,31 +289,78 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
 
     for round_idx in range(config["max_rounds"]):
         alpha_before = np.asarray(server.alphas, dtype=float)
-        counter["stage"] = "stage3"
-        current_S, _, _ = run_stage3(
-            server, config["optimizer"], config["custom_iterations"]
-        )
-        stage3_summary = server.last_subspace_optimization
-        target_error = abs(true_function(current_S) - server.target_T)
+        recovery_attempts = 0
+        warm_start = None
+        solver_audit = {
+            "status": "not_needed",
+            "loo_dominates": False,
+            "agent_id": None,
+            "full_optimization_loss": None,
+            "best_loo_optimization_loss": None,
+            "improvement": None,
+        }
 
-        counter["stage"] = "contribution"
-        current_eval_loss, exclusion_reports, exclusion_summary = server._compute_exclusion_reports(
-            current_S,
-            verbose=False,
-            evaluation_mode=evaluation_mode,
-            evaluation_weights=evaluation_weights,
-            trim_fraction=config["trim_fraction"],
-            optimizer="best_of",
-            custom_iterations=config["custom_iterations"],
-            return_summary=True,
-        )
+        while True:
+            counter["stage"] = "stage3"
+            if warm_start is None:
+                current_S, _, _ = run_stage3(
+                    server, config["optimizer"], config["custom_iterations"]
+                )
+            else:
+                current_S, _, _ = run_stage3(
+                    server,
+                    config["optimizer"],
+                    config["custom_iterations"],
+                    initial_solution=warm_start,
+                )
+            stage3_summary = copy.deepcopy(server.last_subspace_optimization)
+
+            counter["stage"] = "contribution"
+            current_eval_loss, exclusion_reports, exclusion_summary = server._compute_exclusion_reports(
+                current_S,
+                verbose=False,
+                evaluation_mode=evaluation_mode,
+                evaluation_weights=evaluation_weights,
+                trim_fraction=config["trim_fraction"],
+                optimizer="best_of",
+                custom_iterations=config["custom_iterations"],
+                return_summary=True,
+            )
+            q_raw = raw_contribution_distribution(exclusion_reports)
+            q = apply_exploration_floor(
+                q_raw,
+                exploration_mass=config["exploration_mass"],
+            )
+            if q is not None:
+                if recovery_attempts:
+                    solver_audit["status"] = "recovered_informative"
+                break
+
+            full_opt_loss = stage3_summary.get("loss")
+            if full_opt_loss is None:
+                full_opt_loss = server._consensus_loss(
+                    current_S, mode="optimization"
+                )
+            solver_audit = HostServer.audit_uninformative_exclusion(
+                full_opt_loss,
+                exclusion_reports,
+                epsilon=config.get("solver_audit_tolerance", 1e-6),
+            )
+            if (
+                solver_audit["loo_dominates"]
+                and recovery_attempts < config.get("max_solver_recoveries", 1)
+            ):
+                recovery_attempts += 1
+                warm_start = solver_audit["warm_start_solution"]
+                continue
+            if solver_audit["loo_dominates"]:
+                solver_audit["status"] = "recovery_exhausted"
+            break
+
+        target_error = abs(true_function(current_S) - server.target_T)
         positive_contribution = np.asarray(
             [report["positive_contribution"] for report in exclusion_reports],
             dtype=float,
-        )
-        q = contribution_distribution(
-            exclusion_reports,
-            exploration_mass=config["exploration_mass"],
         )
 
         informative = q is not None
@@ -266,8 +373,10 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
         )
         if informative:
             consistency_l1 = float(np.sum(np.abs(alpha_before - q)))
+            raw_consistency_l1 = float(np.sum(np.abs(alpha_before - q_raw)))
         else:
             consistency_l1 = None
+            raw_consistency_l1 = None
 
         if (
             config["update_policy"] == "guarded"
@@ -278,19 +387,30 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
         ):
             gate_triggered = True
 
-        current_state_accepted = not gate_triggered
-        update_accepted = bool(pending_update and current_state_accepted)
+        current_state_accepted = bool(
+            not gate_triggered and (informative or accepted_state is None)
+        )
+        update_accepted = bool(
+            pending_update and current_state_accepted and informative
+        )
         if current_state_accepted:
             accepted_state = {
                 "round": round_idx,
                 "alpha": alpha_before.copy(),
                 "solution": current_S.copy(),
                 "q": None if q is None else q.copy(),
+                "q_raw": None if q_raw is None else q_raw.copy(),
                 "positive_contribution": positive_contribution.copy(),
+                "marginal_contribution": np.asarray(
+                    [report["marginal_contribution"] for report in exclusion_reports],
+                    dtype=float,
+                ),
                 "evaluation_loss": float(current_eval_loss),
                 "target_error": float(target_error),
                 "consistency_l1": consistency_l1,
+                "raw_consistency_l1": raw_consistency_l1,
                 "exclusion_summary": copy.deepcopy(exclusion_summary),
+                "exclusion_reports": copy.deepcopy(exclusion_reports),
                 "payment_reports": [
                     {key: report[key] for key in (
                         'marginal_contribution', 'restricted_optimization_loss'
@@ -348,7 +468,7 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
             q_for_update = alpha_before.copy()
             update_l1 = 0.0
             alpha_after = alpha_before.copy()
-            stop_reason = "uninformative_contribution"
+            stop_reason = solver_audit["status"]
 
         if informative:
             q_for_update = q
@@ -369,6 +489,7 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                 "full_solution_source": exclusion_summary["full_solution_source"],
                 "loo_search_objective": exclusion_summary["loo_search_objective"],
                 "consistency_l1": consistency_l1,
+                "raw_consistency_l1": raw_consistency_l1,
                 "update_l1": update_l1,
                 "eta_used": float(eta_used),
                 "update_policy": config["update_policy"],
@@ -382,10 +503,35 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                     else float(current_eval_loss - reference_eval_loss)
                 ),
                 "informative": informative,
+                "solver_audit_status": solver_audit["status"],
+                "solver_audit_agent_id": solver_audit["agent_id"],
+                "solver_audit_full_loss": solver_audit[
+                    "full_optimization_loss"
+                ],
+                "solver_audit_best_loo_loss": solver_audit[
+                    "best_loo_optimization_loss"
+                ],
+                "solver_audit_improvement": solver_audit["improvement"],
+                "solver_recovery_attempts": recovery_attempts,
+                "solver_recovery_success": bool(
+                    recovery_attempts > 0 and informative
+                ),
                 "stage3_requests_cumulative": counter["requests"]["stage3"],
                 "contribution_requests_cumulative": counter["requests"]["contribution"],
             }
         )
+        terminal_state = {
+            "round": round_idx,
+            "alpha": alpha_before.copy(),
+            "solution": current_S.copy(),
+            "q": None if q is None else q.copy(),
+            "q_raw": None if q_raw is None else q_raw.copy(),
+            "evaluation_loss": float(current_eval_loss),
+            "exclusion_reports": copy.deepcopy(exclusion_reports),
+            "solver_audit": copy.deepcopy(solver_audit),
+            "informative": informative,
+            "current_state_accepted": current_state_accepted,
+        }
         for idx, report in enumerate(exclusion_reports):
             agent_rows.append(
                 {
@@ -406,6 +552,12 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
                     ),
                     "contribution_share": (
                         float(q_for_update[idx]) if informative else None
+                    ),
+                    "raw_contribution_share": (
+                        float(q_raw[idx]) if informative else None
+                    ),
+                    "calibrated_contribution_share": (
+                        float(q[idx]) if informative else None
                     ),
                     "optimization_after": float(alpha_after[idx]),
                 }
@@ -429,28 +581,27 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
     # a final-round proposal rejected by the guarded evaluator.
     final_S = accepted_state["solution"]
     final_q = accepted_state["q"]
-    final_positive_contribution = accepted_state["positive_contribution"]
+    final_q_raw = accepted_state["q_raw"]
     final_eval_loss = accepted_state["evaluation_loss"]
     exclusion_summary = accepted_state["exclusion_summary"]
     server.alphas = [float(value) for value in accepted_state["alpha"]]
+    server.last_alpha_calibration_state = copy.deepcopy(accepted_state)
+    server.last_stage3a_terminal_state = copy.deepcopy(terminal_state)
 
-    counter['stage'] = 'payment'
-    q_pay, payment_positive, payment_source, fallback_reason = payment_contributions(
-        accepted_state['payment_reports'],
-        lambda: server._consensus_loss(final_S, mode='optimization'),
-    )
-
-    payment_status, payment_rows, paid_total = settle_with_separated_weights(
-        server,
-        reputation,
-        q_pay,
-        payment_positive,
-        config["payment_reputation_mix"],
-    )
-    for row in payment_rows:
-        row.update(config["identity"])
-        row['payment_contribution_source'] = payment_source
-        row['payment_fallback_reason'] = fallback_reason
+    if settle_payment:
+        payment_summary, payment_rows = settle_calibration_state(
+            server, accepted_state, reputation, config, counter=counter
+        )
+    else:
+        payment_rows = []
+        payment_summary = {
+            "payment_status": "deferred_until_coalition_stable",
+            "payment_contribution_source": "",
+            "payment_fallback_reason": "",
+            "payment_contribution_weights": "[]",
+            "payment_requests": 0,
+            "paid_total": None,
+        }
 
     final_alpha = np.asarray(server.alphas, dtype=float)
     selected_poison_weight = float(
@@ -469,6 +620,9 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
         "final_optimization_weights": json.dumps([float(x) for x in final_alpha]),
         "final_contribution_weights": json.dumps(
             [float(x) for x in final_q] if final_q is not None else []
+        ),
+        "final_raw_contribution_weights": json.dumps(
+            [float(x) for x in final_q_raw] if final_q_raw is not None else []
         ),
         "rounds_executed": len(round_rows),
         "final_accepted_round": int(accepted_state["round"]),
@@ -489,17 +643,137 @@ def calibrate_one_condition(server, config, reputation, poisoned_ids):
         "final_full_solution_source": exclusion_summary["full_solution_source"],
         "final_loo_search_objective": exclusion_summary["loo_search_objective"],
         "final_consistency_l1": accepted_state["consistency_l1"],
+        "final_raw_consistency_l1": accepted_state["raw_consistency_l1"],
+        "final_solver_audit_status": round_rows[-1]["solver_audit_status"],
+        "solver_recovery_attempts": int(
+            sum(row["solver_recovery_attempts"] for row in round_rows)
+        ),
+        "solver_recovery_successes": int(
+            sum(bool(row["solver_recovery_success"]) for row in round_rows)
+        ),
         "selected_poison_weight": selected_poison_weight,
         "stage3_requests": counter["requests"]["stage3"],
         "contribution_requests": counter["requests"]["contribution"],
-        "payment_status": payment_status,
-        'payment_contribution_source': payment_source,
-        'payment_fallback_reason': fallback_reason,
-        'payment_contribution_weights': json.dumps([] if q_pay is None else q_pay.tolist()),
-        'payment_requests': counter['requests']['payment'],
-        "paid_total": paid_total,
+        **payment_summary,
     }
     return summary, round_rows, agent_rows, payment_rows
+
+
+def calibrate_stabilized_condition(server, config, reputation, poisoned_ids):
+    """Run Stage 3A, prune at most one agent, then restart Stage 3A.
+
+    The existing experiment path intentionally keeps a fixed coalition.  This
+    opt-in orchestrator implements the full Stage 3A/3B nesting and settles only
+    the final stable coalition.
+    """
+    initial_ids = [agent.agent_id for agent in server.trusted_agents]
+    reputation_by_id = {
+        agent.agent_id: float(reputation[index])
+        for index, agent in enumerate(server.trusted_agents)
+    }
+    configured_max_rounds = config.get("max_coalition_rounds")
+    max_rounds = (
+        max(0, len(server.trusted_agents) - 1)
+        if configured_max_rounds is None
+        else configured_max_rounds
+    )
+    pruning_epsilon = config.get("pruning_tolerance", 1e-6)
+    all_round_rows = []
+    all_agent_rows = []
+    pruning_log = []
+    total_stage3_requests = 0
+    total_contribution_requests = 0
+
+    final_summary = None
+    final_reputation = None
+    final_config = None
+    for coalition_round in range(max_rounds + 1):
+        current_ids = [agent.agent_id for agent in server.trusted_agents]
+        final_reputation = normalize(
+            [reputation_by_id[agent_id] for agent_id in current_ids]
+        )
+        final_config = copy.deepcopy(config)
+        final_config["condition_seed"] = config["condition_seed"] + coalition_round
+        final_config["identity"] = {
+            **config["identity"],
+            "coalition_round": coalition_round,
+        }
+
+        summary, round_rows, agent_rows, _ = calibrate_one_condition(
+            server,
+            final_config,
+            final_reputation,
+            poisoned_ids,
+            settle_payment=False,
+        )
+        all_round_rows.extend(round_rows)
+        all_agent_rows.extend(agent_rows)
+        total_stage3_requests += summary["stage3_requests"]
+        total_contribution_requests += summary["contribution_requests"]
+        final_summary = summary
+
+        terminal = server.last_stage3a_terminal_state
+        stage3b_state = (
+            terminal
+            if terminal["current_state_accepted"]
+            else server.last_alpha_calibration_state
+        )
+        reports = stage3b_state["exclusion_reports"]
+        candidate = HostServer.negative_contributor_candidate(
+            reports, epsilon=pruning_epsilon
+        )
+        log = {
+            "coalition_round": coalition_round,
+            "coalition_ids": current_ids,
+            "stage3a_stop_reason": summary["stop_reason"],
+            "solver_audit_status": terminal["solver_audit"]["status"],
+            "pruning_candidate_agent_id": (
+                None if candidate is None else candidate["agent_id"]
+            ),
+            "pruning_candidate_contribution": (
+                None if candidate is None else candidate["marginal_contribution"]
+            ),
+            "removed_agent_id": None,
+            "status": "stable",
+        }
+
+        if candidate is None or len(server.trusted_agents) <= 1:
+            if candidate is not None:
+                log["status"] = "stopped_single_agent"
+            pruning_log.append(log)
+            break
+        if coalition_round >= max_rounds:
+            log["status"] = "max_coalition_rounds"
+            pruning_log.append(log)
+            break
+
+        removed = server._remove_trusted_agent_at(candidate["index"])
+        log["removed_agent_id"] = removed["agent_id"]
+        log["status"] = "removed_negative_contributor"
+        pruning_log.append(log)
+
+    accepted_state = server.last_alpha_calibration_state
+    payment_summary, payment_rows = settle_calibration_state(
+        server,
+        accepted_state,
+        final_reputation,
+        final_config,
+        counter=server.last_query_counter,
+    )
+    final_summary.update(payment_summary)
+    final_summary.update(
+        {
+            "initial_coalition_ids": json.dumps(initial_ids),
+            "final_coalition_ids": json.dumps(
+                [agent.agent_id for agent in server.trusted_agents]
+            ),
+            "coalition_rounds_executed": len(pruning_log),
+            "pruning_log": json.dumps(pruning_log, sort_keys=True),
+            "stage3_requests": total_stage3_requests,
+            "contribution_requests": total_contribution_requests,
+        }
+    )
+    return final_summary, all_round_rows, all_agent_rows, payment_rows, pruning_log
 
 
 def write_csv(path, rows):
@@ -555,6 +829,7 @@ def run(args):
     rounds = []
     agents = []
     payments = []
+    pruning_rows = []
     condition_index = 0
 
     scenarios = product(args.seeds, args.dimensions, args.poison_ratios, args.targets)
@@ -634,6 +909,10 @@ def run(args):
                 "minimum_update_rate": args.minimum_update_rate,
                 "evaluation_tolerance": args.evaluation_tolerance,
                 "exploration_mass": args.exploration_mass,
+                "solver_audit_tolerance": args.solver_audit_tolerance,
+                "max_solver_recoveries": args.max_solver_recoveries,
+                "pruning_tolerance": args.pruning_tolerance,
+                "max_coalition_rounds": args.max_coalition_rounds,
                 "trim_fraction": args.trim_fraction,
                 "optimizer": args.optimizer,
                 "custom_iterations": args.custom_iterations,
@@ -641,10 +920,18 @@ def run(args):
             }
             condition_index += 1
             server = copy.deepcopy(base_server)
-            result = calibrate_one_condition(
-                server, config, reputation.copy(), poisoned_ids
-            )
-            summary, round_rows, agent_rows, payment_rows = result
+            if args.enable_coalition_stabilization:
+                result = calibrate_stabilized_condition(
+                    server, config, reputation.copy(), poisoned_ids
+                )
+                summary, round_rows, agent_rows, payment_rows, condition_pruning = result
+                for row in condition_pruning:
+                    pruning_rows.append({**identity, **row})
+            else:
+                result = calibrate_one_condition(
+                    server, config, reputation.copy(), poisoned_ids
+                )
+                summary, round_rows, agent_rows, payment_rows = result
             summaries.append(summary)
             rounds.extend(round_rows)
             agents.extend(agent_rows)
@@ -654,6 +941,7 @@ def run(args):
     write_csv(output_dir / "rounds.csv", rounds)
     write_csv(output_dir / "agents.csv", agents)
     write_csv(output_dir / "payments.csv", payments)
+    write_csv(output_dir / "pruning.csv", pruning_rows)
     print(f"Alpha-weight experiments complete: {len(summaries)} conditions")
     print(f"Outputs written to: {output_dir}")
 
@@ -708,6 +996,15 @@ def build_parser():
     parser.add_argument("--minimum-update-rate", type=float, default=0.05)
     parser.add_argument("--evaluation-tolerance", type=float, default=1e-4)
     parser.add_argument("--exploration-mass", type=float, default=0.02)
+    parser.add_argument("--solver-audit-tolerance", type=float, default=1e-6)
+    parser.add_argument("--max-solver-recoveries", type=int, default=1)
+    parser.add_argument(
+        "--enable-coalition-stabilization",
+        action="store_true",
+        help="Enable Stage 3B single-agent pruning and restart Stage 3A.",
+    )
+    parser.add_argument("--pruning-tolerance", type=float, default=1e-6)
+    parser.add_argument("--max-coalition-rounds", type=int, default=None)
     parser.add_argument("--trim-fraction", type=float, default=0.2)
     parser.add_argument("--payment-reputation-mix", type=float, default=0.4)
     parser.add_argument("--condition-seed", type=int, default=20260904)
@@ -772,6 +1069,14 @@ def validate_args(args):
         raise ValueError("minimum-update-rate must be in (0, 1].")
     if args.evaluation_tolerance < 0:
         raise ValueError("evaluation-tolerance must be non-negative.")
+    if args.solver_audit_tolerance < 0:
+        raise ValueError("solver-audit-tolerance must be non-negative.")
+    if args.max_solver_recoveries < 0:
+        raise ValueError("max-solver-recoveries must be non-negative.")
+    if args.pruning_tolerance < 0:
+        raise ValueError("pruning-tolerance must be non-negative.")
+    if args.max_coalition_rounds is not None and args.max_coalition_rounds < 0:
+        raise ValueError("max-coalition-rounds must be non-negative.")
     if args.controlled_coalition_size < 1:
         raise ValueError("controlled-coalition-size must be positive.")
     if args.controlled_poison_count < 0:

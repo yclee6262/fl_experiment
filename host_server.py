@@ -323,7 +323,13 @@ class HostServer:
             y_value += np.sum(S_array[:-1] * S_array[1:])
         return float(abs(y_value - self.target_T))
 
-    def _solve_subspace_bfgs(self, candidates, objective, history_metric=None):
+    def _solve_subspace_bfgs(
+        self,
+        candidates,
+        objective,
+        history_metric=None,
+        initial_solution=None,
+    ):
         candidates = np.asarray(candidates, dtype=float)
         history = []
 
@@ -335,6 +341,20 @@ class HostServer:
             history.append(float((history_metric or objective)(solution)))
 
         initial_betas = np.ones(len(candidates), dtype=float) / len(candidates)
+        if initial_solution is not None:
+            initial_solution = np.asarray(initial_solution, dtype=float)
+            if initial_solution.shape != candidates.shape[1:]:
+                raise ValueError(
+                    "Warm-start solution must match the candidate feature shape."
+                )
+            if not np.all(np.isfinite(initial_solution)):
+                raise ValueError("Warm-start solution must be finite.")
+            # Solve candidates.T @ beta ~= initial_solution.  A LOO solution is
+            # already in the full candidate span after the excluded coefficient
+            # is embedded as zero, so this recovers a compatible BFGS start.
+            initial_betas = np.linalg.lstsq(
+                candidates.T, initial_solution, rcond=None
+            )[0]
         result = minimize(beta_objective, initial_betas, method="BFGS", callback=callback)
         solution = np.dot(result.x, candidates)
         loss = float(objective(solution))
@@ -359,11 +379,21 @@ class HostServer:
         direction_weights=None,
         history_metric=None,
         verbose=False,
+        initial_solution=None,
     ):
         """Run the secant/tangent engine against an arbitrary subspace objective."""
         candidates = np.asarray(candidates, dtype=float)
         n_candidates = len(candidates)
-        S_current = np.mean(candidates, axis=0)
+        if initial_solution is None:
+            S_current = np.mean(candidates, axis=0)
+        else:
+            S_current = np.asarray(initial_solution, dtype=float).copy()
+            if S_current.shape != candidates.shape[1:]:
+                raise ValueError(
+                    "Warm-start solution must match the candidate feature shape."
+                )
+            if not np.all(np.isfinite(S_current)):
+                raise ValueError("Warm-start solution must be finite.")
         if direction_weights is None:
             direction_weights = np.ones(n_candidates, dtype=float) / n_candidates
         else:
@@ -467,6 +497,7 @@ class HostServer:
         allow_tangent=True,
         history_metric=None,
         verbose=False,
+        initial_solution=None,
     ):
         """Optimize one candidate subspace and select engines by one objective."""
         candidates = np.asarray(self.I_list if candidates is None else candidates, dtype=float)
@@ -484,7 +515,10 @@ class HostServer:
         results = {}
         if strategy in {"bfgs", "best_of"}:
             results["bfgs"] = self._solve_subspace_bfgs(
-                candidates, objective, history_metric=history_metric
+                candidates,
+                objective,
+                history_metric=history_metric,
+                initial_solution=initial_solution,
             )
         if strategy in {"custom", "best_of"}:
             direction_weights = (
@@ -501,6 +535,7 @@ class HostServer:
                 direction_weights=direction_weights,
                 history_metric=history_metric,
                 verbose=verbose,
+                initial_solution=initial_solution,
             )
         if not results:
             raise ValueError("strategy must be one of: custom, bfgs, best_of.")
@@ -522,21 +557,24 @@ class HostServer:
         self.last_subspace_optimization = output
         return output
 
-    def phase3_global_optimization(self):
+    def phase3_global_optimization(self, initial_solution=None):
         """使用 SciPy BFGS 計算最佳混合比例 (Betas)"""
         print("\n--- Phase 3: 全域最佳化 (BFGS 演算法) ---")
         result = self.optimize_candidate_subspace(
-            strategy="bfgs", history_metric=self._true_target_error
+            strategy="bfgs",
+            history_metric=self._true_target_error,
+            initial_solution=initial_solution,
         )
         return result["solution"], result["history"]
 
-    def phase3_best_of_optimization(self, custom_iterations=30):
+    def phase3_best_of_optimization(self, custom_iterations=30, initial_solution=None):
         """Run both Stage 3 engines and keep the lower-L_opt solution."""
         print("\n--- Phase 3: 全域最佳化 (best_of: BFGS vs custom) ---")
         result = self.optimize_candidate_subspace(
             strategy="best_of",
             custom_iterations=custom_iterations,
             history_metric=self._true_target_error,
+            initial_solution=initial_solution,
         )
         print(
             f"best_of 選擇 {result['chosen_engine']}，"
@@ -656,18 +694,105 @@ class HostServer:
             "proposal": removed_proposal,
         }
 
-    def _rerun_stage3_optimizer(self, optimizer, custom_iterations):
+    @staticmethod
+    def audit_uninformative_exclusion(
+        full_optimization_loss,
+        exclusion_reports,
+        epsilon=1e-6,
+    ):
+        """Check whether a LOO solution exposes a dominated full solution.
+
+        Full and LOO losses must use the same L_opt.  The LOO run changes only
+        the candidate subspace; it does not change the agents or alpha weights
+        in the objective being compared.
+        """
+        full_optimization_loss = float(full_optimization_loss)
+        epsilon = float(epsilon)
+        if not np.isfinite(full_optimization_loss):
+            raise ValueError("Full optimization loss must be finite.")
+        if epsilon < 0:
+            raise ValueError("Solver audit epsilon must be non-negative.")
+
+        finite_reports = [
+            report
+            for report in exclusion_reports
+            if report.get("restricted_solution") is not None
+            and np.isfinite(report.get("restricted_optimization_loss", np.nan))
+        ]
+        if not finite_reports:
+            return {
+                "status": "no_finite_loo",
+                "loo_dominates": False,
+                "agent_id": None,
+                "index": None,
+                "full_optimization_loss": full_optimization_loss,
+                "best_loo_optimization_loss": None,
+                "improvement": None,
+                "warm_start_solution": None,
+            }
+
+        best = min(
+            finite_reports,
+            key=lambda report: report["restricted_optimization_loss"],
+        )
+        best_loss = float(best["restricted_optimization_loss"])
+        improvement = full_optimization_loss - best_loss
+        dominates = best_loss < full_optimization_loss - epsilon
+        return {
+            "status": "loo_dominates" if dominates else "audited_uninformative",
+            "loo_dominates": bool(dominates),
+            "agent_id": best["agent_id"],
+            "index": best["index"],
+            "full_optimization_loss": full_optimization_loss,
+            "best_loo_optimization_loss": best_loss,
+            "improvement": float(improvement),
+            "warm_start_solution": np.asarray(
+                best["restricted_solution"], dtype=float
+            ).copy(),
+        }
+
+    @staticmethod
+    def negative_contributor_candidate(exclusion_reports, epsilon=1e-6):
+        """Return one most-negative raw-C pruning candidate, if significant."""
+        epsilon = float(epsilon)
+        if epsilon < 0:
+            raise ValueError("Pruning epsilon must be non-negative.")
+        finite_reports = [
+            report
+            for report in exclusion_reports
+            if np.isfinite(report.get("marginal_contribution", np.nan))
+        ]
+        if not finite_reports:
+            return None
+        candidate = min(
+            finite_reports,
+            key=lambda report: report["marginal_contribution"],
+        )
+        if candidate["marginal_contribution"] >= -epsilon:
+            return None
+        return candidate
+
+    def _rerun_stage3_optimizer(
+        self,
+        optimizer,
+        custom_iterations,
+        initial_solution=None,
+    ):
         if optimizer == "bfgs":
-            final_S, history = self.phase3_global_optimization()
+            final_S, history = self.phase3_global_optimization(
+                initial_solution=initial_solution
+            )
             return final_S, history, []
         if optimizer == "custom":
             final_S, history, states = self.phase3_custom_secant_optimization(
-                num_iterations=custom_iterations
+                num_iterations=custom_iterations,
+                initial_solution=initial_solution,
             )
             return final_S, history, states
         if optimizer == "best_of":
             return self.phase3_best_of_optimization(
-                custom_iterations=custom_iterations
+                custom_iterations=custom_iterations,
+                initial_solution=initial_solution,
             )
         raise ValueError("optimizer must be one of: custom, bfgs, best_of.")
 
@@ -698,7 +823,9 @@ class HostServer:
             coalition_ids = [agent.agent_id for agent in self.trusted_agents]
             print(f"\n[Pruning Round {pruning_round}] coalition={coalition_ids}")
             base_loss, exclusion_reports = self._compute_exclusion_reports(current_S)
-            min_report = min(exclusion_reports, key=lambda row: row["marginal_contribution"])
+            min_report = self.negative_contributor_candidate(
+                exclusion_reports, epsilon=epsilon
+            )
 
             round_log = {
                 "round": pruning_round,
@@ -712,9 +839,13 @@ class HostServer:
                 "status": "stable",
             }
 
-            if min_report["marginal_contribution"] >= -epsilon:
+            if min_report is None:
+                minimum = min(
+                    report["marginal_contribution"]
+                    for report in exclusion_reports
+                )
                 print(
-                    f"停止 pruning：最小 C_i={min_report['marginal_contribution']:.6f} "
+                    f"停止 pruning：最小 C_i={minimum:.6f} "
                     f">= -epsilon ({-epsilon:.6f})"
                 )
                 pruning_log.append(round_log)
@@ -868,7 +999,13 @@ class HostServer:
         print(f"Phase 4 完成：總支付 {paid_total:.3f}/{total_budget:.3f}")
         return self.phase4_report
     
-    def phase3_custom_secant_optimization(self, num_iterations=50, use_annealing=True, allow_tangent=True):
+    def phase3_custom_secant_optimization(
+        self,
+        num_iterations=50,
+        use_annealing=True,
+        allow_tangent=True,
+        initial_solution=None,
+    ):
         """Phase 3 (Alternative): 使用原創的割線/切線法進行子空間尋路 (支援消融實驗)"""
         print("\n--- Phase 3: 全域最佳化 (啟動割線/切線退火引擎) ---")
         result = self.optimize_candidate_subspace(
@@ -878,6 +1015,7 @@ class HostServer:
             allow_tangent=allow_tangent,
             history_metric=self._true_target_error,
             verbose=True,
+            initial_solution=initial_solution,
         )
         print(f"✅ 法二法三引擎尋路完成！最終決策變數 S = {result['solution']}")
         return result["solution"], result["history"], result["states"]
