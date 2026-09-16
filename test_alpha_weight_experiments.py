@@ -497,6 +497,167 @@ class AlphaWeightExperimentTests(unittest.TestCase):
         self.assertEqual(summary["final_coalition_ids"], "[1, 3]")
         self.assertEqual(summary["stage3_requests"], 6)
 
+    def test_stage3b_uses_rejected_audited_uninformative_terminal_for_pruning(self):
+        server = HostServer(target_T=0.0, n_features=1, total_budget=10.0)
+        server.trusted_agents = [
+            FakeAgent(1, 0.0),
+            FakeAgent(2, 0.0),
+            FakeAgent(3, 0.0),
+        ]
+        server.I_list = [np.asarray([1.0]), np.asarray([2.0]), np.asarray([3.0])]
+        server.alphas = [1.0 / 3.0] * 3
+        config = {
+            "identity": {"experiment": "audited_terminal_pruning"},
+            "condition_seed": 11,
+            "payment_reputation_mix": 0.5,
+            "pruning_tolerance": 1e-6,
+            "max_coalition_rounds": 1,
+        }
+        calls = []
+
+        def reports_for(fake_server, contributions):
+            return [
+                {
+                    "index": index,
+                    "agent_id": agent.agent_id,
+                    "marginal_contribution": contributions[index],
+                }
+                for index, agent in enumerate(fake_server.trusted_agents)
+            ]
+
+        def fake_calibrate(fake_server, local_config, *_args, **_kwargs):
+            calls.append([agent.agent_id for agent in fake_server.trusted_agents])
+            if len(calls) == 1:
+                terminal_reports = reports_for(fake_server, [-0.1, -0.5, 0.0])
+                accepted_reports = reports_for(fake_server, [0.2, 0.1, 0.3])
+                terminal_accepted = False
+                stop_reason = "audited_uninformative"
+            else:
+                terminal_reports = reports_for(fake_server, [0.2, 0.1])
+                accepted_reports = terminal_reports
+                terminal_accepted = True
+                stop_reason = "fixed_point_tolerance"
+            fake_server.last_stage3a_terminal_state = {
+                "exclusion_reports": terminal_reports,
+                "solver_audit": {
+                    "status": (
+                        "audited_uninformative"
+                        if len(calls) == 1 else "not_needed"
+                    )
+                },
+                "current_state_accepted": terminal_accepted,
+            }
+            fake_server.last_alpha_calibration_state = {
+                "solution": np.zeros(1),
+                "exclusion_reports": accepted_reports,
+            }
+            fake_server.last_query_counter = {
+                "stage": "contribution",
+                "requests": {"payment": 0},
+            }
+            return (
+                {
+                    "stop_reason": stop_reason,
+                    "stage3_requests": 3,
+                    "contribution_requests": 4,
+                },
+                [],
+                [],
+                [],
+            )
+
+        with patch(
+            "alpha_weight_experiments.calibrate_one_condition",
+            side_effect=fake_calibrate,
+        ), patch(
+            "alpha_weight_experiments.settle_calibration_state",
+            return_value=({"payment_status": "ok", "paid_total": 10.0}, []),
+        ):
+            summary, _rounds, _agents, _payments, pruning = (
+                calibrate_stabilized_condition(
+                    server,
+                    config,
+                    reputation=np.asarray([0.5, 0.3, 0.2]),
+                    poisoned_ids=set(),
+                )
+            )
+
+        self.assertEqual(calls, [[1, 2, 3], [1, 3]])
+        self.assertEqual(
+            pruning[0]["pruning_state_source"],
+            "terminal_audited_uninformative",
+        )
+        self.assertEqual(pruning[0]["removed_agent_id"], 2)
+        self.assertEqual(pruning[1]["pruning_state_source"], "terminal_accepted")
+        self.assertEqual(summary["final_coalition_ids"], "[1, 3]")
+
+    def test_stage3b_uses_accepted_snapshot_for_other_rejected_terminal(self):
+        server = HostServer(target_T=0.0, n_features=1, total_budget=10.0)
+        server.trusted_agents = [FakeAgent(1, 0.0), FakeAgent(2, 0.0)]
+        server.I_list = [np.asarray([1.0]), np.asarray([2.0])]
+        server.alphas = [0.5, 0.5]
+        config = {
+            "identity": {"experiment": "guard_rejection_pruning"},
+            "condition_seed": 13,
+            "payment_reputation_mix": 0.5,
+            "pruning_tolerance": 1e-6,
+            "max_coalition_rounds": 1,
+        }
+        terminal_reports = [
+            {"index": 0, "agent_id": 1, "marginal_contribution": -0.5},
+            {"index": 1, "agent_id": 2, "marginal_contribution": 0.0},
+        ]
+        accepted_reports = [
+            {"index": 0, "agent_id": 1, "marginal_contribution": 0.2},
+            {"index": 1, "agent_id": 2, "marginal_contribution": 0.1},
+        ]
+
+        def fake_calibrate(fake_server, *_args, **_kwargs):
+            fake_server.last_stage3a_terminal_state = {
+                "exclusion_reports": terminal_reports,
+                "solver_audit": {"status": "not_needed"},
+                "current_state_accepted": False,
+            }
+            fake_server.last_alpha_calibration_state = {
+                "solution": np.zeros(1),
+                "exclusion_reports": accepted_reports,
+            }
+            fake_server.last_query_counter = {
+                "stage": "contribution",
+                "requests": {"payment": 0},
+            }
+            return (
+                {
+                    "stop_reason": "max_rounds",
+                    "stage3_requests": 3,
+                    "contribution_requests": 4,
+                },
+                [],
+                [],
+                [],
+            )
+
+        with patch(
+            "alpha_weight_experiments.calibrate_one_condition",
+            side_effect=fake_calibrate,
+        ), patch(
+            "alpha_weight_experiments.settle_calibration_state",
+            return_value=({"payment_status": "ok", "paid_total": 10.0}, []),
+        ):
+            summary, _rounds, _agents, _payments, pruning = (
+                calibrate_stabilized_condition(
+                    server,
+                    config,
+                    reputation=np.asarray([0.6, 0.4]),
+                    poisoned_ids=set(),
+                )
+            )
+
+        self.assertEqual(pruning[0]["pruning_state_source"], "accepted_snapshot")
+        self.assertEqual(pruning[0]["status"], "stable")
+        self.assertIsNone(pruning[0]["removed_agent_id"])
+        self.assertEqual(summary["final_coalition_ids"], "[1, 2]")
+
     def test_consensus_evaluators_are_independent_when_requested(self):
         server = HostServer(target_T=0.0, n_features=1)
         server.trusted_agents = [

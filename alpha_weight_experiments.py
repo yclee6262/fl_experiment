@@ -713,11 +713,20 @@ def calibrate_stabilized_condition(server, config, reputation, poisoned_ids):
         final_summary = summary
 
         terminal = server.last_stage3a_terminal_state
-        stage3b_state = (
-            terminal
-            if terminal["current_state_accepted"]
-            else server.last_alpha_calibration_state
-        )
+        terminal_audit_status = terminal["solver_audit"]["status"]
+        # An audited-uninformative terminal state has passed the L_opt solver
+        # audit, so its raw C values are the evidence Stage 3B must inspect.
+        # It remains rejected for alpha calibration and settlement; ordinary
+        # rejected candidates still fall back to the last accepted snapshot.
+        if terminal["current_state_accepted"]:
+            stage3b_state = terminal
+            pruning_state_source = "terminal_accepted"
+        elif terminal_audit_status == "audited_uninformative":
+            stage3b_state = terminal
+            pruning_state_source = "terminal_audited_uninformative"
+        else:
+            stage3b_state = server.last_alpha_calibration_state
+            pruning_state_source = "accepted_snapshot"
         reports = stage3b_state["exclusion_reports"]
         candidate = HostServer.negative_contributor_candidate(
             reports, epsilon=pruning_epsilon
@@ -726,7 +735,8 @@ def calibrate_stabilized_condition(server, config, reputation, poisoned_ids):
             "coalition_round": coalition_round,
             "coalition_ids": current_ids,
             "stage3a_stop_reason": summary["stop_reason"],
-            "solver_audit_status": terminal["solver_audit"]["status"],
+            "solver_audit_status": terminal_audit_status,
+            "pruning_state_source": pruning_state_source,
             "pruning_candidate_agent_id": (
                 None if candidate is None else candidate["agent_id"]
             ),
