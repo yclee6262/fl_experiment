@@ -1,0 +1,40 @@
+seed,dimension,poison_ratio,target,initialization,initialization_replicate,evaluator,update_rate,update_policy,coalition_mode,controlled_coalition_size,controlled_poison_count,coalition_round,coalition_ids,stage3a_stop_reason,solver_audit_status,pruning_state_source,pruning_candidate_agent_id,pruning_candidate_contribution,removed_agent_id,status
+0,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[9, 19, 16]",max_rounds,not_needed,accepted_snapshot,,,,stable
+1,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[12, 3, 16]",fixed_point_tolerance,not_needed,terminal_accepted,,,,stable
+2,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[8, 10, 20]",max_rounds,not_needed,accepted_snapshot,,,,stable
+3,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[4, 1, 16]",max_rounds,not_needed,accepted_snapshot,,,,stable
+4,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[10, 8, 20]",max_rounds,recovered_informative,accepted_snapshot,,,,stable
+5,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[20, 18, 3]",max_rounds,recovered_informative,accepted_snapshot,3,-8.11840097109471e-05,3,removed_negative_contributor
+5,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,1,"[20, 18]",max_rounds,not_needed,accepted_snapshot,,,,stable
+6,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[18, 19, 3]",max_rounds,not_needed,accepted_snapshot,,,,stable
+7,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[15, 13, 9]",max_rounds,not_needed,accepted_snapshot,15,-0.0009890316675106679,15,removed_negative_contributor
+7,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,1,"[13, 9]",fixed_point_tolerance,recovered_informative,terminal_accepted,,,,stable
+8,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[1, 18, 9]",audited_uninformative,audited_uninformative,terminal_audited_uninformative,1,-0.001530544211467107,1,removed_negative_contributor
+8,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,1,"[18, 9]",max_rounds,not_needed,accepted_snapshot,,,,stable
+9,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[16, 8, 1]",audited_uninformative,audited_uninformative,terminal_audited_uninformative,16,-0.002537064254283906,16,removed_negative_contributor
+9,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,1,"[8, 1]",max_rounds,not_needed,accepted_snapshot,,,,stable
+10,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[18, 8, 14]",max_rounds,recovered_informative,accepted_snapshot,,,,stable
+11,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[20, 8, 17]",fixed_point_tolerance,not_needed,terminal_accepted,,,,stable
+12,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[18, 15, 17]",max_rounds,not_needed,accepted_snapshot,,,,stable
+13,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[17, 6, 9]",fixed_point_tolerance,not_needed,terminal_accepted,,,,stable
+14,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[15, 5, 6]",fixed_point_tolerance,not_needed,terminal_accepted,,,,stable
+15,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[12, 16, 3]",max_rounds,not_needed,accepted_snapshot,12,-0.00025718651401499936,12,removed_negative_contributor
+15,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,1,"[16, 3]",fixed_point_tolerance,not_needed,terminal_accepted,,,,stable
+16,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[8, 10, 2]",max_rounds,not_needed,accepted_snapshot,,,,stable
+17,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[19, 14, 15]",max_rounds,not_needed,accepted_snapshot,,,,stable
+18,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[8, 10, 6]",audited_uninformative,audited_uninformative,terminal_audited_uninformative,10,-0.00032004217306772853,10,removed_negative_contributor
+18,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,1,"[8, 6]",fixed_point_tolerance,not_needed,terminal_accepted,,,,stable
+19,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[10, 8, 18]",max_rounds,not_needed,accepted_snapshot,,,,stable
+20,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[17, 11, 10]",fixed_point_tolerance,recovered_informative,terminal_accepted,,,,stable
+21,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[2, 9, 10]",max_rounds,not_needed,accepted_snapshot,9,-0.011602265139420826,9,removed_negative_contributor
+21,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,1,"[2, 10]",fixed_point_tolerance,not_needed,terminal_accepted,,,,stable
+22,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[1, 19, 6]",max_rounds,not_needed,accepted_snapshot,19,-2.259512742360404e-05,19,removed_negative_contributor
+22,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,1,"[1, 6]",max_rounds,not_needed,accepted_snapshot,,,,stable
+23,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[3, 18, 5]",max_rounds,not_needed,accepted_snapshot,,,,stable
+24,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[13, 20, 7]",max_rounds,not_needed,accepted_snapshot,,,,stable
+25,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[9, 19, 20]",max_rounds,not_needed,accepted_snapshot,,,,stable
+26,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[10, 14, 16]",max_rounds,not_needed,terminal_accepted,,,,stable
+27,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[5, 13, 14]",max_rounds,recovered_informative,accepted_snapshot,,,,stable
+28,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[20, 13, 8]",max_rounds,not_needed,accepted_snapshot,13,-1.2657294670741052e-05,13,removed_negative_contributor
+28,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,1,"[20, 8]",fixed_point_tolerance,not_needed,terminal_accepted,,,,stable
+29,2,0.0,0.0,uniform,0,uniform,0.5,guarded,stage1,,,0,"[8, 16, 15]",max_rounds,not_needed,accepted_snapshot,,,,stable
