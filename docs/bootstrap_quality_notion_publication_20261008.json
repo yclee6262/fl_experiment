@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-08",
+  "report_url": "https://app.notion.com/p/3f3bf435d4748130955ae9e560bd8479?pvs=204",
+  "summary_url": "https://app.notion.com/p/3eebf435d47481f0998cdf5db86b68ce",
+  "checks": {
+    "criticalContent": true,
+    "attachment": true,
+    "nativeTables": true,
+    "noUnknown": true,
+    "noBrokenFileLinks": true,
+    "formalBeforeExploration": true
+  },
+  "source": "docs/bootstrap_quality_research_results_20261008.md"
+}

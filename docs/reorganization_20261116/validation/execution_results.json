@@ -1,0 +1,118 @@
+[
+  {
+    "name": "initialization",
+    "exit_code": 0,
+    "seconds": 1.5288599169580266,
+    "command": [
+      "python",
+      "run.py",
+      "initialization",
+      "--source",
+      "alpha_weight_outputs/four_alpha_v1_20261014/formal_batch_1/source",
+      "--seeds",
+      "20000",
+      "--output-dir",
+      "/Users/yclee/Documents/GitHub/fl_experiment/docs/reorganization_20261116/validation/initialization"
+    ]
+  },
+  {
+    "name": "contribution",
+    "exit_code": 0,
+    "seconds": 6.49494337500073,
+    "command": [
+      "python",
+      "run.py",
+      "contribution",
+      "--output-dir",
+      "/Users/yclee/Documents/GitHub/fl_experiment/docs/reorganization_20261116/validation/contribution"
+    ]
+  },
+  {
+    "name": "baseline",
+    "exit_code": 0,
+    "seconds": 2.9599796250113286,
+    "command": [
+      "python",
+      "run.py",
+      "baseline",
+      "--dimensions",
+      "5",
+      "--mse-threshold",
+      "1000000",
+      "--disable-inverse-check",
+      "--output-dir",
+      "/Users/yclee/Documents/GitHub/fl_experiment/docs/reorganization_20261116/validation/baseline"
+    ]
+  },
+  {
+    "name": "calibration",
+    "exit_code": 0,
+    "seconds": 2.1485491669736803,
+    "command": [
+      "python",
+      "run.py",
+      "calibration",
+      "--output-dir",
+      "/Users/yclee/Documents/GitHub/fl_experiment/docs/reorganization_20261116/validation/calibration",
+      "--seeds",
+      "42",
+      "--dimensions",
+      "2",
+      "--poison-ratios",
+      "0",
+      "--initializations",
+      "uniform",
+      "--evaluators",
+      "uniform",
+      "--update-rates",
+      "0.5",
+      "--update-policies",
+      "fixed,guarded",
+      "--max-calibration-rounds",
+      "2",
+      "--num-agents",
+      "3",
+      "--samples-per-agent",
+      "32",
+      "--epochs",
+      "1",
+      "--mse-threshold",
+      "1000000",
+      "--disable-inverse-check",
+      "--custom-iterations",
+      "3",
+      "--no-settle-payment",
+      "--constraint-mode",
+      "box_constrained"
+    ]
+  },
+  {
+    "name": "stages",
+    "exit_code": 0,
+    "seconds": 1.763569875038229,
+    "command": [
+      "python",
+      "run.py",
+      "stages",
+      "--output-dir",
+      "/Users/yclee/Documents/GitHub/fl_experiment/docs/reorganization_20261116/validation/stages",
+      "--seeds",
+      "42",
+      "--dimensions",
+      "2",
+      "--rhos",
+      "0",
+      "--num-agents",
+      "3",
+      "--samples-per-agent",
+      "32",
+      "--epochs",
+      "1",
+      "--mse-threshold",
+      "1000000",
+      "--disable-inverse-check",
+      "--custom-iterations",
+      "3"
+    ]
+  }
+]

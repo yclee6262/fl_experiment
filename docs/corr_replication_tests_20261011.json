@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "regression_tests": 20,
+  "analysis_tests": 4,
+  "logs": [
+    "alpha_weight_outputs/corr_replication_postprocess_20261011/regression_tests.log",
+    "alpha_weight_outputs/corr_replication_postprocess_20261011/failure_analysis_tests.log"
+  ]
+}

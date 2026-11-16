@@ -1,0 +1,50 @@
+{
+  "page_id": "3eebf435-d474-81f0-998c-df5db86b68ce",
+  "change": "method_first_pooled_quality_report_traditional_chinese",
+  "experiment_rerun": false,
+  "main_seed_mentions": 0,
+  "native_downloads_preserved": 10,
+  "toggles": 10,
+  "archive_numeric_tokens_preserved": true,
+  "sources": [
+    {
+      "path": "alpha_weight_outputs/corr_replication_formal_v1_20261011/analysis.json",
+      "sha256": "6452ab420dcaa49c487f092b39b4fea8e221fdfc964c43a7fd63b262a865d964"
+    },
+    {
+      "path": "alpha_weight_outputs/alpha_robust_formal_v1_20261008/robust_analysis.json",
+      "sha256": "ec8183a18334317ae44457d3fb0d9ee53d1c76606d9fab20eda675e29fd427d7"
+    },
+    {
+      "path": "alpha_weight_outputs/bootstrap_quality_independent_formal_20261008/analysis.json",
+      "sha256": "549f81a737cd130752fcb772e42e74b1cc0cf5ee4c8f78c265a93591ceb7dce6"
+    },
+    {
+      "path": "alpha_weight_outputs/oob_quality_shrink_independent_formal_v1_20261008/analysis.json",
+      "sha256": "34ab5f1968046486b41eb0fea0944c786a1e3e93b6b630c1a3bc46665265d951"
+    },
+    {
+      "path": "alpha_weight_outputs/next_alpha_formal_v1_20261010/analysis.json",
+      "sha256": "6955585a2f87439bbea158fd89ef0cc5d0098df619ada6d14c235866e8c77b5d"
+    },
+    {
+      "path": "alpha_weight_outputs/conservative_shrink_formal_v1_20261010/analysis.json",
+      "sha256": "dd9a9c74e385ccfd1811d9a0c53f459c1cb3d3791c01a5295a80af807fed2d99"
+    },
+    {
+      "path": "alpha_weight_outputs/adaptive_corr_formal_v1_20261010/analysis.json",
+      "sha256": "a2e04faf84dc3a66fa368df8d7e6eb2c80ff8bf7e1500e137af8c52c4558f9b1"
+    }
+  ],
+  "page_body_sha256": "e61c6c3cf34fddfa8573c6a2386fd9eb43f62d12242b81d0b74f5ca34cc030fb",
+  "notion_verification": "passed",
+  "verified_body_sha256": "842504deaae9f2b548a2393d2b7de375117cf6ea03b680d37979fdfcaa50149f",
+  "verified_checks": [
+    "complete_page_retrieved",
+    "main_has_no_seed_labels",
+    "ten_original_download_destinations_preserved",
+    "ten_balanced_toggles",
+    "main_numeric_tables_read_from_seven_analysis_files",
+    "simplified_character_check_passed"
+  ]
+}

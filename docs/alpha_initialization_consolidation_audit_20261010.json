@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-10",
+  "canonical_page_id": "3eebf435-d474-81f0-998c-df5db86b68ce",
+  "url": "https://app.notion.com/p/3eebf435d47481f0998cdf5db86b68ce",
+  "title": "🧪 α 初始化研究總紀錄｜方法、各輪結果與下一步",
+  "created_new_page": false,
+  "checks": {
+    "all_five_recent_formal_seed_ranges": true,
+    "five_main_appendices": true,
+    "six_preserved_downloads": true,
+    "all_toggles_closed": true,
+    "methods_defined": true,
+    "negative_and_limited_results": true,
+    "next_method_pending": true,
+    "offline_evaluator": true,
+    "archival_links": true,
+    "complete_fetches": true
+  },
+  "archived_page_ids": [
+    "3f3bf435-d474-8130-955a-e9e560bd8479",
+    "3f5bf435-d474-81dd-907b-d5ce6449b6cb",
+    "3f5bf435-d474-81a8-9cbe-dc0cd4c10669",
+    "3f3bf435-d474-81f6-b668-ddd2cb2601be"
+  ],
+  "next_method": "heldout_selected_residual_second_moment_shrinkage",
+  "next_method_status": "planned_not_implemented",
+  "formal_results_not_pooled_across_rounds": true,
+  "unknown_block_count": "not reported; no unknown tags in complete fetched content",
+  "main_page_last_edited_at": "2026-10-10T13:44:41.162Z"
+}

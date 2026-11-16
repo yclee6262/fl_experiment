@@ -1,0 +1,75 @@
+{
+  "passed": true,
+  "requirements": [
+    {
+      "requirement": "Five methods and three scenarios",
+      "passed": true,
+      "evidence": "alpha_weight_outputs/adaptive_corr_formal_v1_20261010/verification.json"
+    },
+    {
+      "requirement": "Pilot and development accepted without formal pooling",
+      "passed": true,
+      "evidence": "alpha_weight_outputs/adaptive_corr_pilot_v1_20261010; alpha_weight_outputs/adaptive_corr_development_v1_20261010"
+    },
+    {
+      "requirement": "Prospective N and independent formal seeds",
+      "passed": true,
+      "evidence": "docs/adaptive_corr_preregistration_20261010.json"
+    },
+    {
+      "requirement": "Frozen parameters and source",
+      "passed": true,
+      "evidence": "alpha_weight_outputs/adaptive_corr_formal_v1_20261010/source_snapshot"
+    },
+    {
+      "requirement": "Every CV split, training matrix and heldout loss",
+      "passed": true,
+      "evidence": "alpha_weight_outputs/adaptive_corr_formal_v1_20261010/extra_acceptance.json"
+    },
+    {
+      "requirement": "Legacy fixed0.5 and diagonal B endpoint",
+      "passed": true,
+      "evidence": "alpha_weight_outputs/adaptive_corr_formal_v1_20261010/extra_acceptance.json"
+    },
+    {
+      "requirement": "Fresh/reuse actual delivery equality",
+      "passed": true,
+      "evidence": "alpha_weight_outputs/adaptive_corr_formal_v1_20261010/extra_acceptance.json"
+    },
+    {
+      "requirement": "Feasibility and reload",
+      "passed": true,
+      "evidence": "alpha_weight_outputs/adaptive_corr_formal_v1_20261010/verification.json"
+    },
+    {
+      "requirement": "Six confirmed and six exploratory contrasts",
+      "passed": true,
+      "evidence": "alpha_weight_outputs/adaptive_corr_formal_v1_20261010/analysis.json"
+    },
+    {
+      "requirement": "Failures, duplicate/missing, undefined CI and costs tested",
+      "passed": true,
+      "evidence": "docs/adaptive_corr_tests_20261010.json"
+    },
+    {
+      "requirement": "Full data/model/solution replay",
+      "passed": true,
+      "evidence": "alpha_weight_outputs/adaptive_corr_formal_v1_20261010/replay_verification.json"
+    },
+    {
+      "requirement": "Report, coverage, cost and decisions retained",
+      "passed": true,
+      "evidence": "docs/adaptive_corr_results_20261010_notion.md"
+    },
+    {
+      "requirement": "Same canonical Notion page updated and refetched",
+      "passed": true,
+      "evidence": "docs/adaptive_corr_notion_publication_20261010.json"
+    }
+  ],
+  "formal_conditions": 510,
+  "formal_N": 34,
+  "quality_confirmations": 1,
+  "negative_result_is_completed_research": true,
+  "pending": []
+}

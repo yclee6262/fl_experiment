@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "five_entry_exit_codes": 0,
+  "completed_manifests": 4,
+  "stage_payment_status": "ok",
+  "stage_paid_total": 10.0,
+  "stage_budget": 10.0,
+  "baseline_dimension": 5
+}

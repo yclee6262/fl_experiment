@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "snapshot_files": 8,
+  "isolated_python": true,
+  "cwd": "/tmp",
+  "environment_controls": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "KMP_USE_SHM": "0"
+  },
+  "scope": "P3 standalone snapshot import and source root resolution, not complete historical replay"
+}

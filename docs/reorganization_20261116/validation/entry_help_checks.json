@@ -1,0 +1,22 @@
+[
+  {
+    "entry": "initialization",
+    "exit_code": 0
+  },
+  {
+    "entry": "contribution",
+    "exit_code": 0
+  },
+  {
+    "entry": "baseline",
+    "exit_code": 0
+  },
+  {
+    "entry": "calibration",
+    "exit_code": 0
+  },
+  {
+    "entry": "stages",
+    "exit_code": 0
+  }
+]

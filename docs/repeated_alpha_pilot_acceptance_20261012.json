@@ -1,0 +1,24 @@
+{
+  "original_candidate_pairs_checked": 405,
+  "maximum_differences": {
+    "alpha": 0.0,
+    "X": 0.0,
+    "pooled_error": 0.0
+  },
+  "verification": {
+    "passed": true,
+    "errors": [],
+    "coverage": {
+      "duplicate_keys": [],
+      "missing_keys": [],
+      "unexpected_keys": [],
+      "complete": true
+    },
+    "expected": 435,
+    "observed": 435,
+    "valid": 435,
+    "max_alpha_reload_diff": 0.0,
+    "max_pooled_reload_diff": 0.0
+  },
+  "new_tests_passed": 33
+}

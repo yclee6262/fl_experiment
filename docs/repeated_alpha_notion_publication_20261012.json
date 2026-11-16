@@ -1,0 +1,9 @@
+{
+  "page": "https://app.notion.com/p/3eebf435d47481f0998cdf5db86b68ce",
+  "status": "final_results_published_and_refetched",
+  "results_status": "three_batches_complete_formal_and_posthoc_separate",
+  "downloads_preserved": 10,
+  "toggles_balanced": 15,
+  "source_batch1": "564/564 source conditions verified",
+  "verification": "docs/repeated_alpha_final_notion_verification_20261012.json"
+}

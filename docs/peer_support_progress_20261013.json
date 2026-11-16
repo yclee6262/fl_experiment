@@ -1,0 +1,85 @@
+{
+  "state": "complete",
+  "stage": "formal_analysis",
+  "pipeline_pid": 99147,
+  "pilot": {
+    "passed": true,
+    "errors": [],
+    "coverage": {
+      "duplicate_keys": [],
+      "missing_keys": [],
+      "unexpected_keys": [],
+      "complete": true
+    },
+    "expected": 90,
+    "saved": 90,
+    "valid": 90,
+    "max_reload_difference": {
+      "alpha": 0.0,
+      "pooled": 0.0,
+      "matrix": 0.0
+    }
+  },
+  "formal_expected_conditions": 6534,
+  "formal_seeds": 363,
+  "source_progress": {
+    "1": {
+      "reference_clean": 121,
+      "low_quality_25pct": 121,
+      "sample_imbalance_4x": 121
+    },
+    "2": {
+      "reference_clean": 121,
+      "low_quality_25pct": 121,
+      "sample_imbalance_4x": 121
+    },
+    "3": {
+      "reference_clean": 121,
+      "low_quality_25pct": 121,
+      "sample_imbalance_4x": 75
+    }
+  },
+  "tests": {
+    "passed": 20,
+    "command": "pytest -q test_peer_support_alpha.py test_peer_support_analysis.py test_box_constraints.py"
+  },
+  "report_pending": false,
+  "comparison_pending": false,
+  "notion_progress_verified": true,
+  "authoritative_handle": "docs/peer_support_execution_handle_20261013.json",
+  "v1_interrupted_retained": true,
+  "cost_tests_passed": 6,
+  "additional_audit_tests_passed": 3,
+  "pilot_cost_check": "alpha_weight_outputs/peer_support_v2_20261013/pilot_cost_aggregation_check.json",
+  "registered_sources_changed": [],
+  "final_report_requires_independent_completion_audit": true,
+  "final_report_primary_claims_predefined": true,
+  "batch1_verified_conditions": 2178,
+  "batch1_independent_audit": "alpha_weight_outputs/peer_support_v2_20261013/batch1_independent_audit.json",
+  "notion_batch1_progress_updated": true,
+  "verified_batches": [
+    {
+      "batch": 1,
+      "passed": true,
+      "valid": 2178,
+      "saved": 2178
+    },
+    {
+      "batch": 2,
+      "passed": true,
+      "valid": 2178,
+      "saved": 2178
+    }
+  ],
+  "matrix_example_reporting_ready": true,
+  "batch2_independent_audit": "alpha_weight_outputs/peer_support_v2_20261013/batch2_independent_audit.json",
+  "notion_batch2_progress_updated": true,
+  "formal_conditions": 6534,
+  "valid_deliveries": 6534,
+  "qualified_triplets": 363,
+  "formal_stable_comparisons": [],
+  "notion_final_published": true,
+  "optional_full_archive_upload": "pending explicit authorization after auto-review rejection",
+  "goal_status": "complete",
+  "goal_completion_audit": "docs/peer_support_goal_completion_audit_20261013.json"
+}

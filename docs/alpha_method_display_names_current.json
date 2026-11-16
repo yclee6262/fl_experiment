@@ -1,0 +1,44 @@
+{
+  "current_quality_symbol": "Q",
+  "presentation_changes": {
+    "B": "Q",
+    "EB": "EQ",
+    "SB": "SQ"
+  },
+  "methods": {
+    "A": {
+      "name": "均勻基準",
+      "legacy_id": "A_uniform"
+    },
+    "Q": {
+      "name": "品質基準",
+      "legacy_id": "B_stage0"
+    },
+    "E": {
+      "name": "純組合法",
+      "legacy_id": "stacked_full"
+    },
+    "EU": {
+      "name": "組合均勻法",
+      "legacy_id": "ensemble_shrink"
+    },
+    "EQ": {
+      "name": "組合品質法",
+      "legacy_id": "B_stacked_half"
+    },
+    "S": {
+      "name": "純支持法",
+      "legacy_id": "pure_support"
+    },
+    "SU": {
+      "name": "支持均勻法",
+      "legacy_id": "peer_support_shrink"
+    },
+    "SQ": {
+      "name": "支持品質法",
+      "legacy_id": "support_quality_mix50"
+    }
+  },
+  "scope": "Current publication/display names; frozen numerical sources, registrations and result IDs unchanged",
+  "historical_Q_warning": "Older Q quality_shrink meant half uniform plus half inverse-MSE; do not reinterpret its historical results as current Q B_stage0."
+}

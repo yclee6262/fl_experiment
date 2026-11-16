@@ -1,0 +1,7 @@
+{
+  "page_id": "3ffbf435-d474-8130-8c34-ef05f1fddd89",
+  "change": "remove literal backticks from inline equations; retain $...$ inline math",
+  "converted_equations": 66,
+  "formulas_changed": false,
+  "local_content": "docs/contribution_method_notion_master_20261021.md"
+}

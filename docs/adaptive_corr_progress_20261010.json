@@ -1,0 +1,18 @@
+{
+  "status": "complete",
+  "formal_seeds": "5000-5033",
+  "formal_N": 34,
+  "conditions": 510,
+  "valid_conditions": 510,
+  "confirmatory_advantages": 1,
+  "supported_scope": "reference_clean versus B_stage0 only",
+  "adaptive_increment_over_fixed_correlation_established": false,
+  "tests": 29,
+  "fold_fits_audited": 2550,
+  "replay_conditions": 15,
+  "canonical_notion_page": "https://app.notion.com/p/3eebf435d47481f0998cdf5db86b68ce",
+  "created_new_notion_page": false,
+  "completion_audit": "docs/adaptive_corr_requirement_audit_20261010.json",
+  "pending": [],
+  "future_work_not_started": "independent clean-scenario replication of B/fixed0.5/adaptive"
+}

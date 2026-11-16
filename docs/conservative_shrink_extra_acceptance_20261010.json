@@ -1,0 +1,1097 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "requirement": "frozen source",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4800/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4800/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4801/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4801/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4802/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4802/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4803/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4803/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4804/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4804/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4805/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4805/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4806/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4806/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4807/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4807/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4808/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4808/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4809/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4809/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4810/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4810/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4811/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4811/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4812/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4812/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4813/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4813/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4814/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4814/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4815/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4815/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4816/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4816/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4817/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4817/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4818/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4818/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4819/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4819/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4820/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4820/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4821/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4821/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4822/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4822/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4823/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4823/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4824/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4824/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4825/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4825/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4826/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4826/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4827/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4827/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4828/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4828/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4829/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4829/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4800/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4800/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4801/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4801/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4802/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4802/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4803/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4803/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4804/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4804/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4805/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4805/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4806/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4806/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4807/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4807/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4808/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4808/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4809/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4809/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4810/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4810/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4811/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4811/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4812/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4812/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4813/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4813/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4814/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4814/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4815/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4815/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4816/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4816/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4817/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4817/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4818/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4818/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4819/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4819/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4820/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4820/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4821/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4821/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4822/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4822/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4823/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4823/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4824/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4824/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4825/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4825/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4826/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4826/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4827/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4827/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4828/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4828/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4829/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4829/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4800/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4800/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4801/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4801/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4802/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4802/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4803/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4803/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4804/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4804/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4805/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4805/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4806/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4806/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4807/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4807/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4808/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4808/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4809/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4809/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4810/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4810/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4811/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4811/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4812/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4812/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4813/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4813/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4814/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4814/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4815/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4815/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4816/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4816/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4817/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4817/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4818/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4818/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4819/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4819/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4820/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4820/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4821/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4821/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4822/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4822/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4823/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4823/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4824/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4824/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4825/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4825/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4826/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4826/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4827/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4827/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4828/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4828/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4829/crossfit_conservative_unshrunk all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4829/crossfit_conservative_shrink all split and heldout boundaries",
+      "passed": true
+    },
+    {
+      "requirement": "crossfit_conservative_unshrunk actual fresh/cache delivery",
+      "passed": true
+    },
+    {
+      "requirement": "crossfit_conservative_shrink actual fresh/cache delivery",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4800 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4801 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4802 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4803 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4804 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4805 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4806 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4807 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4808 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4809 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4810 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4811 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4812 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4813 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4814 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4815 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4816 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4817 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4818 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4819 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4820 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4821 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4822 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4823 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4824 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4825 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4826 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4827 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4828 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "reference_clean/4829 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4800 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4801 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4802 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4803 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4804 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4805 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4806 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4807 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4808 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4809 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4810 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4811 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4812 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4813 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4814 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4815 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4816 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4817 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4818 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4819 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4820 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4821 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4822 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4823 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4824 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4825 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4826 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4827 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4828 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "low_quality_25pct/4829 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4800 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4801 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4802 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4803 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4804 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4805 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4806 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4807 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4808 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4809 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4810 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4811 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4812 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4813 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4814 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4815 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4816 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4817 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4818 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4819 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4820 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4821 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4822 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4823 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4824 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4825 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4826 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4827 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4828 ablation matched fits",
+      "passed": true
+    },
+    {
+      "requirement": "sample_imbalance_4x/4829 ablation matched fits",
+      "passed": true
+    }
+  ]
+}

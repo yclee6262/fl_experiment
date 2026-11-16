@@ -1,0 +1,89 @@
+{
+  "registered_at_utc": "2026-10-03T13:23:41.489458+00:00",
+  "experiment": "validation_calibrated_multistart_v1",
+  "status": "registered_before_formal",
+  "scenario": "reference_clean",
+  "development_seeds": "0-4 pilot; 300-329 and 400-429 offline method development",
+  "formal_seeds": [
+    500,
+    501,
+    502,
+    503,
+    504,
+    505,
+    506,
+    507,
+    508,
+    509,
+    510,
+    511,
+    512,
+    513,
+    514,
+    515,
+    516,
+    517,
+    518,
+    519,
+    520,
+    521,
+    522,
+    523,
+    524,
+    525,
+    526,
+    527,
+    528,
+    529
+  ],
+  "methods": [
+    "A_uniform",
+    "B_stage0",
+    "validation_calibrated_multistart"
+  ],
+  "candidate_initializations": [
+    "A_uniform",
+    "B_stage0",
+    "mse_power_1p5",
+    "corr_precision_0p5",
+    "target_local_precision"
+  ],
+  "cohort": {
+    "fixed_participant_ids": [
+      1,
+      2,
+      20
+    ],
+    "dimensions": 2,
+    "target": 0.0,
+    "box": [
+      -1.0,
+      1.0
+    ],
+    "external_evaluator_epochs": 100
+  },
+  "selection_rule": "Five independent Stage 3 solutions; ridge regression of B-weighted local prediction residuals on [1,x] using Stage 0 blind labels, penalties [0.01,1,1]; choose feasible candidate minimizing absolute bias-corrected B prediction minus target; pooled and truth excluded from selection.",
+  "primary_outcome": "absolute pooled evaluator prediction minus target for delivered X",
+  "success_rule": "all 30 paired valid seeds; 10000 seed-level bootstrap Bonferroni simultaneous 97.5% CIs for E_meta-E_A and E_meta-E_B both wholly below 0; no higher observed failure count; report API requests, samples, time and truth conflicts",
+  "pilot_verification": {
+    "summary_conditions": 15,
+    "valid": 15,
+    "selector_replayed_seeds": 5,
+    "passed": true
+  },
+  "source_sha256": {
+    "validation_calibrated_alpha.py": "2b8f2806ec85ff586ef38c6b5d1415be40c2e4f54b282eb178bb340f54044663",
+    "run_validation_calibrated_alpha.py": "c2355a6250cbebb47aa66eed24b71e0688291c656ece41a4e0ee9c49145b01ae",
+    "verify_validation_calibrated_alpha.py": "9772c2e6cc819c4123867b41ea215ce142a1aca1495110a59f6193b5f979b868",
+    "run_alpha_initialization_study.py": "2c178256be81d9b72d38e3ab357fa1e31f79fb6e7f59473a513d87467545c0cb",
+    "initial_alpha_methods.py": "952ed519645d59eb6cfb4e3eded093ba486999c3174c84f69a009160fd530212",
+    "analyze_alpha_initialization_study.py": "a350779519b60e5ab0067a552439390055f4567d5d3b287953106b1365880fa2",
+    "research_analysis.py": "eb613484ff0c0eb88f125b1f29cff42c8432cca1094757be2f20310185b869f0",
+    "alpha_weight_experiments.py": "096170b5ef5b8afde481c2b9de879ffd0aa31cc016256fcfe130bad32262dcfb",
+    "host_server.py": "f35eff23b96e66e583ff81115bfea40b785c43c8974921ffb2f936ea8bd10ab8",
+    "research_evaluation.py": "5e7b7e5c6892256067a01f78f5b5ab0fea0269be80532558d9d0411aa5cb851b",
+    "p5_scenario_suite.py": "354905428092ef0c160a071477611697b147b8bebdda9f0e369aa667970b9c6e",
+    "run_experiments.py": "f9cfbc1ba06d24f91e26b7a5bff797c4cd72136baf5c0043fc953396b5bbe715",
+    "dataset.py": "2d44e8bfe2ddf9d2c8941dfad96c32e68be8607b12cd229255d9a20d68d246ea"
+  }
+}

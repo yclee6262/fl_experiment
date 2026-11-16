@@ -1,0 +1,32 @@
+........................................................................ [ 28%]
+........................................................................ [ 57%]
+........................................................................ [ 85%]
+....................................                                     [100%]
+=============================== warnings summary ===============================
+test_four_way_bayes.py: 10 warnings
+  /Users/yclee/anaconda3/lib/python3.11/site-packages/scipy/optimize/_slsqp_py.py:437: RuntimeWarning: Values in x were outside bounds during a minimize step, clipping to bounds
+    fx = wrapped_fun(x)
+
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+  /Users/yclee/anaconda3/lib/python3.11/site-packages/scipy/optimize/_slsqp_py.py:441: RuntimeWarning: Values in x were outside bounds during a minimize step, clipping to bounds
+    g = append(wrapped_grad(x), 0.0)
+
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+  /Users/yclee/anaconda3/lib/python3.11/site-packages/scipy/optimize/_slsqp_py.py:495: RuntimeWarning: Values in x were outside bounds during a minimize step, clipping to bounds
+    a_eq = vstack([con['jac'](x, *con['args'])
+
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+test_four_way_bayes.py::test_proposal_is_feasible_novel_and_data_driven
+  /Users/yclee/anaconda3/lib/python3.11/site-packages/scipy/optimize/_slsqp_py.py:501: RuntimeWarning: Values in x were outside bounds during a minimize step, clipping to bounds
+    a_ieq = vstack([con['jac'](x, *con['args'])
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+252 passed, 22 warnings in 3.98s

@@ -1,0 +1,21 @@
+{
+  "page_id": "3f9bf435-d474-819c-bdf6-ffd8b651d7a3",
+  "url": "https://app.notion.com/p/3f9bf435d474819cbdf6ffd8b651d7a3",
+  "title": "α 初始化六方法比較｜方法定義、實驗設計與 pooled 結果（2026-10-14）",
+  "creation_mode": "private_draft",
+  "source_experiment": "alpha_weight_outputs/four_alpha_v1_20261014",
+  "report_sha256": "55b336c881c831eb25f88c1a7577ff50fdfd472739f2e514ddaeac8cf8f4f044",
+  "verification": {
+    "six_method_sections": true,
+    "native_tables": 16,
+    "native_equations": 20,
+    "balanced_appendix": true,
+    "main_means_verified": true,
+    "broken_markdown_repaired": true,
+    "limitations_and_sources_preserved": true,
+    "pure_E_S_and_rationale_readback_verified": true
+  },
+  "no_new_experiments": true,
+  "full_private_evidence_bundle_uploaded": false,
+  "pure_E_S_definitions_and_shrinkage_rationale_added": true
+}

@@ -1,0 +1,21 @@
+{
+  "verified": true,
+  "created_new_page": false,
+  "page_id": "3eebf435-d474-81f0-998c-df5db86b68ce",
+  "url": "https://app.notion.com/p/3eebf435d47481f0998cdf5db86b68ce",
+  "checks": {
+    "same_main": true,
+    "full_page": true,
+    "methods": true,
+    "formal510": true,
+    "calibrated_claim": true,
+    "not_running": true,
+    "appendix": true,
+    "downloads": true,
+    "scope": true,
+    "no_cohort_pooling": true
+  },
+  "page_last_edited_at": "2026-10-10T14:08:27.040Z",
+  "title": "🧪 α 初始化研究總紀錄｜方法、各輪結果與下一步",
+  "unknown_block_count": "not reported; no unknown tags in complete page"
+}

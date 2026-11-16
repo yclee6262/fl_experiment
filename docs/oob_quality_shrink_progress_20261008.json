@@ -1,0 +1,83 @@
+{
+  "status": "complete",
+  "goal": "先嘗試留出驗證的重抽樣＋收縮方法，驗證他是否穩定優於目前的 A/B 做法，整理好完整數據再給我看",
+  "implementation_and_tests": "99 passed",
+  "pilot": {
+    "conditions": 75,
+    "verification": "passed"
+  },
+  "development": {
+    "conditions": 150,
+    "verification": "passed"
+  },
+  "formal_N": 126,
+  "formal_seeds": [
+    4400,
+    4525
+  ],
+  "formal_conditions": 1890,
+  "pipeline_session_id": 90742,
+  "pipeline_status_path": "alpha_weight_outputs/oob_quality_shrink_pipeline_v1_20261008/status.json",
+  "pipeline_current_stage": "complete",
+  "live_handle_last_polled": true,
+  "source_code_hashes_current": true,
+  "pending": [],
+  "replay_command": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /Users/yclee/anaconda3/bin/python alpha_weight_outputs/oob_quality_shrink_full_replay_20261008.py",
+  "report_command": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /Users/yclee/anaconda3/bin/python alpha_weight_outputs/oob_quality_shrink_report_20261008.py",
+  "finishing_session_id": 82726,
+  "finishing_status_path": "alpha_weight_outputs/oob_quality_shrink_finishing_v1_20261008/status.json",
+  "completed_source_preparations": {
+    "reference_clean": 126,
+    "low_quality_25pct": 126,
+    "sample_imbalance_4x": 126
+  },
+  "last_observed_utc": "2026-10-08T15:45:27.486582+00:00",
+  "report_script_handles_missing_scores": true,
+  "report_additions": [
+    "shared preparation cost table",
+    "evaluator coverage table",
+    "representative seed cases"
+  ],
+  "formal_acceptance": {
+    "passed": true,
+    "errors": [],
+    "coverage": {
+      "duplicate_keys": [],
+      "missing_keys": [],
+      "unexpected_keys": [],
+      "complete": true
+    },
+    "expected": 1890,
+    "observed": 1890,
+    "valid": 1890,
+    "max_alpha_reload_diff": 0.0,
+    "max_pooled_reload_diff": 0.0,
+    "max_blind_prediction_reload_diff": 0.0,
+    "reuse_pairs_checked": 378
+  },
+  "replay_acceptance": {
+    "passed": true,
+    "condition_pairs": 15,
+    "max_differences": {
+      "reference_clean:local_models.pt": 0.0,
+      "reference_clean:global_evaluator.pt": 0.0,
+      "reference_clean:target0_proposals": 0.0,
+      "low_quality_25pct:local_models.pt": 0.0,
+      "low_quality_25pct:global_evaluator.pt": 0.0,
+      "low_quality_25pct:target0_proposals": 0.0,
+      "sample_imbalance_4x:local_models.pt": 0.0,
+      "sample_imbalance_4x:global_evaluator.pt": 0.0,
+      "sample_imbalance_4x:target0_proposals": 0.0,
+      "alpha": 0.0,
+      "X": 0.0,
+      "pooled_error": 0.0,
+      "truth_error": 0.0,
+      "mse": 0.0,
+      "shared.jsonl:proposals": 0.0,
+      "calibration.jsonl:X": 0.0,
+      "calibration.jsonl:y": 0.0,
+      "calibration.jsonl:prediction": 0.0
+    }
+  },
+  "confirmed_comparisons": 0
+}

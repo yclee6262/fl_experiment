@@ -1,0 +1,51 @@
+{
+  "status": "complete",
+  "pilot": {
+    "passed": true,
+    "errors": [],
+    "coverage": {
+      "duplicate_keys": [],
+      "missing_keys": [],
+      "unexpected_keys": [],
+      "complete": true
+    },
+    "expected": 75,
+    "observed": 75,
+    "valid": 75,
+    "max_alpha_reload_diff": 0.0,
+    "max_pooled_reload_diff": 0.0,
+    "max_blind_prediction_reload_diff": 0.0,
+    "reuse_pairs_checked": 15
+  },
+  "tests": "44 passed",
+  "formal_expected": 450,
+  "formal_seeds": "4600-4629",
+  "process_session": 77408,
+  "pending": [],
+  "environment_recovery": "OpenMP SHM error before source output; original log preserved; resumed outside sandbox",
+  "current_stage": "complete",
+  "last_observed_condition": "low_quality_25pct seed 4603 ===",
+  "report_builder": "alpha_weight_outputs/next_alpha_report_20261010.py",
+  "replay_runner": "alpha_weight_outputs/next_alpha_full_replay_20261010.py",
+  "formal": {
+    "passed": true,
+    "errors": [],
+    "coverage": {
+      "duplicate_keys": [],
+      "missing_keys": [],
+      "unexpected_keys": [],
+      "complete": true
+    },
+    "expected": 450,
+    "observed": 450,
+    "valid": 450,
+    "max_alpha_reload_diff": 0.0,
+    "max_pooled_reload_diff": 0.0,
+    "max_blind_prediction_reload_diff": 0.0,
+    "reuse_pairs_checked": 90
+  },
+  "confirmed_comparisons": 1,
+  "new_method_confirmed_comparisons": 0,
+  "notion_url": "https://app.notion.com/p/3f5bf435d47481dd907bd5ce6449b6cb",
+  "completion_audit": "docs/next_alpha_requirement_audit_20261010.json"
+}

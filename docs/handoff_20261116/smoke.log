@@ -1,0 +1,23 @@
+
+[環境設定] 決策變數維度: 2D
+[真實函數] y = sum(x_i) + sum(x_i * x_i+1)
+--------------------------------------------------
+
+--- Phase 1: 盲測信任評估與投標式節點選擇 ---
+Agent 1 通過盲測 (MSE: 0.3640, bid: 1.220)
+Agent 2 通過盲測 (MSE: 0.3310, bid: 1.380)
+Agent 3 通過盲測 (MSE: 0.4055, bid: 1.140)
+  選擇設定：B_select=8.000, K_API=3, K_red=1, K_max=3
+  選入 Agent 1 | R=0.2734, D=1.0000, G=0.4102, 累計 bid=1.220/8.000
+  選入 Agent 2 | R=0.2659, D=0.0030, G=0.2663, 累計 bid=2.600/8.000
+  選入 Agent 3 | R=0.2627, D=0.0105, G=0.2641, 累計 bid=3.740/8.000
+Stage 1 完成：從 3 個 Agent 中，3 個通過盲測，3 個通過完整 Stage 0，最終選入 K=3 個。
+
+--- Phase 2: 收集初步提議參數 (I_i) ---
+Agent 1 提議參數: [-0.16788313  0.49988592]
+Agent 2 提議參數: [ 0.32578576 -0.9945406 ]
+Agent 3 提議參數: [ 0.40759972 -0.22373135]
+
+--- Phase 3: 全域最佳化 (best_of: BFGS vs custom) ---
+best_of 選擇 custom，L_opt=0.021553，engine losses={'bfgs': 0.024525539092622863, 'custom': 0.021552857206472445}
+{"status": "passed", "seed": 42, "solution": [0.012636682626164311, -0.062073238164713246], "scope": "synthetic integration only; relaxed qualification; no pruning or payment"}

@@ -1,0 +1,19 @@
+{
+  "verified": true,
+  "created_new_page": false,
+  "page_id": "3eebf435-d474-81f0-998c-df5db86b68ce",
+  "url": "https://app.notion.com/p/3eebf435d47481f0998cdf5db86b68ce",
+  "checks": {
+    "complete": true,
+    "R6": true,
+    "limited_claim": true,
+    "counts": true,
+    "history": true,
+    "toggles": true,
+    "downloads": true,
+    "replay": true,
+    "main_decision": true
+  },
+  "page_last_edited_at": "2026-10-11T14:12:21.471Z",
+  "unknown_block_count": "not reported; no unknown tags in complete content"
+}
