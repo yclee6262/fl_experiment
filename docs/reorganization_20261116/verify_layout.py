@@ -4,12 +4,16 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import sys
 
 root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(root))
+from project_support.legacy import prepare
+flat = prepare()
 layout = json.loads((root / 'docs/reorganization_20261116/layout.json').read_text())
 errors = []
 for row in layout['files']:
-    link, source = root / row['original'], root / row['canonical']
+    link, source = flat / row['original'], root / row['canonical']
     if not link.is_symlink() or not source.is_file() or link.resolve() != source.resolve():
         errors.append('source link: ' + row['original'])
         continue

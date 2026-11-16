@@ -30,6 +30,9 @@ def _source_workspace(source_file):
         if all((candidate / name).is_file() for name in
                ("host_server.py", "run_experiments.py", "dataset.py")):
             return candidate
+        if (candidate / "project_support/legacy.py").is_file():
+            from project_support.legacy import prepare
+            return prepare()
     raise FileNotFoundError(f"Cannot locate source workspace from {source_file}")
 
 

@@ -14,6 +14,6 @@
 
 `contribution/packages` 保留20個報告相關套件的相對索引，其中包括方向投影／改善分帳、抽樣研究支援、錨點與模型分支、分池與結算。其實體仍在 `contribution_analysis/`，以維持動態載入、模型及基準端點路徑。1112抽樣CA最終分析在 `artifacts/anchor_sampling_peer_20261111/`；本次保留其結果與程式，沒有重寫固定路徑分析腳本。
 
-早期探索與主文外擴充（SE/QU、C/P、比例搜尋等）在 `archive/legacy/experiments/alpha/`；必要的共用模組仍保留於主要區域。可用原根目錄名稱或 `run.py` 的舊分類路徑啟動歷史程式，來源hash檢查仍有效；部分舊runner固定輸出位置，不應直接對完成結果再執行。
+早期探索與主文外擴充（SE/QU、C/P、比例搜尋等）在 `archive/legacy/experiments/alpha/`；必要的共用模組仍保留於主要區域。可用 `run.py` 的舊分類路徑啟動歷史程式（根目錄舊名稱已移除，本機相容檔在 `.local_scripts/`），來源hash檢查仍有效；部分舊runner固定輸出位置，不應直接對完成結果再執行。
 
 FedAvg數值比較保留並修正多維誤差公式與缺參數呼叫。MedMNIST／Flower版本仍在 `baselines/`，保留作傳統比較候選；本次未安裝它們的額外依賴或宣稱已完成醫療資料集重跑。

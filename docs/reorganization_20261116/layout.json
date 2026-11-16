@@ -69,7 +69,7 @@
       "canonical": "experiments/alpha/calibration/alpha_weight_experiments.py",
       "status": "active",
       "sha256": "46b0bc3785e8f2f84d58c4b0bc150093098f6abfefe370acf7c800fe2ca814b7",
-      "sha256_current": "46b0bc3785e8f2f84d58c4b0bc150093098f6abfefe370acf7c800fe2ca814b7",
+      "sha256_current": "e8b4c264ab5a3729aee82381994cc9c408c6e560d5fe3b120b1d8ea489ffa5ce",
       "content_changed_this_pass": false
     },
     {
@@ -258,7 +258,7 @@
       "canonical": "experiments/contribution/analyze_p3_external_validity.py",
       "status": "active",
       "sha256": "c9a4f91d6193289ef6b1bd07475ac897042083b1f51e79b8069a087dbfd2a12e",
-      "sha256_current": "c9a4f91d6193289ef6b1bd07475ac897042083b1f51e79b8069a087dbfd2a12e",
+      "sha256_current": "7958abcf10bdc1720377bf47b6521131417c8e9a3f3769fa36df88f690f58982",
       "content_changed_this_pass": false
     },
     {
@@ -438,7 +438,7 @@
       "canonical": "archive/legacy/experiments/alpha/analysis/assess_ensemble_target_objective.py",
       "status": "archive",
       "sha256": "903c2177c4c4d1cabf3f7e7ef658a2ded8765369c0cbba334a493c3f09aaf048",
-      "sha256_current": "903c2177c4c4d1cabf3f7e7ef658a2ded8765369c0cbba334a493c3f09aaf048",
+      "sha256_current": "e00bcc8834d41541995f9148b19e3b268b88c05caebd3c9b7f0d6243ddc3fd9f",
       "content_changed_this_pass": false
     },
     {
@@ -447,7 +447,7 @@
       "canonical": "archive/legacy/experiments/alpha/analysis/assess_ensemble_target_transfer.py",
       "status": "archive",
       "sha256": "4bd514fae818b4fda00fca89d577cdbe0325b2ba00440df593ca98bbd331ddcc",
-      "sha256_current": "4bd514fae818b4fda00fca89d577cdbe0325b2ba00440df593ca98bbd331ddcc",
+      "sha256_current": "4fd4bacaeb343879c042501aa37a44c04ba968fdee3cdd2b3e375a8bd8fc7b3f",
       "content_changed_this_pass": false
     },
     {
@@ -969,7 +969,7 @@
       "canonical": "experiments/contribution/p3_contribution_validation.py",
       "status": "active",
       "sha256": "120c9436857a3649889b6ef7bd9de25e3c972dfee8e4380dcc07ab17162b59cb",
-      "sha256_current": "120c9436857a3649889b6ef7bd9de25e3c972dfee8e4380dcc07ab17162b59cb",
+      "sha256_current": "40a45cd554b7f807dbd695e881a1aad30686364da4cdd9afdff93154bb4813cd",
       "content_changed_this_pass": false
     },
     {
@@ -996,7 +996,7 @@
       "canonical": "experiments/coalition/p6_budget_pilot.py",
       "status": "active",
       "sha256": "022343878239ca5072d13ae83cb188de9591707e819e4e8f5c8280288ca918f9",
-      "sha256_current": "022343878239ca5072d13ae83cb188de9591707e819e4e8f5c8280288ca918f9",
+      "sha256_current": "8f2596b45c3a94fe440a44d2de1ea367dcc31245b6f3b25dbf15e29377604b83",
       "content_changed_this_pass": false
     },
     {
@@ -1005,7 +1005,7 @@
       "canonical": "experiments/coalition/p6_coalition_enumeration.py",
       "status": "active",
       "sha256": "f784ba2243df89212a8ee243c163e9d5fbe4fbbdb03ddab6ffcad911bb8bd98d",
-      "sha256_current": "f784ba2243df89212a8ee243c163e9d5fbe4fbbdb03ddab6ffcad911bb8bd98d",
+      "sha256_current": "4346bc4848d7205fdffdba58e85ab180b9eddda247f971d3c01e743fd2715bb3",
       "content_changed_this_pass": false
     },
     {
@@ -1014,7 +1014,7 @@
       "canonical": "experiments/coalition/p6_recruitment_experiment.py",
       "status": "active",
       "sha256": "ba76f2fac5d9f9b2180529be9778d80bf566ed758f498fae8974ef7b5ff5b2e6",
-      "sha256_current": "ba76f2fac5d9f9b2180529be9778d80bf566ed758f498fae8974ef7b5ff5b2e6",
+      "sha256_current": "24d85bbddd54ceb4bbdef85f52ce1c5217fc7b40a8ad5200e97bdf13384ce793",
       "content_changed_this_pass": false
     },
     {
@@ -1041,7 +1041,7 @@
       "canonical": "archive/legacy/experiments/alpha/analysis/plot_alpha_guard_results.py",
       "status": "archive",
       "sha256": "7423c51eb4f06bd410329e538d5e7d014667646725694c130044559fcd8e2684",
-      "sha256_current": "7423c51eb4f06bd410329e538d5e7d014667646725694c130044559fcd8e2684",
+      "sha256_current": "a905efad1709cf33a3ab279d5aa1b3b7f712fdcb1a295ef8996a370d2eec34ad",
       "content_changed_this_pass": false
     },
     {
@@ -1949,7 +1949,7 @@
     "three_pool_t2_anchor_v1",
     "three_pool_t3_model_v1"
   ],
-  "policy": "Unselected physical scripts archived; root relative compatibility links retained. Original contribution workspaces and historical data remain at original paths.",
+  "policy": "Physical classified/archive source remains tracked. Flat compatibility aliases are generated on demand in the ignored .local_scripts directory.",
   "new_entries": [
     "experiments/alpha/compare_initializations.py",
     "experiments/contribution/replay_cost_comparison.py",
@@ -1960,7 +1960,14 @@
     "experiments/contribution/replay_cost_comparison.py": "ab44888df55e81a86f0e54cd3240f711d9a6ad7faa7a37c7ba41ca7bca3b854e",
     "experiments/baselines/compare_fedavg.py": "19d51ff604d6cfe9f8addc24578e63a7105eeec1676e3730f93c644af9036943",
     "tests/test_numerical_baseline.py": "3308c02130d5eacd16790615c8af64ab4caf02c2c3f3c0183e9151c0f72f022f",
-    "run.py": "e037ce62482214de93c9b8dc7d7105149ccde3ea82988f8ffe583ca19e635c26"
+    "run.py": "f7888a35dbd4d3448b806f7457c79771e9f27ca0d57b0d312ac743faa57da0db",
+    "project_support/__init__.py": "e4db4957b782fbf24c2922f1fc28e55ba45be33b39f90912537ddb5197aec7fd",
+    "project_support/legacy.py": "f9329b86880a3df3bcf60c57e99f3568424a31969c83208eb8bb142b3ae21c72",
+    "conftest.py": "bea6c3d513209d1f7034ff49f873bf7fa795e3b216c9f3cc88260535cdee0b34",
+    "contribution_analysis/__init__.py": "d314fbb0ff1b08713fafe0fa5f4d402448e782ea30d87958f02c82c408ec3edd",
+    "core/__init__.py": "5068fb75e75f4b7fd43cb678ceecc628112da16dc662d7930cba813f0b1773f3",
+    "experiments/__init__.py": "b792c88b1ce2873f22c4a29a5f7991186652d8da95aa68c52d3d1ced8905c298"
   },
-  "verification_date": "2026-11-17"
+  "verification_date": "2026-11-17",
+  "compatibility_directory": ".local_scripts"
 }

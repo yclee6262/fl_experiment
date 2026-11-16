@@ -1,6 +1,6 @@
 # 整理後的執行方式
 
-完成核對：2026-11-17。從專案根目錄執行；`run.py`固定該目錄為工作目錄，所有相對輸出路徑亦相對於它。環境依賴見根目錄requirements；本次使用既有環境，未驗證乾淨安裝。以下輸出位置請選不存在的新資料夾。
+完成核對：2026-11-17。從專案根目錄執行；新入口以repo為工作目錄。舊入口使用自動產生的 `.local_scripts/` 平面視圖，常用輸出／來源路徑會轉成repo絕對路徑。環境依賴見根目錄requirements；本次使用既有環境，未驗證乾淨安裝。以下輸出位置請選不存在的新資料夾。
 
 ## 五個入口
 
@@ -52,7 +52,7 @@ python run.py calibration --output-dir /tmp/method5-calibration-new --seeds 42 -
 
 ## 其他入口與測試
 
-`python run.py list`列主要與依賴程式。新的完整路徑或舊分類路徑仍可作參數，透過根目錄相容連結執行；不在主要清單的112支程式已實體移入archive。
+`python run.py list`列主要與依賴程式。新的完整路徑或舊分類路徑仍可作參數，透過 `.local_scripts/` 內自動產生的相容連結執行；不在主要清單的112支程式已實體移入archive。
 
 ```sh
 python -m pytest -q
@@ -64,4 +64,10 @@ python docs/reorganization_20261116/verify_layout.py
 
 ## 交接
 
-所有連結使用相對路徑。分享時保留根目錄相容連結、實體程式、對應歷史模型／資料與快照；僅傳新的主要程式子目錄不足以重現。Git未追蹤的proposal、checkpoint及結果需另行包含。這次沒有Git提交或對外傳送，原論文與歷史研究資料保留原內容。
+正式程式保持追蹤，本機相容連結會依layout.json自動建立。分享時保留實體程式、project_support、對應歷史模型／資料與快照；僅傳新的主要程式子目錄不足以重現。Git未追蹤的proposal、checkpoint及結果需另行包含。這次沒有Git提交或對外傳送，原論文與歷史研究資料保留原內容。
+
+## 根目錄清理（2026-11-17）
+
+根目錄214個相容腳本已集中至 `.local_scripts/`，整個目錄忽略。它包含可重建的連結，正式程式仍在分類目錄追蹤。`run.py`、pytest的conftest及套件匯入會自動準備此視圖；不要直接使用已移除的 `python alpha_weight_experiments.py` 等舊命令，改用 `python run.py calibration ...`。
+
+需要直接操作平面歷史工具時，可先執行 `python -c 'from project_support.legacy import prepare; prepare()'`，再將 `.local_scripts` 加入Python搜尋路徑。舊runner仍須遵守原規約與來源快照要求。
