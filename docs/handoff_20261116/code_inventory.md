@@ -308,7 +308,6 @@
 ## 保留與相容範圍
 
 - 原先未提交修改的 `host_server.py`、`dataset.py`、`run_experiments.py`、`test_alpha_weight_experiments.py` 原內容逐位保留；`alpha_weight_experiments.py` 在原內容上僅調整來源根目錄定位。沒有還原成Git版本。
-- 原稿整份移入 `paper/proposal/`，原名保留連結，內容hash逐檔核對。
 - 歷史結果、source_snapshot、規約、模型checkpoint及圖表均不搬動。貢獻套件仍可能將程式和證據混放，這次透過索引整理入口。
 - 不全面改寫import、硬編碼研究路徑或既有runner；不刪除舊方法。獨立跨平台套件化不在本次已完成範圍。
 - `pytest.ini` 明確只預設收集移入 `tests/` 的通用測試；套件內版本測試另行指定。

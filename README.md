@@ -1,6 +1,6 @@
 # 法五協作決策研究
 
-論文主線以0604與1112報告為範圍：法五完整Stage、傳統FedAvg比較、八種α初始化、分潤／貢獻及成本比較。0917的α校正保留程式與實驗支援。
+研究程式以0604與1112報告為範圍：法五完整Stage、傳統FedAvg比較、八種α初始化、分潤／貢獻及成本比較。0917的α校正保留程式與實驗支援。
 
 Git收錄範圍與需另外提供的研究資料見[repo內容說明](docs/reorganization_20261116/repository_contents.md)。
 
@@ -9,7 +9,6 @@ Git收錄範圍與需另外提供的研究資料見[repo內容說明](docs/reorg
 - [執行與重現指南](docs/reorganization_20261116/README.md)：五個執行入口、參數和輸出。
 - [整理與驗證結果](docs/reorganization_20261116/verification.md)：封存清單、實跑範圍與限制。
 - [程式位置清單](docs/reorganization_20261116/layout.json)：新位置、原位置及保留原因類別。
-- [論文範圍對照](docs/handoff_20261116/thesis_scope_from_reports.md)、[逐章落差](docs/handoff_20261116/paper_gap.md)。
 
 ```text
 core/                         Host、Agent、模型與共用求解流程
@@ -29,7 +28,6 @@ archive/contribution_packages/  非主線貢獻研究索引
 contribution_analysis/        凍結研究套件與結果，保留原路徑
 alpha_weight_outputs/        歷史α研究資料與模型
 tests/                       通用測試
-paper/README.md              論文獨立管理說明
 ```
 
 原214筆移轉清單（213支原有程式＋1支前次新增smoke）中，92筆保留為主要功能／測試，10筆為技術依賴，112筆移到封存區。根目錄的214個舊相容連結已移除；需要時由 `run.py`、測試或套件匯入自動在 **`.local_scripts/`** 產生。該目錄整個被Git忽略，checkout後不需手動複製。正式分類程式仍由Git追蹤。

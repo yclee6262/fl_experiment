@@ -30,13 +30,6 @@ for path, digest in layout['new_source_hashes'].items():
         errors.append('new source hash: ' + path)
     else:
         ast.parse(source.read_text())
-# The proposal inventory was captured before the first move; verify unchanged content.
-original = json.loads((root / 'docs/handoff_20261116/migration_manifest.json').read_text())
-proposal_present = (root / 'paper/proposal').is_dir()
-for name, digest in (original['proposal_files'].items() if proposal_present else []):
-    source = root / 'paper/proposal' / name
-    if not source.is_file() or hashlib.sha256(source.read_bytes()).hexdigest() != digest:
-        errors.append('proposal hash: ' + name)
 for doc in [root / 'README.md', root / 'experiments/README.md',
             *list((root / 'docs/reorganization_20261116').glob('*.md'))]:
     for target in re.findall(r'\]\(([^)]+)\)', doc.read_text()):
@@ -45,8 +38,6 @@ for doc in [root / 'README.md', root / 'experiments/README.md',
 report = {'passed': not errors, 'errors': errors,
           'entries': len(layout['files']),
           'archived_scripts': sum(r['status'] == 'archive' for r in layout['files']),
-          'active_contribution_packages': len(layout['active_contribution_packages']),
-          'proposal_files_unchanged': len(original['proposal_files']) if proposal_present else None,
-          'proposal_bundle_present': proposal_present}
+          'active_contribution_packages': len(layout['active_contribution_packages'])}
 print(json.dumps(report, indent=2))
 raise SystemExit(bool(errors))

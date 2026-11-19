@@ -50,4 +50,4 @@ python run.py experiments/alpha/methods/alpha_weight_experiments.py --help
 
 相容連結全部是相對路徑；使用保留符號連結的封裝／傳輸方式。Windows或不保留連結的雲端解壓工具可能破壞它們，需在目標機確認。本次沒有製作跨平台獨立發行包，也沒有執行Git提交或對外傳送。
 
-論文 `paper/proposal/` 原本即被Git忽略，現仍忽略。模型checkpoint與部分結果同樣可能未追蹤；不能只用Git commit當作完整實驗交接包。交接前依指定研究的manifest附必要資料即可，不必把所有重複快照都寄出。
+模型checkpoint與部分結果同樣可能未追蹤；不能只用Git commit當作完整實驗交接包。交接前依指定研究的manifest附必要資料即可，不必把所有重複快照都寄出。

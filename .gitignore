@@ -32,8 +32,11 @@ venv/
 *.pth
 *.ckpt
 
-# Local alias to the separately versioned manuscript
+# Keep manuscript files and local shortcuts out of the code repository.
 /李彥澂_Proposal
+/paper/
+/thesis/
+/*.code-workspace
 
 # Large generated validation trees; keep compact verification records below
 /docs/reorganization_20261116/validation/*/
@@ -48,7 +51,3 @@ venv/
 /docs/professor_audio_recovered_transcript_20260917.txt
 /docs/oob_quality_shrink_environment_20261008.txt
 /docs/oob_quality_shrink_working_diff_20261008.patch
-
-# Manuscripts are versioned separately; keep only this directory notice.
-/paper/*
-!/paper/README.md
