@@ -32,7 +32,7 @@ venv/
 *.pth
 *.ckpt
 
-# Original local alias; manuscript sources are tracked under paper/proposal
+# Local alias to the separately versioned manuscript
 /李彥澂_Proposal
 
 # Large generated validation trees; keep compact verification records below

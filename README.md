@@ -29,7 +29,7 @@ archive/contribution_packages/  非主線貢獻研究索引
 contribution_analysis/        凍結研究套件與結果，保留原路徑
 alpha_weight_outputs/        歷史α研究資料與模型
 tests/                       通用測試
-paper/proposal/               論文原稿
+paper/README.md              論文獨立管理說明
 ```
 
 原214筆移轉清單（213支原有程式＋1支前次新增smoke）中，92筆保留為主要功能／測試，10筆為技術依賴，112筆移到封存區。根目錄的214個舊相容連結已移除；需要時由 `run.py`、測試或套件匯入自動在 **`.local_scripts/`** 產生。該目錄整個被Git忽略，checkout後不需手動複製。正式分類程式仍由Git追蹤。
