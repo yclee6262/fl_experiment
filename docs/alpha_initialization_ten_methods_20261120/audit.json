@@ -1,0 +1,35 @@
+{
+  "rows": 2700,
+  "seeds": 90,
+  "scenarios": [
+    "reference_clean",
+    "low_quality_25pct",
+    "sample_imbalance_4x"
+  ],
+  "methods": {
+    "A_uniform": "U",
+    "B_stage0": "Q",
+    "stacked_full": "E",
+    "ensemble_shrink": "EU",
+    "B_stacked_half": "EQ",
+    "pure_support": "S",
+    "peer_support_shrink": "SU",
+    "support_quality_mix50": "SQ",
+    "support_ensemble_mix50": "SE",
+    "quality_shrink": "QU"
+  },
+  "replay_rows": 18,
+  "max_component_difference": 1.1102230246251565e-16,
+  "source_sha256": {
+    "alpha_weight_outputs/pure_es_extension_v1_20261014/batch_1/results.jsonl": "03ce1e7374c7c7e634ef58431e71dc6b7ce523279bda040efdbc4ce524dbf051",
+    "alpha_weight_outputs/four_alpha_v1_20261014/formal_batch_1/results/results.jsonl": "a3aa74578d4a8c609eb8adb6755173184f6cef6b8f99dd57524a200f2adef632",
+    "alpha_weight_outputs/pure_es_extension_v1_20261014/batch_2/results.jsonl": "082ce657c965095982eb242ffd606c7f890aabcc74c2a0bceacd5d308ea53196",
+    "alpha_weight_outputs/four_alpha_v1_20261014/formal_batch_2/results/results.jsonl": "42d53ef1d962d0cbd1207128ab73f130663151c0359b5500236ba9af88a69b4f",
+    "alpha_weight_outputs/pure_es_extension_v1_20261014/batch_3/results.jsonl": "c20a41c58552557549ab9c79902c8e00960a88816a0623290cf601ccb1b75b66",
+    "alpha_weight_outputs/four_alpha_v1_20261014/formal_batch_3/results/results.jsonl": "6aedffdb36215eb977ce39d72d2fc6dc22620071912dcf6245c3b11fad1bd915",
+    "alpha_weight_outputs/se_qu_extension_v1_20261107/batch_1/results.jsonl": "8421d763c59adbee1867c9e73a95c8e96554c44de8ca157d1668ba65d30889fb",
+    "alpha_weight_outputs/se_qu_extension_v1_20261107/batch_2/results.jsonl": "16e71f4ff57ff30444daa1d2dc6f6c42577f342cb3fd19a8c7a8506fd221b5a4",
+    "alpha_weight_outputs/se_qu_extension_v1_20261107/batch_3/results.jsonl": "eb757e89008eabb23ac480aecb90d3911d4018a5518c07673c825562279e0cf2"
+  },
+  "statistics": "Paired historical cohort; 17-contrast bootstrap intervals reused from frozen analysis; no new bootstrap or experiment."
+}
