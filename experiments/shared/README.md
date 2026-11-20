@@ -1,6 +1,6 @@
 # 資料與實驗共用支援
 
-`dataset.py` 生成合成資料；`research_evaluation.py` 訓練／保存／讀取離線 pooled evaluator；`research_analysis.py` 提供 seed 配對統計與覆蓋檢查。`runtime.py` 只保留計數器、資格資料準備、參數及 Stage 3 呼叫，已抽離動態 alpha 校正迴圈。
+`dataset.py` 生成合成資料；`research_evaluation.py` 訓練／保存／讀取離線 pooled evaluator；`research_analysis.py` 提供 seed 配對統計與覆蓋檢查。`runtime.py` 只保留計數器、資格資料準備、參數及 Stage 3 呼叫，動態 alpha 校正迴圈獨立放在 [alpha_calibration](../alpha_calibration/README.md)。
 
 完整流程的小型檢查：
 

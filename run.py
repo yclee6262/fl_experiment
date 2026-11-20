@@ -15,6 +15,7 @@ ENTRIES = {
     'contribution': 'experiments/contribution/replay_cost_comparison.py',
     'roles': 'experiments/contribution/compare_roles.py',
     'sampling': 'experiments/contribution/sample_rounds.py',
+    'calibration': 'experiments/alpha_calibration/run.py',
 }
 
 

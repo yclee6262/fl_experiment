@@ -1,6 +1,6 @@
 # 協作決策反推與貢獻分潤
 
-本專案保留論文使用的決策流程、FedAvg 比較、十種固定 alpha 初始化、預算招募、角色分潤與評估成本實驗。論文原稿另行管理。
+本專案保留論文使用的決策流程、FedAvg 比較、十種固定 alpha 初始化、預算招募、角色分潤與評估成本實驗，另保留獨立的 alpha 校正迴圈研究。論文原稿另行管理。
 
 ## 目錄
 
@@ -8,6 +8,7 @@
 |---|---|
 | [core](core/README.md) | 節點、模型、資格審查、反推、協作搜尋與原始結算 |
 | [experiments](experiments/README.md) | 各實驗的執行入口 |
+| [alpha 校正](experiments/alpha_calibration/README.md) | 固定／自適應步長及 guarded alpha 校正研究 |
 | [contribution_analysis](contribution_analysis/README.md) | 角色與成本重播必需的歷史實作及凍結求解器 |
 | [project_support](project_support/README.md) | 歷史匯入名稱的相容支援 |
 | [tests](tests/README.md) | 保留方法的測試 |
