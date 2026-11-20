@@ -1,5 +1,4 @@
 # Versions used in the local handoff checks (Python 3.11).
-# Historical FL medical-data demos require additional dependencies; see reproduction.md.
 numpy==1.26.4
 scipy==1.13.1
 torch==2.2.1

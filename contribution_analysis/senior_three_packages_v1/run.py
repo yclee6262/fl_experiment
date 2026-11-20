@@ -40,7 +40,7 @@ def main():
     from models import PretrainedModel
     torch.set_num_threads(1);torch.set_num_interop_threads(1)
     OUT.mkdir(exist_ok=False);(OUT/'records').mkdir();(OUT/'source_snapshot').mkdir()
-    cases=read(CA/'combined_contribution_layer2_experiment_v1_20261021/cases.json')['development'];paths=[Path(__file__),W/'docs/senior_review_three_packages_design_20261109.md',CA/'anchor_pool_end_to_end_v1/settlement.py']+list(FROZEN.glob('*.py'))
+    cases=read(CA/'combined_contribution_layer2_experiment_v1_20261021/cases.json')['development'];paths=[Path(__file__),CA/'senior_three_packages_v1/README.md',CA/'anchor_pool_end_to_end_v1/settlement.py']+list(FROZEN.glob('*.py'))
     for c in cases:
         k=c['key'];paths.extend([CA/f'method5_cost_experiment_20261030_attempt_04/records/{k}_New.json',CA/f'method5_cost_experiment_20261030_attempt_04/records/{k}_LOO.json',CA/f'combined_contribution_layer2_experiment_v1_20261021/development/{k}.json',CA/f'model_pool_combinations_20261105_attempt_01/records/{k}_J.json',Path(c['models']),Path(c['evaluator']),Path(c['models']).parent/'metadata.json'])
     locks={str(p):sha(p) for p in paths};save(OUT/'source_lock.json',locks)

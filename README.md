@@ -1,49 +1,28 @@
-# 法五協作決策研究
+# 協作決策反推與貢獻分潤
 
-研究程式以0604與1112報告為範圍：法五完整Stage、傳統FedAvg比較、八種α初始化、分潤／貢獻及成本比較。0917的α校正保留程式與實驗支援。
+本專案保留論文使用的決策流程、FedAvg 比較、十種固定 alpha 初始化、預算招募、角色分潤與評估成本實驗。論文原稿另行管理。
 
-Git收錄範圍與需另外提供的研究資料見[repo內容說明](docs/reorganization_20261116/repository_contents.md)。
+## 目錄
 
-## 現在從哪裡開始
+| 資料夾 | 內容與操作說明 |
+|---|---|
+| [core](core/README.md) | 節點、模型、資格審查、反推、協作搜尋與原始結算 |
+| [experiments](experiments/README.md) | 各實驗的執行入口 |
+| [contribution_analysis](contribution_analysis/README.md) | 角色與成本重播必需的歷史實作及凍結求解器 |
+| [project_support](project_support/README.md) | 歷史匯入名稱的相容支援 |
+| [tests](tests/README.md) | 保留方法的測試 |
 
-- [執行與重現指南](docs/reorganization_20261116/README.md)：五個執行入口、參數和輸出。
-- [整理與驗證結果](docs/reorganization_20261116/verification.md)：封存清單、實跑範圍與限制。
-- [程式位置清單](docs/reorganization_20261116/layout.json)：新位置、原位置及保留原因類別。
+## 開始使用
 
-```text
-core/                         Host、Agent、模型與共用求解流程
-experiments/
-  baselines/                  FedAvg／法五比較及保留的傳統FL版本
-  alpha/compare_initializations.py  1112八種初始化比較
-  alpha/calibration/          0917 α校正（保留程式）
-  alpha/methods/              主方法及必要依賴
-  alpha/runners/              保留的歷史批次入口
-  alpha/analysis/             保留的分析
-  contribution/              四方案成本重播、主題套件索引與P3
-  coalition/                  選人、預算、枚舉
-  protocols/                  P2／P4／P5重現支援
-  shared/                     資料、訓練、評估、共用分析
-archive/legacy/               112支非主線腳本的實體封存
-archive/contribution_packages/  非主線貢獻研究索引
-contribution_analysis/        凍結研究套件與結果，保留原路徑
-alpha_weight_outputs/        歷史α研究資料與模型
-tests/                       通用測試
-```
-
-原214筆移轉清單（213支原有程式＋1支前次新增smoke）中，92筆保留為主要功能／測試，10筆為技術依賴，112筆移到封存區。根目錄的214個舊相容連結已移除；需要時由 `run.py`、測試或套件匯入自動在 **`.local_scripts/`** 產生。該目錄整個被Git忽略，checkout後不需手動複製。正式分類程式仍由Git追蹤。
-
-根目錄 `.gitignore` 只保留共通規則；貢獻套件與資料混放的例外規則放在 `contribution_analysis/.gitignore`。
+使用 Python 3.11，安裝 `requirements.txt` 中的依賴，從專案根目錄執行：
 
 ```sh
 python run.py list
-python run.py initialization --help
-python run.py contribution --help
-python run.py baseline --help
-python run.py calibration --help
 python run.py stages --help
+python run.py initialization --help
 python -m pytest -q
 ```
 
-執行器固定以專案根目錄作工作目錄。新實驗使用新輸出資料夾。程式會自動產生本機相容連結，歷史重播仍須提供既有資料；不是只複製 `core/` 就能重現歷史實驗。
+新實驗必須指定不存在的輸出資料夾。各類實驗的資料需求、完整命令與輸出格式見各資料夾 README。
 
-255項通用測試及60項保留貢獻套件測試通過；24團隊×四方案成本重播與歷史一致；八初始化×三情境的抽樣重播與歷史解一致。完整範圍見驗證紀錄。歷史MedMNIST／Flower比較另需其專用依賴，未在本次重跑。
+模型、原始逐案紀錄與輸出不納入 Git。歷史重播需另外提供來源資料；只有程式 checkout 不含訓練好的模型。過去探索程式與工作紀錄集中於忽略的 `.local_archive/`，Git 歷史也保留整理前版本。請勿將本機封存區一起分享。

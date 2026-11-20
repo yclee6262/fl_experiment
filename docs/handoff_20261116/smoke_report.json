@@ -1,9 +1,0 @@
-{
-  "status": "passed",
-  "seed": 42,
-  "solution": [
-    0.012636682626164311,
-    -0.062073238164713246
-  ],
-  "scope": "synthetic integration only; relaxed qualification; no pruning or payment"
-}

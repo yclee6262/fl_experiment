@@ -1,4 +1,4 @@
-"""Generate the ignored flat script view required by historical research code."""
+"""Provide the small flat import view needed by retained historical modules."""
 import json
 import os
 from pathlib import Path
@@ -8,12 +8,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def prepare():
+    """Build only versioned aliases; archived experiments are never registered."""
     directory = ROOT / '.local_scripts'
     directory.mkdir(exist_ok=True)
-    manifest = json.loads((ROOT / 'docs/reorganization_20261116/layout.json').read_text())
-    for row in manifest['files']:
-        link = directory / row['original']
-        target = Path(os.path.relpath(ROOT / row['canonical'], directory))
+    modules = json.loads((Path(__file__).with_name('legacy_modules.json')).read_text())
+    for stale in directory.glob('*.py'):
+        if stale.is_symlink() and stale.name not in modules:
+            stale.unlink()
+    for name, canonical in modules.items():
+        source = ROOT / canonical
+        if not source.is_file():
+            raise FileNotFoundError(f'Missing retained source: {canonical}')
+        link = directory / name
+        target = Path(os.path.relpath(source, directory))
         if link.is_symlink():
             if os.readlink(link) == str(target):
                 continue
@@ -21,14 +28,12 @@ def prepare():
         elif link.exists():
             raise FileExistsError(f'Refusing to replace local file: {link}')
         link.symlink_to(target)
-    # Historical scripts refer to data/docs relative to their flat working directory.
     for target in ROOT.iterdir():
         if target.is_dir() and not target.name.startswith('.'):
             link = directory / target.name
             if not link.exists() and not link.is_symlink():
                 link.symlink_to(Path('..') / target.name, target_is_directory=True)
-    if str(directory) not in sys.path:
-        sys.path.insert(0, str(directory))
-    if str(ROOT) not in sys.path:
-        sys.path.insert(0, str(ROOT))
+    for path in (ROOT, directory):
+        if str(path) not in sys.path:
+            sys.path.insert(0, str(path))
     return directory

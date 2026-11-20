@@ -156,7 +156,7 @@ def summarize(output, figure=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT/"docs/alpha_initialization_ten_methods_20261120")
+    parser.add_argument("--output", type=Path, default=ROOT/"outputs/alpha_initialization_ten_methods")
     parser.add_argument("--figure", type=Path)
     args = parser.parse_args()
     summarize(args.output, args.figure)

@@ -1,19 +1,16 @@
-# 論文實驗入口
+# 實驗入口
 
-從專案根目錄執行 `python run.py <入口> [參數]`，使用新輸出資料夾。完整命令見 [操作指南](../docs/reorganization_20261116/README.md)。
+從專案根目錄執行 `python run.py <入口> [參數]`。輸出使用新資料夾。
 
-| 入口 | 用途 | 實作 |
+| 入口 | 用途 | 詳細說明 |
 |---|---|---|
-| `stages` | 原法五各Stage，含剪枝及原分潤 | `shared/run_experiments.py` |
-| `baseline` | 可設定維度的FedAvg與法五數值執行比較 | `baselines/compare_fedavg.py` |
-| `initialization` | 1112的U/Q/E/S/EU/EQ/SU/SQ；重用合格模型 | `alpha/compare_initializations.py` |
-| `contribution` | CA+V、CA+CM、J、完整LOO獨立冷快取成本重播 | `contribution/replay_cost_comparison.py` |
-| `calibration` | 0917的α校正與固定／guarded等策略 | `alpha/calibration/alpha_weight_experiments.py` |
+| `stages` | 資格、招募、反推、搜尋、可選剪枝與結算 | [shared](shared/README.md) |
+| `baseline` | FedAvg 訓練反推與協作流程比較 | [baselines](baselines/README.md) |
+| `initialization` | U/Q/E/S 與六種兩兩混合的十法重播 | [alpha](alpha/README.md) |
+| `alpha-summary` | 彙整十法既有結果與配對比較 | [alpha/analysis](alpha/analysis/README.md) |
+| `coalition` | 枚舉一至三人聯盟及預算比較 | [coalition](coalition/README.md) |
+| `roles` | 固定端點下的錨點／模型／聯合效果與分潤 | [contribution](contribution/README.md) |
+| `sampling` | 既有搜尋路徑的抽樣分配差異 | [contribution](contribution/README.md) |
+| `contribution` | CA+V、CA+CM、J、完整 LOO 冷快取成本重播 | [contribution](contribution/README.md) |
 
-`core/pipeline.py`只封裝資格、提案與求解；完整Stage3.5／4仍由stages入口執行。校正另選入口，沒有默默納入1112固定初始化研究。
-
-`contribution/packages` 保留20個報告相關套件的相對索引，其中包括方向投影／改善分帳、抽樣研究支援、錨點與模型分支、分池與結算。其實體仍在 `contribution_analysis/`，以維持動態載入、模型及基準端點路徑。1112抽樣CA最終分析在 `artifacts/anchor_sampling_peer_20261111/`；本次保留其結果與程式，沒有重寫固定路徑分析腳本。
-
-早期探索與主文外擴充（SE/QU、C/P、比例搜尋等）在 `archive/legacy/experiments/alpha/`；必要的共用模組仍保留於主要區域。可用 `run.py` 的舊分類路徑啟動歷史程式（根目錄舊名稱已移除，本機相容檔在 `.local_scripts/`），來源hash檢查仍有效；部分舊runner固定輸出位置，不應直接對完成結果再執行。
-
-FedAvg數值比較保留並修正多維誤差公式與缺參數呼叫。MedMNIST／Flower版本仍在 `baselines/`，保留作傳統比較候選；本次未安裝它們的額外依賴或宣稱已完成醫療資料集重跑。
+初始化與角色實驗固定案例，和包含招募、剪枝及付款的完整流程是不同設計。額外 alpha 校正、比例搜尋與非論文探索位於本機封存區。

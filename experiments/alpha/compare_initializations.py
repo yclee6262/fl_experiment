@@ -1,4 +1,4 @@
-"""Replay the eight 1112 initializations on saved, qualified models."""
+"""Replay all ten fixed alpha initializations on saved, qualified models."""
 import argparse
 import copy
 import json
@@ -6,12 +6,14 @@ from pathlib import Path
 import numpy as np
 from four_alpha_initialization import initializer
 from pure_es_initialization import initializer as pure_initializer
+from se_qu_initialization import initializer as pair_initializer
 import oob_shrinkage_research as shared
 from research_evaluation import load_evaluator_artifact, score_solution
 
 METHODS = {"U": "A_uniform", "Q": "B_stage0", "E": "stacked_full",
            "S": "pure_support", "EU": "ensemble_shrink", "EQ": "B_stacked_half",
-           "SU": "peer_support_shrink", "SQ": "support_quality_mix50"}
+           "SU": "peer_support_shrink", "SQ": "support_quality_mix50",
+           "SE": "support_ensemble_mix50", "QU": "quality_shrink"}
 
 
 def main():
@@ -39,7 +41,9 @@ def main():
                 # Keep each method's solve independent; external scoring starts only after all decisions are locked.
                 decisions = []
                 for label, method in METHODS.items():
-                    shared.initial_alpha = pure_initializer(peer) if label in ("E", "S") else initializer(peer)
+                    shared.initial_alpha = (pure_initializer(peer) if label in ("E", "S")
+                                            else pair_initializer(peer) if label in ("SE", "QU")
+                                            else initializer(peer))
                     row = shared.solve(copy.deepcopy(server), method, mse, server.test_X, server.test_y, predictions, seed, 1000)
                     row.update(method=method, method_label=label, seed=seed, scenario=scenario)
                     shared.append(output / "decisions.jsonl", row)

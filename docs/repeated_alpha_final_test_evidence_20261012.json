@@ -1,7 +1,0 @@
-{
-  "command": "/Users/yclee/anaconda3/bin/python -m pytest -q test_repeated_alpha_confirmation.py test_repeated_alpha_evidence_audit.py test_repeated_alpha_qualification_diagnostic.py",
-  "exit_code": 0,
-  "passed": 11,
-  "terminal_output": "11 passed in 0.79s",
-  "scope": "registered confirmation rules, independent completion audit, shared-qualification diagnostic failure safeguards"
-}

@@ -38,16 +38,6 @@ venv/
 /thesis/
 /*.code-workspace
 
-# Large generated validation trees; keep compact verification records below
-/docs/reorganization_20261116/validation/*/
-/docs/reorganization_20261116/validation/*.log
-!/docs/reorganization_20261116/validation/unit_tests.log
-!/docs/reorganization_20261116/validation/tests_*.log
-
-# Generated compatibility scripts and local-only experiments
+# Local historical experiments, work logs and compatibility links
+/.local_archive/
 /.local_scripts/
-
-# Local recovered audio transcript and one-off environment/diff audit
-/docs/professor_audio_recovered_transcript_20260917.txt
-/docs/oob_quality_shrink_environment_20261008.txt
-/docs/oob_quality_shrink_working_diff_20261008.patch
