@@ -27,7 +27,7 @@ def payment_contributions(reports, full_opt_loss, threshold=1e-8):
     return q, positives, source, reason
 
 class HostServer:
-    def __init__(self, target_T, n_features, total_budget=10.0, test_seed=42, n_test=5, constraint_mode="legacy_unconstrained", feasible_lower=-1.0, feasible_upper=1.0, feasibility_tolerance=1e-8):
+    def __init__(self, target_T, n_features, total_budget=10.0, test_seed=42, n_test=5, constraint_mode="legacy_unconstrained", feasible_lower=-1.0, feasible_upper=1.0, feasibility_tolerance=1e-8, coefficient_eps=None):
         if constraint_mode not in {"legacy_unconstrained", "box_constrained"}:
             raise ValueError("Unknown constraint mode")
         if not np.isfinite([feasible_lower, feasible_upper]).all() or feasible_lower >= feasible_upper:
@@ -36,6 +36,9 @@ class HostServer:
         self.feasible_lower = feasible_lower
         self.feasible_upper = feasible_upper
         self.feasibility_tolerance = feasibility_tolerance
+        if coefficient_eps is not None and (not np.isfinite(coefficient_eps) or coefficient_eps <= 0):
+            raise ValueError("coefficient_eps must be positive and finite, or None for historical behavior")
+        self.coefficient_eps = coefficient_eps
         self.target_T = target_T
         self.n_features = n_features
         self.total_budget = float(total_budget)
@@ -390,11 +393,15 @@ class HostServer:
                 if not start.success:
                     raise ValueError("No feasible beta start")
                 initial_betas = start.x
+            options = {"ftol": 1e-9, "maxiter": 200}
+            if self.coefficient_eps is not None:
+                options["eps"] = self.coefficient_eps
             result = minimize(beta_objective, initial_betas, method="SLSQP", callback=callback,
                               constraints=[LinearConstraint(matrix, self.feasible_lower, self.feasible_upper)],
-                              options={"ftol": 1e-9, "maxiter": 200})
+                              options=options)
         else:
-            result = minimize(beta_objective, initial_betas, method="BFGS", callback=callback)
+            extra = {} if self.coefficient_eps is None else {"options": {"eps": self.coefficient_eps}}
+            result = minimize(beta_objective, initial_betas, method="BFGS", callback=callback, **extra)
         solution = np.dot(result.x, candidates)
         loss = float(objective(solution))
         if not history:

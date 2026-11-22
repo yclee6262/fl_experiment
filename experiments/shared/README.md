@@ -11,3 +11,5 @@ python run.py stages --output-dir outputs/stages-new --seeds 42 \
 ```
 
 此命令放寬資格門檻且關閉反推 gate，只驗證接線。正常研究須固定資格、預算、模型訓練與搜尋設定。輸出包含 selection、pruning、payment、搜尋及離線評估資料。傳統完整流程與固定聯盟 box-constrained 初始化重播應分開解讀。
+
+[修訂版求解規約](SOLVER_POLICY.md)固定具名數值設定與後續預算比較；`solver_policy.py`供新實驗明確啟用，既有預設保持歷史行為。

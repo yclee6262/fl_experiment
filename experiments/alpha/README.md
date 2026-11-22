@@ -18,4 +18,5 @@ python run.py initialization \
 - [analysis](analysis/README.md)：統計與十法彙整。
 - [results](results/README.md)：論文使用的十法精簡數據。
 - [solver_diagnostics](solver_diagnostics/README.md)：固定原模型與錨點，比較差分步長及推論精度；屬數值診斷，不修改正式求解器設定。
-- [solver_diagnostics](solver_diagnostics/README.md)：以原模型查驗係數引擎的差分步長與推論精度，保留歷史設定。
+
+修訂實驗以 `--solver-policy float32_slsqp_v1` 明確啟用固定差分步長；省略時仍為歷史模式。設定、成本口徑及後續硬預算研究見[求解規約](../shared/SOLVER_POLICY.md)。

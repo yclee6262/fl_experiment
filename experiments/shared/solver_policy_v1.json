@@ -1,0 +1,26 @@
+{
+  "id": "float32_slsqp_v1",
+  "status": "fixed_after_historical_development_diagnosis",
+  "precision": "float32",
+  "domain": {"lower": -1.0, "upper": 1.0, "feasibility_tolerance": 1e-8},
+  "coefficient": {"solver": "SLSQP", "eps": 1e-5, "ftol": 1e-9, "maxiter": 200, "beta_constraint": "unrestricted_except_box_on_A_beta", "initial_beta": "uniform_1_over_K"},
+  "custom": {"iterations": 30, "initial_x": "anchor_mean", "direction_weights": "alpha", "annealing": true, "tangent": true},
+  "primary_strategy": "best_of",
+  "engine_ablations": ["bfgs", "custom", "best_of"],
+  "selection": "minimum_operational_loss_among_finite_box_feasible_endpoints_coefficient_first_on_exact_tie",
+  "iteration_limited_study": {"scope": "initializer_reanalysis", "hard_query_cap": null, "claim": "actual_cost_comparison_only"},
+  "future_equal_query_study": {
+    "scope": "task8_separate_runner_required",
+    "objective_panel_evaluation_budgets": [100, 200, 400],
+    "model_query_budget": "K_times_panel_budget",
+    "best_of_split": "half_per_engine_no_transfer",
+    "cache": "off",
+    "output": "best_observed_finite_box_feasible_endpoint_within_budget",
+    "all_search_and_selection_evaluations_included": true,
+    "training_inversion_initialization_and_contribution_costs": "separate_and_total_reported"
+  },
+  "offline_endpoints": ["synthetic_truth_absolute_target_error", "pooled_absolute_target_error"],
+  "offline_endpoints_used_for_solver_selection": false,
+  "historical_policy": {"coefficient_eps": null, "change_default": false},
+  "limits": "Developed on 30 historical seeds across three D2 T0 K3 uniform-alpha scenarios; not independent confirmation or a universal step-size guarantee."
+}

@@ -209,8 +209,9 @@ def main():
         snapshot=args.source/scenario/'source_snapshot/host_server.py'
         match=digest(snapshot)==digest(root/'core/host_server.py')
         manifest['snapshot_compatibility'][scenario]={'path':str(snapshot.resolve()),'sha256':digest(snapshot),'matches_current':match}
-        if not match:
-            raise ValueError('historical host source differs')
+        # Optional numerical settings may change source bytes. Compatibility is
+        # established by the mandatory saved-U decision/loss/engine/query replay.
+        manifest['snapshot_compatibility'][scenario]['compatibility_basis'] = 'mandatory_historical_U_replay'
     rows=[]
     dump(args.output_dir/'manifest.json',manifest)
     try:

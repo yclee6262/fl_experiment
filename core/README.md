@@ -8,3 +8,5 @@
 `solve_decision(server, agents, qualification_options=..., custom_iterations=30)` 回傳 `solution`、`history`、`states`。完整剪枝與結算由 `python run.py stages` 執行。
 
 模型權重 alpha、資格分數及貢獻份額有不同用途。係數引擎搜尋候選的 linear span；方向引擎由候選平均出發。受限設定為 box_constrained，有效交付須有限且符合 box 容差。搜尋有效不代表已證明全域最優。
+
+`HostServer(..., coefficient_eps=None)`保留歷史差分設定；可明確傳入正有限步長。修訂版採用設定與適用範圍由[求解規約](../experiments/shared/SOLVER_POLICY.md)定義，核心不自動切換既有研究。
