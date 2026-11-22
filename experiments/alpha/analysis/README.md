@@ -18,3 +18,18 @@ python experiments/alpha/analysis/audit_saved_engines.py \
 ```
 
 讀取相同十法來源，保留來源雜湊，彙整 `chosen_engine` 與兩個 `engine_losses`，不新增模型查詢；輸出目錄已存在時拒絕覆寫。歷史 `bfgs` 欄位在受限案例代表 SLSQP 係數引擎。引擎選中率不能單獨證明數值失效；原模型的配對診斷見上層 `solver_diagnostics/` 文件。
+
+
+## 修訂求解器後的十法重分析
+
+設計在 [revised_analysis_design.md](revised_analysis_design.md) 固定；執行：
+
+```sh
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m experiments.alpha.analysis.analyze_revised_initializers \
+  --input-root outputs/alpha_initialization_revised/task5_20261123 \
+  --output-dir outputs/alpha_initialization_revised/task5_20261123/analysis-new
+```
+
+必須有三批完成的 `float32_slsqp_v1` 結果。程式拒絕既有輸出資料夾；由保存 X 衍生真值至 `derived_records.jsonl`，不改寫原資料。輸出含80列分方法／情境／指標摘要、原12對與SE/QU17對及45對探索family的完整配對區間、pooled/truth方向一致率與Spearman、歷史差異及270個評估器的MSE/RMSE與樣本數。所有bootstrap以90個seed為單位共同重抽200000次；不稱獨立確認或等效。
+
+`truth_paired_intervals.pdf` 呈現九法相對U的真值誤差差值。程式可核對完整覆蓋、alpha及來源hash；原模型端點重算由上層 `revised_initialization/validate.py` 驗收。

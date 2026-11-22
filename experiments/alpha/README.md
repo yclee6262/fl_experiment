@@ -20,3 +20,5 @@ python run.py initialization \
 - [solver_diagnostics](solver_diagnostics/README.md)：固定原模型與錨點，比較差分步長及推論精度；屬數值診斷，不修改正式求解器設定。
 
 修訂實驗以 `--solver-policy float32_slsqp_v1` 明確啟用固定差分步長；省略時仍為歷史模式。設定、成本口徑及後續硬預算研究見[求解規約](../shared/SOLVER_POLICY.md)。
+
+[修訂十法重分析](revised_initialization/README.md)提供三批原模型的批次執行與端點驗算入口，舊結果仍保留。
