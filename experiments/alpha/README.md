@@ -17,3 +17,5 @@ python run.py initialization \
 - `replay.py`：載入既有模型與獨立求解。
 - [analysis](analysis/README.md)：統計與十法彙整。
 - [results](results/README.md)：論文使用的十法精簡數據。
+- [solver_diagnostics](solver_diagnostics/README.md)：固定原模型與錨點，比較差分步長及推論精度；屬數值診斷，不修改正式求解器設定。
+- [solver_diagnostics](solver_diagnostics/README.md)：以原模型查驗係數引擎的差分步長與推論精度，保留歷史設定。

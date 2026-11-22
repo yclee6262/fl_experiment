@@ -9,3 +9,12 @@ python run.py alpha-summary --output outputs/alpha-summary-new
 輸出 `means_and_queries.csv`、`paired_comparisons.csv`、`audit.json` 及資料摘要。`--figure <path.pdf>` 可由相同數據重建初始化圖。
 
 `analyze_four_alpha.py` 對應原六法的 12 個預先指定比較；`analyze_pure_es_extension.py` 對應純 E/S 補充分析。SE/QU 的 17 個比較是另一定義的 family，不能將分別校正的區間說成十法所有配對的共同校正。
+
+## 既有引擎紀錄查核
+
+```sh
+python experiments/alpha/analysis/audit_saved_engines.py \
+  --output-dir outputs/alpha_saved_engine_audit/new-run
+```
+
+讀取相同十法來源，保留來源雜湊，彙整 `chosen_engine` 與兩個 `engine_losses`，不新增模型查詢；輸出目錄已存在時拒絕覆寫。歷史 `bfgs` 欄位在受限案例代表 SLSQP 係數引擎。引擎選中率不能單獨證明數值失效；原模型的配對診斷見上層 `solver_diagnostics/` 文件。
