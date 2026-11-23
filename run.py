@@ -7,6 +7,7 @@ from project_support.legacy import prepare
 
 ROOT = Path(__file__).resolve().parent
 ENTRIES = {
+    'alpha-roles': 'experiments/alpha/weight_roles/run.py',
     'nonzero-initialization': 'experiments/alpha/nonzero_targets/run.py',
     'nonzero-subspace': 'experiments/baselines/nonzero_subspace/run.py',
     'nonzero-roles': 'experiments/contribution/nonzero_targets/run.py',

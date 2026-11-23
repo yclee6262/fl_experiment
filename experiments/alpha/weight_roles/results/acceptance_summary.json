@@ -1,0 +1,132 @@
+{
+  "run": "outputs/alpha_weight_roles/task10_formal_v1",
+  "analysis": "analysis",
+  "manifest_sha256": "6db0baacd5686b27912cc1ebd40b4f1acbb7ca3eca5b42f22ab46c6e2f9ea174",
+  "analysis_audit": {
+    "passed": true,
+    "conditions": 540,
+    "source_seeds": 90,
+    "physical_searches": 7560,
+    "physical_valid": 7560,
+    "physical_failed": 0,
+    "coupled_rows": 5400,
+    "factorial_rows": 4320,
+    "primary_family": 36,
+    "secondary_family": 54,
+    "bootstrap_replicates": 200000,
+    "rng": 20261124,
+    "analysis_sha256": "052d3b90b81dc22226ff88556060563b43535ca4e1b200ff562540ce71fe725c",
+    "scope": "Reused clean models with controlled post-training shifts; custom200 factorial holds anchors fixed within condition; no common-loss comparison across own Lopt",
+    "costs": {
+      "search_model_queries": 4004631,
+      "inversion_forward_samples": 811620,
+      "shared_regime_blind_samples": 16200,
+      "baseline_diagnostic_queries": {
+        "requests": 270,
+        "samples": 5400
+      },
+      "support_samples": 3240,
+      "initialization_samples": 32400
+    }
+  },
+  "acceptance": {
+    "passed": true,
+    "smoke": false,
+    "conditions": 540,
+    "physical_searches": 7560,
+    "factorial_rows": 4320,
+    "independently_recomputed_endpoint_panels": 11880,
+    "inverse_endpoint_checks": 1620,
+    "paired_initial_points": 270,
+    "trace_events": 1349123,
+    "study_model_queries": 4004631,
+    "inversion_forward_samples": 811620,
+    "initialization_samples": 32400,
+    "shared_blind_samples": 16200,
+    "support_samples": 3240,
+    "fixed_baseline_diagnostic_samples": 5400,
+    "stop_reasons": {
+      "solver_completed": 6989,
+      "budget_exhausted": 485,
+      "solver_unsuccessful": 86
+    },
+    "coupled_branch_stop_reasons": {
+      "solver_unsuccessful": 276,
+      "solver_completed": 9804,
+      "budget_exhausted": 720
+    },
+    "validator_sha256": "1b21a1e3bbb6da04fc9b74945ccddf309717d3c3bfa83c611acd6005f860745a"
+  },
+  "statistics_acceptance": {
+    "passed": true,
+    "source_cases": 540,
+    "raw_physical_searches": 7560,
+    "factorial_rows": 4320,
+    "raw_hashes_checked": 2160,
+    "group_means_and_common_scores": 108,
+    "primary_intervals": 36,
+    "secondary_intervals": 54,
+    "paired_weight_intervals": 20,
+    "replicates": 200000,
+    "rng": 20261124,
+    "physical_query_sum": 4004631,
+    "validator_sha256": "5a5ccbe0c8723e0e6cf5c8acbc2a07da2d5f935ad96cc23d5f199afcdaaabb91",
+    "analysis_files_sha256": {
+      "bias_weight_changes.csv": "4e88083491b9a68e69d1cf5d285955c6e441822f9161eee99cd5cffdd8486969",
+      "coupled_comparisons.csv": "06b0769746841bf085c403b0d8d2cda1c415d35c67d979e5acc7cfa19b4824f4",
+      "condition_diagnostics.csv": "fd179c56e6e66df73fb96a737718aeb1e4d5339fa9d76a9d56c1d25e90102c30",
+      "primary_effects.csv": "1d6f27562074ad4a7242cb7f7ada54dc878f7ef0d283f2499a12b22ea5017fa7",
+      "factorial_groups.csv": "430b10f56a64c01e6160cac82a8e30959b5c416c0efaec4f163330552274a73f",
+      "coupled_groups.csv": "7d7fa79c73943cba02b74f7362064306a1ce8c25f26f80b24ff4991af00c7f2c"
+    }
+  },
+  "replay_acceptance": {
+    "passed": true,
+    "unshifted_conditions": 180,
+    "task9_decisions_identical": 1800,
+    "smoke_conditions_identical": 6,
+    "decoded_traces_identical": 1884,
+    "excluded_replay_fields": [
+      "seconds",
+      "trace_sha256 (gzip creation metadata)"
+    ],
+    "reference_manifest_sha256": "4140dc0952b6d066b418f00bc5b4ded83f4af12894d55ed60267cc0f17c64a3b",
+    "source_manifest_sha256": "6db0baacd5686b27912cc1ebd40b4f1acbb7ca3eca5b42f22ab46c6e2f9ea174",
+    "validator_sha256": "b091abab90abc2adf93c16942f494707c923b43ccbb84a7f751a0c9d506c94e7",
+    "scope": "Regression identity, not independent confirmation; no new model calls"
+  },
+  "files_sha256": {
+    "coupled_groups.csv": "7d7fa79c73943cba02b74f7362064306a1ce8c25f26f80b24ff4991af00c7f2c",
+    "factorial_groups.csv": "430b10f56a64c01e6160cac82a8e30959b5c416c0efaec4f163330552274a73f",
+    "primary_effects.csv": "1d6f27562074ad4a7242cb7f7ada54dc878f7ef0d283f2499a12b22ea5017fa7",
+    "coupled_comparisons.csv": "06b0769746841bf085c403b0d8d2cda1c415d35c67d979e5acc7cfa19b4824f4",
+    "bias_weight_changes.csv": "4e88083491b9a68e69d1cf5d285955c6e441822f9161eee99cd5cffdd8486969",
+    "condition_diagnostics.csv": "fd179c56e6e66df73fb96a737718aeb1e4d5339fa9d76a9d56c1d25e90102c30"
+  },
+  "development_costs": {
+    "smoke_run": "outputs/alpha_weight_roles/task10_smoke_v2",
+    "smoke_acceptance": {
+      "passed": true,
+      "smoke": true,
+      "conditions": 6,
+      "physical_searches": 84,
+      "factorial_rows": 48,
+      "independently_recomputed_endpoint_panels": 132,
+      "inverse_endpoint_checks": 18,
+      "paired_initial_points": 3,
+      "trace_events": 15681,
+      "study_model_queries": 46533,
+      "inversion_forward_samples": 9018,
+      "initialization_samples": 360,
+      "shared_blind_samples": 180,
+      "support_samples": 36,
+      "fixed_baseline_diagnostic_samples": 60,
+      "stop_reasons": {
+        "solver_completed": 72,
+        "budget_exhausted": 12
+      },
+      "validator_sha256": "6bed9c4e502df864cebe0e54d3ea1a8edd70694e4d0f562bda990d222dbfdc9b"
+    },
+    "initial_launch": "task10_smoke_v1 stopped before model loading or inference; source parser included non-study batches. Empty output preserved, no scientific records."
+  }
+}

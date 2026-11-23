@@ -1,0 +1,15 @@
+{
+  "id": "alpha_weight_roles_v1",
+  "created": "2026-11-24",
+  "source": "original 90 clean D2 model cases from SE/QU registration batches",
+  "agents": [1, 2, 20],
+  "targets": [-0.5, 0.5],
+  "regimes": ["control", "single_shift", "common_shift"],
+  "bias": {"amount": 0.5, "owner_index": "global ordered seed index modulo 3", "location": "post-training output, same float32 shift in API and differentiable model", "floating_tolerance": 0.000002},
+  "inversion": {"starts": 1, "steps": 500, "lr": 0.01, "seed": "source_seed*100+agent_id", "same_starts_across_targets_and_regimes": true},
+  "coupled": {"methods": ["U", "Q", "E", "S", "EU", "EQ", "SU", "SQ", "SE", "QU"], "engine": "best_of", "panel_budget": 400, "coefficient_budget": 200, "custom_budget": 200},
+  "factorial": {"methods": ["Q", "EU"], "engine": "custom", "panel_budget": 200, "cells": ["UU", "AU", "UA", "AA"], "reuse": "UU from U coupled custom branch; AA from corresponding coupled custom branch. AU/UA separately executed. Each of 14 actual searches charged once."},
+  "search": {"policy": "float32_slsqp_v1", "custom_rounds": 30, "delivery": "best observed finite box-feasible own-objective loss", "cache": false},
+  "analysis": {"unit": "90 source seeds paired", "bootstrap": 200000, "rng": 20261124, "primary_endpoint": "absolute synthetic truth target error", "primary_family": "3 regimes * 2 targets * 2 factorial rules * 3 effects", "primary_family_size": 36, "effects": {"objective": "((AU-UU)+(AA-UA))/2", "direction": "((UA-UU)+(AA-AU))/2", "interaction": "AA-AU-UA+UU"}, "secondary_family": "9 coupled rules minus U * 3 regimes * 2 targets", "secondary_family_size": 54, "weight_changes": "single_shift minus control at fixed target; descriptive seed-paired intervals", "other": "all means, n, failure, bootstrap ordinary95 plus family intervals; no equivalence inference"},
+  "limits": ["Reused models, new controlled-bias stress extension; no fresh-model confirmation", "No renewed gate, no retraining, high inversion residuals retained", "Cross-regime changes include newly inverted anchors; factorial comparisons hold anchors fixed within regime", "Bias amount and rules fixed without target-error selection; positive offset only", "Common bias preserves fixed-input disagreement within declared float32 tolerance", "Truth is offline only and never selects alpha or endpoint", "Lopt across different objective alpha is not a common quality score", "Factorial effects describe this custom path and budget; direction alpha is not coefficient beta", "No alpha calibration, actual payment, or strategy-proofness claim"]
+}

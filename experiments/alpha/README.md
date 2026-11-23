@@ -24,3 +24,5 @@ python run.py initialization \
 [修訂十法重分析](revised_initialization/README.md)提供三批原模型的批次執行與端點驗算入口，舊結果仍保留。
 
 [非零目標十法比較](nonzero_targets/README.md)重新反推四個目標，採400 panel硬上限及90 seed配對統計；入口 `python run.py nonzero-initialization --help`。
+
+[Alpha作用條件與2×2消融](weight_roles/README.md)以90個clean模型案例加入單一／全體輸出偏差，分開目標權重與custom方向權重；入口 `python run.py alpha-roles --help`。
