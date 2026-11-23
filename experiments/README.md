@@ -7,6 +7,9 @@
 | `stages` | 資格、招募、反推、搜尋、可選剪枝與結算 | [shared](shared/README.md) |
 | `baseline` | FedAvg 訓練反推與協作流程比較 | [baselines](baselines/README.md) |
 | `initialization` | U/Q/E/S 與六種兩兩混合的十法重播 | [alpha](alpha/README.md) |
+| `nonzero-initialization` | 四目標下的十法初始化與硬查詢上限 | [alpha/nonzero_targets](alpha/nonzero_targets/README.md) |
+| `nonzero-subspace` | K<D、實際秩、非零目標及全空間比較 | [baselines/nonzero_subspace](baselines/nonzero_subspace/README.md) |
+| `nonzero-roles` | 固定團隊重新反推四目標與角色介入 | [contribution/nonzero_targets](contribution/nonzero_targets/README.md) |
 | `alpha-summary` | 彙整十法既有結果與配對比較 | [alpha/analysis](alpha/analysis/README.md) |
 | `coalition` | 枚舉一至三人聯盟及預算比較 | [coalition](coalition/README.md) |
 | `roles` | 固定端點下的錨點／模型／聯合效果與分潤 | [contribution](contribution/README.md) |

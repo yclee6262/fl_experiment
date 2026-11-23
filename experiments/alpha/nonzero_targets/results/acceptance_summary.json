@@ -1,0 +1,43 @@
+{
+  "run": "outputs/nonzero_initialization/task9_v1",
+  "analysis": "analysis",
+  "manifest_sha256": "4140dc0952b6d066b418f00bc5b4ded83f4af12894d55ed60267cc0f17c64a3b",
+  "analysis_audit": {
+    "passed": true,
+    "conditions": 1080,
+    "records": 10800,
+    "valid": 10800,
+    "seeds": 90,
+    "primary_family": 27,
+    "replicates": 200000,
+    "analysis_sha256": "42bd967dd1df1004187aedcb44c8584d6661c2349bb04157645ac7c739170169",
+    "scope": "Reused historical models; newly inverted four targets and 400-panel delivery"
+  },
+  "statistics_acceptance": {
+    "passed": true,
+    "raw_records": 10800,
+    "group_means": 160,
+    "primary_paired_intervals": 27,
+    "replicates": 200000,
+    "validator_sha256": "82081f0d02e198658c207380de0c97aa12ffe3c9b84c23cdde61e1968d3b9bc8"
+  },
+  "files_sha256": {
+    "groups.csv": "3f4bcadc5a75fcd6b8bd36b46413f39c72c25fa45407024c6f96efb1cf695759",
+    "primary_comparisons.csv": "28c84abaf56d8e65be48bd44c7bebdba370555f72febc35b98f77a9b4498faca",
+    "target_changes.csv": "1a35bb70d9d624789a1a8c13bb66424432d336a3caa8c2a5c2597b6938e2b56b",
+    "case_diagnostics.csv": "31c913e826e2d516e88ba39bb3872103679982f1c575d8e3f5c6e83b64415212"
+  },
+  "acceptances": {
+    "acceptance.json": {
+      "passed": true,
+      "records": 10800,
+      "conditions": 1080,
+      "model_sets": 270,
+      "validation_model_queries": 35640,
+      "trace_events": 2286354,
+      "all_target_residuals_and_budgets_verified": true,
+      "all_cross_target_initial_points_identical": true,
+      "validator_sha256": "f7d99276dd62a949198b12e6c497214c14a5ff8ea980c158a0cf6406e4060a2c"
+    }
+  }
+}

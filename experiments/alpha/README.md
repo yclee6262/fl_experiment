@@ -22,3 +22,5 @@ python run.py initialization \
 修訂實驗以 `--solver-policy float32_slsqp_v1` 明確啟用固定差分步長；省略時仍為歷史模式。設定、成本口徑及後續硬預算研究見[求解規約](../shared/SOLVER_POLICY.md)。
 
 [修訂十法重分析](revised_initialization/README.md)提供三批原模型的批次執行與端點驗算入口，舊結果仍保留。
+
+[非零目標十法比較](nonzero_targets/README.md)重新反推四個目標，採400 panel硬上限及90 seed配對統計；入口 `python run.py nonzero-initialization --help`。

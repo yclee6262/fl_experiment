@@ -13,3 +13,5 @@ python run.py baseline --output-dir outputs/fedavg-new \
 不需要醫療資料集下載或 Flower；相關舊展示已移入本機封存。
 
 [paired_benchmark](paired_benchmark/README.md)提供30seed、三維度與兩污染條件的配對基準、硬查詢預算、同成員FedAvg控制及資源計量；正式入口 `python run.py paired-benchmark --help`。
+
+[非零目標與受限空間](nonzero_subspace/README.md)固定D5/10、K1/3，比較四目標、實際秩及相同panel上限的全空間搜尋；入口 `python run.py nonzero-subspace --help`。

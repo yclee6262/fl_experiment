@@ -7,6 +7,9 @@ from project_support.legacy import prepare
 
 ROOT = Path(__file__).resolve().parent
 ENTRIES = {
+    'nonzero-initialization': 'experiments/alpha/nonzero_targets/run.py',
+    'nonzero-subspace': 'experiments/baselines/nonzero_subspace/run.py',
+    'nonzero-roles': 'experiments/contribution/nonzero_targets/run.py',
     'stages': 'experiments/shared/run_experiments.py',
     'paired-benchmark': 'experiments/baselines/paired_benchmark/run.py',
     'baseline': 'experiments/baselines/compare_fedavg.py',

@@ -1,0 +1,100 @@
+{
+  "run": "outputs/nonzero_role_targets/task9_final_v1",
+  "analysis": "analysis_final",
+  "manifest_sha256": "9ef9897da3c3555e9d051f3eb10e8c8af11ecfabb7500fa7ed37d2ff3d5a5c17",
+  "analysis_audit": {
+    "passed": true,
+    "tasks": 80,
+    "valid": 80,
+    "failed": 0,
+    "analysis_sha256": "ddf5e875bf921d3787b5a9f4c084f633aaf6c9f90ba7e2819f7a490987470a36",
+    "new_statistical_model_queries": 0,
+    "bootstrap_replicates": 200000,
+    "rng": 20261123,
+    "scope": "Existing models, fixed teams, fresh target-specific endpoints; descriptive team intervals, not across-start stability or independent model confirmation"
+  },
+  "statistics_acceptance": {
+    "passed": true,
+    "raw_tasks": 80,
+    "summary_intervals": 240,
+    "paired_intervals": 144,
+    "replicates": 200000,
+    "validator_sha256": "525efcc33e5e8ae0d7bf7adaa979a8e49027ff91d0e8ef41d18f35f5d3ad1e5b"
+  },
+  "files_sha256": {
+    "summary.csv": "ea05d8e9e7777a923a66358860ae6a0bfed919923fe2bd195c76d7a2b73bff97",
+    "paired_target_changes.csv": "04a28f275123b7905d6e70b748e0fb6888a0a94a4a68af86627a4f4af4cd560e",
+    "sign_flip_summary.csv": "dca0b6603fb9e8b50fd08286895b33ea7efda60ab1eeadab031d9f275fc32af9",
+    "tasks.csv": "1745c68bad59f130543839c12031a684cdd5dc405c14c303dff66925c5a4c258"
+  },
+  "acceptances": {
+    "acceptance.json": {
+      "passed": true,
+      "tasks": 80,
+      "score_checks": 27330,
+      "truth_checks": 400,
+      "independent_endpoint_model_evaluations": 1680,
+      "raw_source_hashes": 41,
+      "validator_sha256": "287aae7db2bede60fa11ea2c74efd41fabd93e32d42428ec7a5c0407ff7317fd"
+    },
+    "event_acceptance.json": {
+      "passed": true,
+      "independently_evaluated_cache_miss_responses": 224356,
+      "cache_hits_verified": 435162,
+      "inverse_endpoint_checks": 320,
+      "paired_initial_points": 80,
+      "new_validation_model_evaluations": 224676,
+      "validator_sha256": "1c86e3272293dc5f4911b49c32a451fd95cf8a9d3d5d7d6393d7118af59fd2af"
+    },
+    "replay_acceptance.json": {
+      "passed": true,
+      "compared_tasks": 80,
+      "excluded_fields": [
+        "seconds"
+      ],
+      "comparison": "Exact recursive equality for every remaining raw field, including events, endpoints, inversions, scores, source IDs and query counts",
+      "old_manifest_sha256": "b357d3b6602f2539efe29f4877d4d0a08ca73773c9a2f317cd2b9a1c009dd9f8",
+      "new_manifest_sha256": "9ef9897da3c3555e9d051f3eb10e8c8af11ecfabb7500fa7ed37d2ff3d5a5c17",
+      "saved_old_runner_sha256": "a2a81e5049475ead0dd7d283d4346226524793f121b9ce2963f41f27d4e5f077"
+    },
+    "prior_development_costs.json": {
+      "scope": "Additional previous development/provenance rerun costs; excluded from final scientific method query totals",
+      "runs": [
+        {
+          "run": "task9_smoke_v1",
+          "tasks": 1,
+          "formal_final": false,
+          "cache_miss_calls": 117,
+          "inversion_forward_samples": 63,
+          "observer_equivalence_cache_miss_calls": 0
+        },
+        {
+          "run": "task9_v1",
+          "tasks": 80,
+          "formal_final": false,
+          "cache_miss_calls": 224356,
+          "inversion_forward_samples": 160320,
+          "observer_equivalence_cache_miss_calls": 27666,
+          "acceptance.json": {
+            "passed": true,
+            "tasks": 80,
+            "score_checks": 27330,
+            "truth_checks": 400,
+            "independent_endpoint_model_evaluations": 1680,
+            "raw_source_hashes": 39,
+            "validator_sha256": "287aae7db2bede60fa11ea2c74efd41fabd93e32d42428ec7a5c0407ff7317fd"
+          },
+          "event_acceptance.json": {
+            "passed": true,
+            "independently_evaluated_cache_miss_responses": 224356,
+            "cache_hits_verified": 435162,
+            "inverse_endpoint_checks": 320,
+            "paired_initial_points": 80,
+            "new_validation_model_evaluations": 224676,
+            "validator_sha256": "1c86e3272293dc5f4911b49c32a451fd95cf8a9d3d5d7d6393d7118af59fd2af"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -27,3 +27,7 @@ python run.py contribution --output-dir outputs/cost-new --limit 1
 ## 代理準確度與成本查驗
 
 [proxy_diagnostics](proxy_diagnostics/README.md)分開查驗V／CM及論文有號方向投影；[cost_diagnostics](cost_diagnostics/README.md)查核24解析隊的四方案冷快取實測成本與抽樣重播界線。
+
+## 非零目標的角色介入
+
+[nonzero_targets](nonzero_targets/README.md)固定20個歷史團隊，重新反推四個目標並計算CA/CM/J與whole-task LOO；入口 `python run.py nonzero-roles --help`。保存逐筆模型回覆驗算與隊層級統計，與不同起點穩定度研究分開。

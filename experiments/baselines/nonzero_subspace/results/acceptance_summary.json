@@ -1,0 +1,71 @@
+{
+  "run": "outputs/nonzero_subspace/task9_v1",
+  "analysis": "analysis_final",
+  "manifest_sha256": "d9db9f210656bc811df1e5c91500c6d4493b4bef55cd4d98d9f2527c556ec43e",
+  "analysis_audit": {
+    "passed": true,
+    "tasks": 960,
+    "records": 17280,
+    "valid": 17280,
+    "failed": 0,
+    "primary_family": 24,
+    "bootstrap_replicates": 200000,
+    "rng": 20261123,
+    "analysis_sha256": "f8f37f68ad28bb5cb66c19ad0846765ddc04b2451e172b67b29e60840e6d80c5",
+    "protocol_sha256": "85186510b4cde02a6fd9c375d6b87d08949ff57b16037e32689423dcfaaac6c9",
+    "scope": "Reused frozen models, new targets and restricted coalitions; witness distance is not a target-infeasibility proof"
+  },
+  "statistics_acceptance": {
+    "passed": true,
+    "raw_records": 17280,
+    "group_means": 576,
+    "primary_paired_intervals": 24,
+    "replicates": 200000,
+    "validator_sha256": "07776a949a58dd411fb9f3c2c8059cb4558c648ec3141a3e50e0e701ebb2a045"
+  },
+  "files_sha256": {
+    "groups.csv": "b83a2d8ff89d355fd3f0a7d23683ac720230b6897dcc4b95bbd754f94c892d51",
+    "primary_comparisons.csv": "680c15c4ac03a269a87ddd61828d3e37153926579834eb7b7b7d51c08cdc2d49",
+    "geometry_summary.csv": "dd514fb8704f5270442212a57de723b677dfc5651b009bd07ccfa78c452a939d",
+    "case_geometry.csv": "b97577678c7850e26a4526e379442df6e475e94a987d7f3989d38970b04dd780",
+    "single_anchor_truth_bounds.csv": "e454ddd066936e700dc13950878c95c45f66b4f10e0349c37c2f3289ffa59c7c",
+    "statuses.csv": "9b4df11f9cba458ab4cb5a6f65f13d21a7f5d6118d49a4bbaac7b2d02d32a368",
+    "subspace_paired_intervals.pdf": "e60a7e5c96479f965ed21af6ad39d634dd76e159ab0748516f9c112f3b9d0762",
+    "subspace_paired_intervals.png": "ebf2994b4288696345b84429cfcd1c567b11c620487d928d6158fc5368a65afb"
+  },
+  "acceptances": {
+    "acceptance.json": {
+      "passed": true,
+      "tasks": 960,
+      "records": 17280,
+      "trace_events": 1525137,
+      "study_model_queries": 3483108,
+      "validation_endpoint_model_queries": 34560,
+      "max_Lopt_difference": 3.552713678800501e-15,
+      "max_restricted_linear_residual": 1.4931495248983063e-14,
+      "max_custom_affine_residual": 1.0495131508437366e-14,
+      "source_models_unchanged": true,
+      "validator_sha256": "b9d830ceb5f7e1c77a30d54e142afcad87cc0cea75d1ef927ea5f88746738e4a"
+    }
+  },
+  "analysis_replay_acceptance": {
+    "passed": true,
+    "reason": "First analysis CSVs completed; audit JSON serialization failed. Fixed numpy bool conversion and cached unchanged bootstrap draws; no search rerun.",
+    "six_csv_byte_identical": {
+      "groups.csv": true,
+      "primary_comparisons.csv": true,
+      "case_geometry.csv": true,
+      "geometry_summary.csv": true,
+      "single_anchor_truth_bounds.csv": true,
+      "statuses.csv": true
+    },
+    "old_files_sha256": {
+      "groups.csv": "b83a2d8ff89d355fd3f0a7d23683ac720230b6897dcc4b95bbd754f94c892d51",
+      "primary_comparisons.csv": "680c15c4ac03a269a87ddd61828d3e37153926579834eb7b7b7d51c08cdc2d49",
+      "case_geometry.csv": "b97577678c7850e26a4526e379442df6e475e94a987d7f3989d38970b04dd780",
+      "geometry_summary.csv": "dd514fb8704f5270442212a57de723b677dfc5651b009bd07ccfa78c452a939d",
+      "single_anchor_truth_bounds.csv": "e454ddd066936e700dc13950878c95c45f66b4f10e0349c37c2f3289ffa59c7c",
+      "statuses.csv": "9b4df11f9cba458ab4cb5a6f65f13d21a7f5d6118d49a4bbaac7b2d02d32a368"
+    }
+  }
+}

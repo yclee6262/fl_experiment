@@ -1,0 +1,14 @@
+{
+ "id":"nonzero_initialization_v1",
+ "source":"alpha_weight_outputs/four_alpha_v1_20261014/formal_batch_{1,2,3}/source",
+ "seeds":"original90seedsfromSEQUregistration",
+ "scenarios":["reference_clean","low_quality_25pct","sample_imbalance_4x"],
+ "agents":[1,2,20],"dimension":2,"targets":[0.0,-0.5,0.5,2.7],
+ "witnesses":{"-0.5":[-0.5,0.0],"0.5":[0.5,0.0],"2.7":"all coordinates t=-1+sqrt(1+2.7)"},
+ "target_upper_bound":3.0,"boundary_target_fraction":0.9,
+ "inversion":{"starts":1,"steps":500,"lr":0.01,"seed":"source_seed*100+agent_id","same_starts_across_targets":true,"clamp_initial":true},
+ "search":{"policy":"float32_slsqp_v1","method":"best_of","panel_budget":400,"per_engine_budget":200,"delivery":"best observed finite feasible Lopt","cache":false},
+ "initializers":["U","Q","E","S","EU","EQ","SU","SQ","SE","QU"],
+ "analysis":{"unit":"seed average three scenarios","bootstrap":200000,"rng":20261123,"primary_endpoint":"absolute synthetic truth target error","primary_family":"nine methods minus U times three nonzero targets","family_size":27,"T0":"paired control under same newly inverted anchors and hard budget","secondary_endpoints":["Lopt","initializer and search queries","rank","local inverse residual"]},
+ "limits":"Reused historical models and blind data with new target tasks; not independent model confirmation, no pooled evaluator in this extension. High inverse residuals retained; fixed coalition has no renewed target gate. No equal end-to-end cost claim."
+}
