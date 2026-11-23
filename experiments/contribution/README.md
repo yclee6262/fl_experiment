@@ -19,3 +19,7 @@ python run.py contribution --output-dir outputs/cost-new --limit 1
 | contribution | `contribution_analysis/model_pool_v_cm_validation_20261107_attempt_02/registration.json` 與 records |
 
 原始資料與新輸出不隨程式提交。各入口必須使用不存在的輸出資料夾；保存端點的評分不會回饋搜尋。模型／錨點移除、評分器與時間範圍是不同選擇；query cost 不是網路時間或付款金額。
+
+## 固定端點角色統計
+
+[role_statistics](role_statistics/README.md)補齊論文角色分析的有效隊數、隊層級bootstrap區間、評分器配對差異與衍生影子付款；使用保存端點，不重新執行搜尋。

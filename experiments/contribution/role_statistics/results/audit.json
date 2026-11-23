@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "teams": 20,
+  "owners": 80,
+  "owner_rounds": 1033,
+  "replicates": 200000,
+  "rng": 20261123,
+  "recomputed_rank_metric_checks": 1200,
+  "budget_checks": 180,
+  "source_sha256": {
+    "/Users/yclee/Documents/GitHub/fl_experiment/outputs/role_statistics/task6_20261123/replay/participant_metrics.json": "31a29b9028f4bbbaf1ed631070f79040b853c8eb9141bdf368e2b47071a86813",
+    "/Users/yclee/Documents/GitHub/fl_experiment/outputs/role_statistics/task6_20261123/replay/rank_metrics.json": "76ae9eea5e8be73da47c651b12bbd36024fae16fd6f82d834b6ed84b6b373bf8",
+    "/Users/yclee/Documents/GitHub/fl_experiment/outputs/role_statistics/task6_20261123/replay/judge_comparisons.json": "3a6ca8310812a8c9fea29f92feac212a2b172dfca0e5edb66250f9f245bd6547",
+    "/Users/yclee/Documents/GitHub/fl_experiment/outputs/role_statistics/task6_20261123/replay/payments.json": "95d90be605cedba11cf2e0f8774d3f47d3fb7e66e0e4b77edc7b3a16269d6fe1",
+    "/Users/yclee/Documents/GitHub/fl_experiment/outputs/role_statistics/task6_20261123/replay/registration.json": "046e01254380b4afb54e9ead859bcb49f4c19e9a7fb05cec619318c731f3f15e",
+    "/Users/yclee/Documents/GitHub/fl_experiment/outputs/role_statistics/task6_20261123/replay/audit.json": "9dfa57f7400bf682270fd0ac2741d0ede82d1e5774d81227d212dc8f6b098dd5",
+    "/Users/yclee/Documents/GitHub/fl_experiment/outputs/role_statistics/task6_20261123/replay/completion.json": "5cdf99d5df52011a124ceb3d0b46521f3211def0ea99b59561f7f896f528496d",
+    "/Users/yclee/Documents/GitHub/fl_experiment/outputs/role_statistics/task6_20261123/replay/source_lock.json": "d1e5002e006a81f70f61045e64a02274974af006404cf8663072de9e7894c2d4",
+    "/Users/yclee/Documents/GitHub/fl_experiment/outputs/role_statistics/task6_20261123/replay/endpoint_lock.json": "bdfb25e7b9c6ba1f4de587f9309bda319aa3ec4c822c982ae677f88dfc1e5b01",
+    "/Users/yclee/Documents/GitHub/fl_experiment/outputs/role_statistics/task6_20261123/replay/endpoints_locked.json": "497f4309befa5af7b0df10bbc02f774f738ee3e075e47674faf17547a6dcdc12"
+  },
+  "analysis_sha256": "613dbe91746c82fe744bc815ce9db6f84c46fa777029859c91633a0204a0a75a",
+  "design_sha256": "a25e77d995bc07fdab5a8c059d92ce21023c970e638983d902cf19fcdaa4e040",
+  "git_head": "992f1309f64e424127132e67ac339e188ac1dc34",
+  "new_model_queries": 0,
+  "new_solver_calls": 0,
+  "scope": "Historical fixed-endpoint team-clustered reanalysis, not independent confirmation or across-start stability. Ordinary intervals descriptive; eight Spearman changes form separate exploratory family."
+}
