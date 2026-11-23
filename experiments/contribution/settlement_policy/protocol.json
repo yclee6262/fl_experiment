@@ -1,0 +1,15 @@
+{
+  "id": "settlement_policy_v1",
+  "source": "accepted non-smoke Task 11 crossed-start archive",
+  "design": "retrospective accounting with fixed teams and saved role scores",
+  "stress_ledger": {"basic_per_completed_service_bundle": 100, "anchor_pool": 500, "model_pool": 500},
+  "service_assumption": "all recruited participants completed their service bundles in valid archived jobs; no field service attestations",
+  "bonuses": "reserved unless independent team outcome acceptance and an independently validated contribution rule were approved before settlement",
+  "archive_release": false,
+  "hypothetical_comparator": "full availability-based basic fee and unlocked Fminus CA/CM pools in every valid job",
+  "score_filter": "retain score only if strictly above the archived role-specific numerical tolerance",
+  "rounding": "integer largest remainder with lexicographic string-ID tie-break",
+  "comparisons": "original Fminus shadow ledger, revised hypothetical shadow ledger, and main policy under archive assumptions",
+  "analysis": "same 30 inversion and 15 solver pairs per team and target as Task 11; average within team then equally across 10 teams per cohort; descriptive means",
+  "model_calls": 0
+}

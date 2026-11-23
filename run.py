@@ -7,6 +7,7 @@ from project_support.legacy import prepare
 
 ROOT = Path(__file__).resolve().parent
 ENTRIES = {
+    'settlement-replay': 'experiments/contribution/settlement_policy/replay.py',
     'start-stability': 'experiments/contribution/start_stability/run.py',
     'alpha-roles': 'experiments/alpha/weight_roles/run.py',
     'nonzero-initialization': 'experiments/alpha/nonzero_targets/run.py',

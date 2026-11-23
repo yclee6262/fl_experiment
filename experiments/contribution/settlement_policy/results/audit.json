@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "runs": 600,
+  "comparisons": 1800,
+  "owner_configurations": 2400,
+  "old_basic_zeros": 639,
+  "owner_ranges": 160,
+  "model_calls": 0,
+  "solver_calls": 0,
+  "manifest_sha256": "23db4f086c482a5fdb5bbbbc65826e3dd6fe5354e5074bd1c705e228975ffe1e",
+  "index_sha256": "489d3a417dc2cdf8de58176207b2fc4a6d15be9e79cf7a0567966a508e6ccc1c",
+  "acceptance_summary_sha256": "5db413aca69e6f8ad976ca28c0559fa4273222a408e6138271b6aac326c00704",
+  "protocol_sha256": "d18cefe2f8c887554e9b3e60ca1ac1b6a1315f204d47b5f658f1e826a0eb6a22",
+  "replay_sha256": "091720af5c9db807aace7e29ef2964dba72bc154cf2c68265be78b0fdc9a216f",
+  "results_sha256": {
+    "summary.csv": "9f016997f7a758fbe5608db85d5aef9ac3d8d229d82c14fb2ec853b1e8bdd104",
+    "owner_ranges.csv": "d913a8580d63c15381a78f596b30e437e3452c172fb81856567f31b232eb2b41"
+  }
+}

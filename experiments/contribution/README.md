@@ -34,4 +34,8 @@ python run.py contribution --output-dir outputs/cost-new --limit 1
 
 ## 反推與求解起點穩定度
 
-[start_stability](start_stability/README.md)固定模型交叉5組反推×3組中央求解起點，核對角色符號、付款資格、金額及reserve；另有完全匹配的40個Shapley賽局及獨立歷史600三人賽局參照。入口 `python run.py start-stability --help`，主分潤政策仍另行決定。
+[start_stability](start_stability/README.md)固定模型交叉5組反推×3組中央求解起點，核對角色符號、付款資格、金額及reserve；另有完全匹配的40個Shapley賽局及獨立歷史600三人賽局參照。入口 `python run.py start-stability --help`，主分潤政策的帳本重算見下節。
+
+## 結算政策重算
+
+[settlement_policy](settlement_policy/README.md)使用任務 11 的保存分數，比較原影子帳本、固定服務費的影子配置與獎金保留政策。入口 `python run.py settlement-replay --help`。
