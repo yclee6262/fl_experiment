@@ -1,0 +1,175 @@
+{
+  "passed": true,
+  "seeds": 5,
+  "candidates": 50,
+  "coalitions": 875,
+  "actual_core_checks": 30,
+  "legacy_checks": [
+    {
+      "seed": 0,
+      "budget": 8.0,
+      "eta": 0.5,
+      "legacy": [
+        5,
+        6,
+        8
+      ],
+      "core": [
+        5,
+        6,
+        8
+      ],
+      "matched": true
+    },
+    {
+      "seed": 1,
+      "budget": 8.0,
+      "eta": 0.5,
+      "legacy": [
+        2,
+        6,
+        7
+      ],
+      "core": [
+        2,
+        6,
+        7
+      ],
+      "matched": true
+    },
+    {
+      "seed": 2,
+      "budget": 8.0,
+      "eta": 0.5,
+      "legacy": [
+        6,
+        7,
+        9
+      ],
+      "core": [
+        6,
+        7,
+        9
+      ],
+      "matched": true
+    },
+    {
+      "seed": 3,
+      "budget": 8.0,
+      "eta": 0.5,
+      "legacy": [
+        0,
+        3,
+        5
+      ],
+      "core": [
+        0,
+        3,
+        5
+      ],
+      "matched": true
+    },
+    {
+      "seed": 4,
+      "budget": 8.0,
+      "eta": 0.5,
+      "legacy": [
+        5,
+        7,
+        9
+      ],
+      "core": [
+        5,
+        7,
+        9
+      ],
+      "matched": true
+    }
+  ],
+  "input_sha256": {
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/candidate_pool.csv": "7db7618370dbc34a9f60a751c1e06e7ced0d506fe381db2b09d8e72af946af8d",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/coalitions.csv": "ceb8901c63182afbea91b7b105e776aa155985031bfe5666721d911d9225efe6",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/run_manifest.json": "fe92149fc70b29ff50f30294cb34d4997cacd9bf2dbd64faee5df44554fe6056",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/objective_validity.csv": "beca88023d86fb40794ecb15d489c90dacd8797bb218491adf62c0b1eeba2a98"
+  },
+  "artifact_sha256": {
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/coalitions.csv": "ceb8901c63182afbea91b7b105e776aa155985031bfe5666721d911d9225efe6",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/preparation_costs.csv": "e31bf9a15fba43dbf78980bbb908d5f6e09590c2b050889f25f13d3c07435a57",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/objective_validity.csv": "beca88023d86fb40794ecb15d489c90dacd8797bb218491adf62c0b1eeba2a98",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/candidate_pool.csv": "7db7618370dbc34a9f60a751c1e06e7ced0d506fe381db2b09d8e72af946af8d",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_da884ba60adb/global_evaluator.pt": "5a4699c54f3ec5ec01748e4f5265e02d405c2382d204af51b0d424c740d4de46",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_da884ba60adb/local_models.pt": "cd515b0b193ff5db16e4629ca8942d53a8b09e86d6746ae7555a92543a1d0c2b",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_da884ba60adb/pooled_data.npz": "50c3e1bf074e6ba4b95a0d75467ac3b10c887736ed91f8b57be1b7ea548306ca",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_da884ba60adb/metadata.json": "164277d45bd9bc911b83740e256a9e7ad03f9810e055692aadbf8e60845fd25d",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_df2f540c6bde/global_evaluator.pt": "33672db69b72839eb639463ee542d4c11b0bc32d80b5345e85da72c6cb05e14f",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_df2f540c6bde/local_models.pt": "9724f87e71eb70e31f48c267c74b28c27102166a0865f5d54a3df876b3078475",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_df2f540c6bde/pooled_data.npz": "63b7ef861d723289d042e910ad7a36573e11dbf8167a61736d6f2896d471b5a0",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_df2f540c6bde/metadata.json": "3771f038aad668a4ac5a10698e794c097926a6b26df09f0216665ef8b3bc8a61",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_0a3fb868fea7/global_evaluator.pt": "d28b7fc457971129e47ef0e523fd69b39b926af2cb874894183a7404bbf03ded",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_0a3fb868fea7/local_models.pt": "f910279ffc226e66a9b9b219e6f6d2bbab94a880e5b4e0f531c8c34b94192dba",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_0a3fb868fea7/pooled_data.npz": "cbad85fcff1372da005481e0f964532edf4ec34e24d8ea2f7e40ebb7bd5d8e31",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_0a3fb868fea7/metadata.json": "68fb08feb26412c6e9f959ce255d5e8cb103f9376ecc2a59907447463d0fae6b",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_77addb1d8282/global_evaluator.pt": "310d9aea090dd918f44f6ac4f2e220e1c3e2e4b4d2b72e08e6ac11e4f44428ca",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_77addb1d8282/local_models.pt": "f7570b7350fe2d56a1c17be4034ac5ac1b0e425ec6f8d3e7c8c5ce450ba787b8",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_77addb1d8282/pooled_data.npz": "7241ff413fe9242a7074c5209be391b169ae7d55626ceb109c5108054874b9a8",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_77addb1d8282/metadata.json": "41601fe4431c10e31fa1f3f3f5b89bf3fffa51b007ed2e7091bee68edf7133e4",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_395f7bb7d6e2/global_evaluator.pt": "03acca4301eaa448aac8b3c73ae2e668745f0f1686d686481cabdf0295519784",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_395f7bb7d6e2/local_models.pt": "dc9def6eb58d1722961612c78e3ddc16f937f1e903fa83f3656072350fbeea0c",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_395f7bb7d6e2/pooled_data.npz": "84a820a21a4d40ac94fe079cac6f74b9c71fe8d188142a05078d33593cfbab73",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/artifacts/scenario_395f7bb7d6e2/metadata.json": "805b776740b9299efa3d2368db99fb562ac498496e7b4f9269377960336dd6e5",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/reevaluate_p3_solutions.py": "7c69bee51b389d687627b35fd45eea681f19626ffafeb66f8f05191c3147fe30",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/verify_p5_replay.py": "3b7288a8dbe7297dece57cf287342e59f3de72dcd92f18e4f6a465017ce47b19",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/analyze_p5_diagnostics.py": "6359817b3ebe5d43f7565d13a8b206989462239e042160e64b6d90b76fb65621",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/reanalyze_legacy_p2.py": "bc771fa0a660a8de31b80f85401bae6c5740353439ec4d9cf270769ddb49acd1",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/plot_p3_results.py": "0e8f449b0a4aaee00791060f5cc6d16b1c3cc8e46015457841001f476b0947e3",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/analyze_p6_recruitment.py": "19a728d4fc65374e954afba538de8d0a997f3e92dccb3c88aea2ff42f4183cb4",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/test_failure_analysis.py": "4e2f0978a83b80337a9f4a6eaa4c7330593de970b89b404d9f5544f07bb186b9",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/alpha_weight_experiments.py": "096170b5ef5b8afde481c2b9de879ffd0aa31cc016256fcfe130bad32262dcfb",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/analyze_p2_results.py": "e87567920d8a5e10be16f327ec3ab6e5d488fe6683522b85096f6e72ff016b5d",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/research_analysis.py": "eb613484ff0c0eb88f125b1f29cff42c8432cca1094757be2f20310185b869f0",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/agent_client.py": "38f1ea634bb397c48aa3ebdee06144cdd267d8aa0ed6f327648106de39df2771",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/p6_budget_pilot.py": "3e50dd33379c6bdb23ab4931e34c30b8efda626c9c4470e23c933f0bddd36c33",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/host_server.py": "f35eff23b96e66e583ff81115bfea40b785c43c8974921ffb2f936ea8bd10ab8",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/analyze_p6_enumeration.py": "5813907c478b38b973f81c2abab492d332c01853e50ad159281b0cf1ae7ce536",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/models.py": "4922e5c61cbf52ccef542f73088053a56b08e4f315ea320cf25d3fed5ff91775",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/p5_scenario_suite.py": "354905428092ef0c160a071477611697b147b8bebdda9f0e369aa667970b9c6e",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/analyze_p4_no_progress.py": "6ae3470d8d35771eb83eae16341638bbe07b12e2c8232e876ed75f3da1e19f75",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/recruitment_selection.py": "77068aff3824fae9b08f7f265c08f5d5e5eb7ca64a7ca2c7ea36a8c4c6b0b362",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/p6_coalition_enumeration.py": "af8ec697c5b4c227fbdc03011b4c7010f56d652244968d9e2d5ef81ebd5ec47c",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/verify_research_pilots.py": "e7e11036a9b31da6d75b64fc240cf630613c636b24cd6be42e9a33224a2d845d",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/research_evaluation.py": "5e7b7e5c6892256067a01f78f5b5ab0fea0269be80532558d9d0411aa5cb851b",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/analyze_p5_results.py": "6a3c1d7d132dbda815852183c85fb51acd9e8dc56dad8ec088c0d76049eb1d45",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/ablation_main.py": "fd1ce8862cc61989f4a497031f1b04ff46f3c47730200957c4910052c0ebee20",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/main_alpha_calibration.py": "994e92ba26574926f427a39f61931f770bc789aa58046711833622d797a0ba88",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/test_box_constraints.py": "48d6de6c4ef545112282852107a6f9ab9a1e2f372fa0c926bcac8a0e05d6d997",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/dataset.py": "2d44e8bfe2ddf9d2c8941dfad96c32e68be8607b12cd229255d9a20d68d246ea",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/plot_alpha_guard_results.py": "98eafe61517ef81f44737f05cc2db728cbf660606031aa3bf4e5e4f76ce996a4",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/verify_validity_pilots.py": "3704c9c7cd377504b478565d3179dc98855e880403aeb0168b7a192672d9a8c7",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/fl_comparison_numerical.py": "fa7098b4e8eaaee6df891c1fceb285cf5ae021f0a089369d465c7ba9b3854922",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/test_research_analysis.py": "522654876a353f360faa36f995d3473ea60b9c38aec4bcae285e4b72900da5c7",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/plot_p2_results.py": "98972967cf4067ef3a5adad6535297028155641c69764b30a97f24f07d5f596a",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/reevaluate_p6_coalitions.py": "dd03b151ff06d5541f2e3c23ae2aadc1e5129596e3e5490cf1d987e015217fea",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/fl_comparison.py": "6e088a6d55c12c1d58c656e9d7687bb604c4203d53ab18af14b4cebe56824476",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/plot_p4_no_progress.py": "f17826e71feef726f53b4fde7c7213337d423edfd83c9a1e23151cfc74f34232",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/analyze_p3_results.py": "f53f751e3751b2364d23ac8619ef169c125c2104bd2c40063c476c693ab991aa",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/analyze_evaluator_coverage.py": "6ff3c82af02c9e9a0260446cfc36f4edd16dc1f2aa09be318d12b8cbf04fdb1a",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/fl_comparison_filtered.py": "8591beefccb849981ed7fa380dca13bedf3130a3d3b984381301d667e8a70287",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/p6_recruitment_experiment.py": "753e39408efaa2600f197671b317d3d20f9d97299f9d53ec47b8f3ed30aa72f8",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/p4_constrained_no_progress_pilot.py": "0fd96bfbf1ac5e6a5de66d49de6555feebeea7467ba0d1ede1a5d5656b14eca9",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/main.py": "4d8de26a951975b30653e9f785925b45041e7080e81788708b292200d722e8aa",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/run_experiments.py": "f9cfbc1ba06d24f91e26b7a5bff797c4cd72136baf5c0043fc953396b5bbe715",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/plot_p5_results.py": "c7454e419c99a4aee60d48f1c541153f0f797bc57a442d8b409418dd4a878a0b",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/reevaluate_saved_solutions.py": "df57d1b4acccac4fad77e16e1429412ae801f023714adf5f01b86f451a666423",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/reevaluate_p6_solutions.py": "a4c67f0be51ae673df6923ea1cbde6c39b2ece044786ccf8b46d30e90d53ac8f",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/test_alpha_weight_experiments.py": "a6c4885ecf27c4441e3d3711be1c34a54fcf3e2d379aa83c1f62aad940b697fc",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/plot_p6_recruitment.py": "72648afad1d7df4a5be5aac247a367d1c5fc142be1f34ed4cd068c5658b829e3",
+    "/Users/yclee/Documents/GitHub/fl_experiment/alpha_weight_outputs/p6_enum_v1_20260925/source_snapshot/p3_contribution_validation.py": "21a280cb6f40f5d6e1c9b81bd94d2b8743e31dc35b62d84693c64dabe01154fa"
+  },
+  "analysis_sha256": "536e97244376bdfbfec6413e1195d14e6f6196844c1e29297a83d3d994fe670a",
+  "design_sha256": "93c73718215376fcb4a1a5bc1e1ebb01181f9deba462912b335d38a2a97f422f",
+  "core_sha256": "28b91ed26308649e18e0afadf9935a578ff5e4e096b2ee15bde348f911e4a743",
+  "git_head": "42bef7e9590a66d75e53758bf4bfb88f61ba1e37",
+  "new_model_queries": 0,
+  "new_solver_calls": 0,
+  "scope": "Historical original-solver outcomes; descriptive five-seed reanalysis; corrected solver rerun remains task8."
+}

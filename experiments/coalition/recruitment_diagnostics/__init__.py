@@ -1,0 +1,1 @@
+"""Historical recruitment-rule diagnostics."""

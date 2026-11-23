@@ -23,3 +23,7 @@ python run.py contribution --output-dir outputs/cost-new --limit 1
 ## 固定端點角色統計
 
 [role_statistics](role_statistics/README.md)補齊論文角色分析的有效隊數、隊層級bootstrap區間、評分器配對差異與衍生影子付款；使用保存端點，不重新執行搜尋。
+
+## 代理準確度與成本查驗
+
+[proxy_diagnostics](proxy_diagnostics/README.md)分開查驗V／CM及論文有號方向投影；[cost_diagnostics](cost_diagnostics/README.md)查核24解析隊的四方案冷快取實測成本與抽樣重播界線。

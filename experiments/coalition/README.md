@@ -9,3 +9,5 @@ python run.py coalition --help
 枚舉目標與 core 中逐次 quality-per-bid 招募是不同規則。pooled 最佳聯盟是離線評估參照，不提供給招募規則。
 
 訓練、資格設定與搜尋參數由命令列記錄；使用新輸出資料夾，避免覆寫完成的枚舉結果。歷史結果位於未追蹤的 `alpha_weight_outputs/p6_enum_v1_20260925/`。
+
+[recruitment_diagnostics](recruitment_diagnostics/README.md)補實際core招募、品質與隨機基準、固定人數相關及可負擔聯盟百分位。這是原求解設定的歷史結果重分析。

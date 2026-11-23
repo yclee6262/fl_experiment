@@ -1,0 +1,32 @@
+[
+  {
+    "rate": 0.1,
+    "teams": 20,
+    "mean_actual_rate": 0.13369079449961802,
+    "mean_allocation_tv": 0.5536773363707894
+  },
+  {
+    "rate": 0.25,
+    "teams": 20,
+    "mean_actual_rate": 0.27251973516679395,
+    "mean_allocation_tv": 0.4274342263228264
+  },
+  {
+    "rate": 0.5,
+    "teams": 20,
+    "mean_actual_rate": 0.5118601986249045,
+    "mean_allocation_tv": 0.2712484844681228
+  },
+  {
+    "rate": 0.75,
+    "teams": 20,
+    "mean_actual_rate": 0.7814387573211103,
+    "mean_allocation_tv": 0.12373316183722165
+  },
+  {
+    "rate": 1.0,
+    "teams": 20,
+    "mean_actual_rate": 1.0,
+    "mean_allocation_tv": 1.0973372818051663e-18
+  }
+]
