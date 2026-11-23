@@ -31,3 +31,7 @@ python run.py contribution --output-dir outputs/cost-new --limit 1
 ## 非零目標的角色介入
 
 [nonzero_targets](nonzero_targets/README.md)固定20個歷史團隊，重新反推四個目標並計算CA/CM/J與whole-task LOO；入口 `python run.py nonzero-roles --help`。保存逐筆模型回覆驗算與隊層級統計，與不同起點穩定度研究分開。
+
+## 反推與求解起點穩定度
+
+[start_stability](start_stability/README.md)固定模型交叉5組反推×3組中央求解起點，核對角色符號、付款資格、金額及reserve；另有完全匹配的40個Shapley賽局及獨立歷史600三人賽局參照。入口 `python run.py start-stability --help`，主分潤政策仍另行決定。

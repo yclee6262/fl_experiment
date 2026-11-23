@@ -1,0 +1,9 @@
+metric,planned_seeds,scope,n,mean,sd,ci95_low,ci95_high
+spearman,5,descriptive five-seed bootstrap,5,0.61,0.041936625466953745,0.5741666666666667,0.6408333333333334
+sign_agreement,5,descriptive five-seed bootstrap,5,0.6166666666666666,0.06997023176561108,0.5650000000000001,0.6761111111111111
+allocation_TV,5,descriptive five-seed bootstrap,5,0.47634526912398856,0.04966843336076977,0.438394745248468,0.5142957929995091
+mean_absolute_score_difference,5,descriptive five-seed bootstrap,5,0.15287811397218198,0.0019261787665292996,0.15143793323323113,0.1543959888941657
+shapley_positive_fraction,5,descriptive five-seed bootstrap,5,1.0,0.0,1.0,1.0
+loo_positive_fraction,5,descriptive five-seed bootstrap,5,0.6166666666666666,0.06997023176561108,0.5650000000000001,0.6761111111111111
+shapley_reserved,5,descriptive five-seed bootstrap,5,0.0,0.0,0.0,0.0
+loo_reserved,5,descriptive five-seed bootstrap,5,0.09666666666666666,0.044721359549995794,0.06166666666666667,0.13166666666666665

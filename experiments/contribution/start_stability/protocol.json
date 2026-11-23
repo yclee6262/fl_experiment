@@ -1,0 +1,20 @@
+{
+  "id": "contribution_start_stability_v1",
+  "created": "2026-11-24",
+  "source": "combined_contribution_layer2_experiment_v1_20261021/cases.json development 20 teams",
+  "targets": [-0.5, 0.5],
+  "local_starts": [0, 1, 2, 3, 4],
+  "solver_starts": [0, 1, 2],
+  "local_inversion": {"seed": "case.seed*100+agent_id+1000000*r", "starts_per_run": 1, "steps": 500, "lr": 0.01, "box": [-1, 1], "shared_across_solver_starts": true, "paired_across_targets": true},
+  "solver_initialization": {"zero": "anchor mean", "one_two": "two Dirichlet(ones(K)) vectors from default_rng(case.seed+11000000)", "coefficients_shared_across_local_starts_and_targets": true, "actual_point": "candidate convex combination; changes when inversion changes anchors"},
+  "solver": {"engine": "maintained frozen custom AST trace", "iterations": 30, "annealing": true, "tangent": true, "alpha": "uniform", "per_job_cache_miss_cap": 100000, "observer_equivalence_each_job": true},
+  "roles": ["A", "M", "J", "AM", "LOO"],
+  "judges": ["F", "Fminus"],
+  "score_sign_tolerance": 1e-10,
+  "anchor_eligibility": "tauA=max(1e-8,sum owner-round rho); rho=max(1e-12,32 eps(1+abs(Falt)+abs(Ffull)))",
+  "other_positive_threshold": 1e-10,
+  "shadow_payment": {"basic_per_owner": 100, "anchor_pool": 500, "model_pool": 500, "basic_cancel": "A < -tauA and M < -1e-10", "positive_allocation": "positive above threshold then normalize; no positive gives full reserve", "rounding": "integer largest remainder, tie by str(agent_id)", "actual_payment": false},
+  "statistics": {"unit": "team", "cohorts": "clean K3 and controlled_poison K5, each 10 teams, separately", "bootstrap": 200000, "rng": 20261124, "inversion_axis": "30 within-team pairs: fixed solver coefficient index, vary r", "solver_axis": "15 within-team pairs: fixed r, vary solver coefficient index", "pair_metrics": ["three-class sign change", "strict positive-negative flip", "positive eligibility change", "allocation TV including reserve", "rank stability with undefined retained", "basic eligibility change", "total payment TV including reserve", "currency amount change"], "scope": "descriptive intervals, team equal weight; no prespecified robustness pass threshold or multiple-testing superiority claim"},
+  "matched_shapley": {"jobs": "r0 w0 for 20 teams * 2 targets = 40", "subsets": "all 2^K subsets of fixed team; jointly remove anchors/models and renormalize alpha", "search": "same full-team initial point for every subset, frozen custom30", "full_and_loo_endpoints": "reuse exactly matching endpoints", "common_utility": "vF(C)=F_N(start)-F_N(X_C), fixed full-model uniform panel for all C", "empty": "X_empty=start, v(empty)=0, no search", "offline_utility": "vTruth(C)=abs(h(start)-T)-abs(h(X_C)-T)", "Fminus": "not a common characteristic function; excluded from single-game Shapley comparison", "scope": "fixed-full-team-conditioned game; initial point retains full-anchor information, full evaluator uses excluded models; no fairness or deployment claim"},
+  "limits": ["Fixed historical models, no new independent model confirmation", "Fixed membership with forced contamination, no new gate/retraining", "Changing local inversion changes anchors and actual convex-combination warm start", "Across solver starts anchors and model objective remain fixed", "Full LOO uses same full-team start, not a complete recruitment/inversion rerun", "Shared per-job cache reports total study cost, not independent method cost", "High inverse residuals, reserve, failures, undefined ranks all retained", "Historical 600 games are separate in SHAPLEY.md; cannot pair their scores to these role teams"]
+}

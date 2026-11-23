@@ -1,0 +1,63 @@
+{
+  "run": "outputs/contribution_start_stability/task11_historical_v1",
+  "manifest_sha256": "f03ca82bef80f3472987a6ce93716198fc2fce66a160e92d4494611ddee48598",
+  "audit": {
+    "passed": true,
+    "original_rows": 875,
+    "games": 600,
+    "nonempty_subset_lookups": 4200,
+    "owners": 1800,
+    "valid_games": 600,
+    "invalid_games": 0,
+    "defined_ranks": 600,
+    "max_formula_permutation_gap": 8.326672684688674e-17,
+    "max_efficiency_gap": 1.6653345369377348e-16,
+    "max_baseline_shift_gap": 1.3877787807814457e-16,
+    "original_artifact_hashes_verified": 71,
+    "source_rules": {
+      "alpha_rule": "uniform within each coalition",
+      "search_rule": "historical best_of, own-coalition candidate-mean start",
+      "coefficient_rule": "historical SLSQP: no explicit finite-difference eps",
+      "source_snapshot_sha256": {
+        "p6_coalition_enumeration.py": "af8ec697c5b4c227fbdc03011b4c7010f56d652244968d9e2d5ef81ebd5ec47c",
+        "alpha_weight_experiments.py": "096170b5ef5b8afde481c2b9de879ffd0aa31cc016256fcfe130bad32262dcfb",
+        "host_server.py": "f35eff23b96e66e583ff81115bfea40b785c43c8974921ffb2f936ea8bd10ab8"
+      }
+    },
+    "new_model_queries": 0,
+    "new_solver_calls": 0,
+    "files_sha256": {
+      "summary.csv": "bd23e464e3a785c5d809c5b7042979d684654fb3525b8970a24882f7a19c7a7e",
+      "compatibility.csv": "0fe75693570eaba7541640485c2bd1a26697ed92a1ddcca391503b01250b97df",
+      "owners.csv": "a8526d22368dd8c68fdeb6889d698e630f69ee7e5a860b7dfe1de44937084728",
+      "games.csv": "3b543ebbc26412f70f74f6feb8fbcce47268bbd70078f563392d60a7f6bec7ac",
+      "seed_summary.csv": "e8f608d6019b8e0675c352cfcd6d1fc05a9339f56584d97c33855f00e0d4e500"
+    },
+    "scope": "Historical finite-procedure games, not direct comparison to 20 role teams or fairness ground truth"
+  },
+  "independent_acceptance": {
+    "passed": true,
+    "raw_permutation_games": 600,
+    "seed_group_means": 40,
+    "summary_intervals": 8,
+    "bootstrap_replicates": 200000,
+    "new_model_queries": 0,
+    "new_solver_calls": 0,
+    "validator_sha256": "cde9ea006d237cd74a9a02a73ad3a640b5289629b4afa8dca61116c95d241ef8"
+  },
+  "primary_acceptance": {
+    "passed": true,
+    "source_truth_checks": 875,
+    "closed_form_three_player_games": 600,
+    "seed_summary_intervals": 8,
+    "extra_model_queries": 0,
+    "extra_solver_calls": 0,
+    "source_csv_sha256": "ceb8901c63182afbea91b7b105e776aa155985031bfe5666721d911d9225efe6"
+  },
+  "files_sha256": {
+    "games.csv": "3b543ebbc26412f70f74f6feb8fbcce47268bbd70078f563392d60a7f6bec7ac",
+    "seed_summary.csv": "e8f608d6019b8e0675c352cfcd6d1fc05a9339f56584d97c33855f00e0d4e500",
+    "summary.csv": "bd23e464e3a785c5d809c5b7042979d684654fb3525b8970a24882f7a19c7a7e",
+    "compatibility.csv": "0fe75693570eaba7541640485c2bd1a26697ed92a1ddcca391503b01250b97df"
+  }
+}

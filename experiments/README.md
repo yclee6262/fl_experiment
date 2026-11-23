@@ -14,6 +14,7 @@
 | `alpha-summary` | 彙整十法既有結果與配對比較 | [alpha/analysis](alpha/analysis/README.md) |
 | `coalition` | 枚舉一至三人聯盟及預算比較 | [coalition](coalition/README.md) |
 | `roles` | 固定端點下的錨點／模型／聯合效果與分潤 | [contribution](contribution/README.md) |
+| `start-stability` | 固定模型的反推／求解起點、角色與影子付款穩定度 | [contribution/start_stability](contribution/start_stability/README.md) |
 | `sampling` | 既有搜尋路徑的抽樣分配差異 | [contribution](contribution/README.md) |
 | `contribution` | CA+V、CA+CM、J、完整 LOO 冷快取成本重播 | [contribution](contribution/README.md) |
 | `calibration` | 獨立的 alpha 校正迴圈研究 | [alpha_calibration](alpha_calibration/README.md) |
