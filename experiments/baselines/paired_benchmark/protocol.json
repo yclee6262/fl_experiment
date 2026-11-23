@@ -1,0 +1,17 @@
+{
+ "id":"paired_decision_benchmark_v1",
+ "kind":"new_seed_synthetic_benchmark_after_historical_solver_development",
+ "seeds":[30000,30001,30002,30003,30004,30005,30006,30007,30008,30009,30010,30011,30012,30013,30014,30015,30016,30017,30018,30019,30020,30021,30022,30023,30024,30025,30026,30027,30028,30029],
+ "dimensions":[2,5,10],"poison_ratios":[0.0,0.3],"target":0.0,
+ "agents":20,"samples_per_agent":500,"noise_std":0.05,
+ "architecture":"D-64-64-1 ReLU float32 CPU",
+ "training":{"epochs_or_rounds":30,"local_epochs_per_fedavg_round":1,"batch_size":32,"lr":0.01,"optimizer":"Adam reset each local epoch and each FedAvg round","shared_initial_state":true,"same_agent_epoch_permutations":true,"aggregation":"equal participant weights","streams":["independent_local","fedavg_all","fedavg_selected_coalition_control"]},
+ "qualification":{"blind_samples":20,"blind_seed_offset":910000,"mse_threshold":0.1,"inverse_absolute_error_threshold":0.1,"inverse_target":0.0,"inverse_starts":1,"inverse_steps":500,"reuse_gate_anchor_as_proposal":true},
+ "recruitment":{"core_rule":true,"total_budget":10.0,"budget_fraction":0.8,"diversity_eta":0.5,"k_red":"min(3,ceil(0.3*D))","budget_tolerance":"core strict comparison"},
+ "inversion":{"optimizer":"Adam","lr":0.01,"steps":500,"fedavg_starts":5,"random_initial_points_clamped_before_first_eval":true,"select":"lowest own model absolute target error among final start endpoints"},
+ "search":{"policy":"float32_slsqp_v1","alpha":"uniform","panel_budgets":[100,200,400],"methods":["coefficient","custom","best_of","nelder_mead","direct_slsqp"],"simple_methods":["anchor_mean","best_anchor","origin"],"best_of_split":"half per engine no transfer","cache":false,"delivery":"best observed finite box-feasible point within budget","box":[-1.0,1.0],"coefficient_eps":0.00001},
+ "communication":{"prediction_scalar_dtype_bytes":4,"query_input_sent_to_each_model":true,"federated_weight_dtype_bytes":4,"federated_transfers":"each client uploads and downloads full parameter state each round","exclude":"network headers latency encryption and compression","proposal_dtype_bytes":4,"bids_and_qualification_numeric_metadata_bytes_per_agent":8},
+ "primary_endpoint":"absolute synthetic truth target error",
+ "analysis":{"unit":"seed within each dimension and contamination condition","bootstrap_replicates":200000,"rng":20261123,"descriptive_ci":0.95,"primary_panel_budget":400,"primary_contrasts":["best_of - best_anchor","best_of - anchor_mean","best_of - nelder_mead","best_of - fedavg_all","best_of - fedavg_selected"],"primary_family_size":30,"failure_policy":"no resampling or zero imputation; report counts and valid-pair n"},
+ "limits":"Single known synthetic function with T0; no general superiority, privacy, fairness or matched end-to-end cost claim. Nonzero targets and rank/subspace experiments remain task9. Selected-coalition FedAvg shares local-data access but uses different training communication."
+}

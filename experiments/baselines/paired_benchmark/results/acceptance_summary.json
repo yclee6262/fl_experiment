@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "cases": 180,
+  "records": 3600,
+  "statuses": {
+    "valid": 3600
+  },
+  "search_trace_events": 479918,
+  "actual_search_model_queries": 2325252,
+  "actual_search_payload_bytes": 69764676,
+  "independent_endpoint_model_evaluations": 15372,
+  "all_hard_limits_respected": true,
+  "observed_best_delivery": true,
+  "resource_arithmetic_verified": true,
+  "validator_sha256": "147c75a280b1c75e891e77bb9c7933cc27c0df237083e24e6ec8a1726e9b7b6c",
+  "full_audit_path": "outputs/paired_benchmark/task8_formal_v1/acceptance.json"
+}

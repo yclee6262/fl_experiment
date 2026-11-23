@@ -8,6 +8,7 @@ from project_support.legacy import prepare
 ROOT = Path(__file__).resolve().parent
 ENTRIES = {
     'stages': 'experiments/shared/run_experiments.py',
+    'paired-benchmark': 'experiments/baselines/paired_benchmark/run.py',
     'baseline': 'experiments/baselines/compare_fedavg.py',
     'initialization': 'experiments/alpha/compare_initializations.py',
     'alpha-summary': 'experiments/alpha/analysis/summarize_ten_initializers.py',

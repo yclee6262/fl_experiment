@@ -15,3 +15,5 @@
 | `calibration` | 獨立的 alpha 校正迴圈研究 | [alpha_calibration](alpha_calibration/README.md) |
 
 初始化與角色實驗固定案例，和包含招募、剪枝及付款的完整流程是不同設計。alpha 校正研究獨立保留於 `alpha_calibration/`；比例搜尋與其他探索位於本機封存區。
+
+`paired-benchmark`：正式配對決策與資源比較，詳見[baselines/paired_benchmark](baselines/paired_benchmark/README.md)。
