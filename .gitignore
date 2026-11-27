@@ -8,6 +8,7 @@ venv/
 .env
 .env.*
 !.env.example
+/AGENTS.md
 
 # Training artifacts and generated experiment results
 /alpha_weight_outputs/
