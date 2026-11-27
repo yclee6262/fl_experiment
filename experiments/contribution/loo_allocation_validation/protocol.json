@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "status": "design_only_not_executed",
+  "date": "2026-11-20",
+  "question": "Approximate full-LOO bonus allocation at lower cost",
+  "primary_scorer": "peer_normalized_F_minus_i",
+  "secondary_scorer": "fixed_full_F",
+  "pooled": {
+    "load": false,
+    "train": false,
+    "infer": false
+  },
+  "methods": [
+    "FULL_LOO",
+    "LAST_J",
+    "CUM_A"
+  ],
+  "last_round": "last_accepted",
+  "last_removal": [
+    "anchor",
+    "model"
+  ],
+  "last_no_accepted_policy": "not_applicable",
+  "allocation": {
+    "positive_part": true,
+    "positive_sum_min_exclusive": 1e-08,
+    "fragile_positive_sum_max_inclusive": 0.0001,
+    "no_positive": "reserve_entire_pool",
+    "missing_score": "invalidate_team",
+    "reserve_augmented_tv": true
+  },
+  "primary_metrics": [
+    "allocation_tv",
+    "max_individual_share_error",
+    "reserve_augmented_tv",
+    "allocation_status_disagreement",
+    "coverage",
+    "fragility",
+    "model_samples",
+    "time",
+    "memory"
+  ],
+  "exploratory_thresholds": {
+    "tv": [
+      0.05,
+      0.1,
+      0.2
+    ],
+    "max_share_error": [
+      0.05,
+      0.1
+    ],
+    "accepted_by_user": false,
+    "signed_agreement_is_required_for_pass": false
+  },
+  "diagnostics": {
+    "sign_deadzone": 0.0001,
+    "sign_sensitivity": [
+      1e-06,
+      0.001
+    ],
+    "displacement_reconstruction_atol": 1e-09
+  },
+  "repair": {
+    "rule": "clip_to_fixed_box",
+    "retain_raw": true,
+    "loss_guided": false
+  },
+  "reused_cohort": {
+    "teams": 20,
+    "seeds": [
+      2026101610,
+      2026101619
+    ],
+    "scenarios": [
+      "clean",
+      "controlled_poison"
+    ],
+    "role": "exploration",
+    "source_dir": ".local_archive/contribution_analysis/low_cost_loo_exploration_20261116",
+    "scored_file": "scored.json",
+    "source_method_map": {
+      "FULL_LOO": "LOO",
+      "LAST_J": "LAST_JOINT_REPLAY",
+      "CUM_A": "CUM"
+    }
+  },
+  "cost": {
+    "primary_includes": "baseline + generation + peer endpoint scoring",
+    "full_scoring": "separate supplementary ledger",
+    "cache": "independent per method; exact model version and float64 input",
+    "online_observation_in_timing": true,
+    "warmups": 1,
+    "timing_repeats": 3
+  },
+  "reused_cohort_research_budget": {
+    "local_samples": 400000,
+    "pooled_samples": 0,
+    "core_seconds": 900,
+    "scope": "cumulative across processes and restarts"
+  },
+  "independent_confirmation": {
+    "status": "proposal_not_started",
+    "new_seeds": 40,
+    "scenarios_per_seed": 2,
+    "technical_calibration_seeds_excluded": 4,
+    "bootstrap_repeats": 10000,
+    "bootstrap_rng": 20261120,
+    "deduplicate_seed_registry_before_use": true,
+    "requires_separate_training_budget": true
+  },
+  "code_root": "experiments/contribution/loo_allocation_validation",
+  "test_path": "tests/test_loo_allocation_validation.py",
+  "output_root": "outputs/loo_allocation_validation",
+  "existing_output_policy": "error",
+  "future_entry": "loo-allocation",
+  "entry_implemented": false
+}

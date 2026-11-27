@@ -22,6 +22,8 @@ ENTRIES = {
     'contribution': 'experiments/contribution/replay_cost_comparison.py',
     'roles': 'experiments/contribution/compare_roles.py',
     'sampling': 'experiments/contribution/sample_rounds.py',
+    'loo-scaling': 'experiments/contribution/loo_allocation_validation/scaling_entry.py',
+    'loo-allocation': 'experiments/contribution/loo_allocation_validation/run.py',
     'calibration': 'experiments/alpha_calibration/run.py',
 }
 

@@ -20,6 +20,14 @@ python run.py contribution --output-dir outputs/cost-new --limit 1
 
 原始資料與新輸出不隨程式提交。各入口必須使用不存在的輸出資料夾；保存端點的評分不會回饋搜尋。模型／錨點移除、評分器與時間範圍是不同選擇；query cost 不是網路時間或付款金額。
 
+## 低成本近似完整 LOO 分配
+
+[驗證設計](loo_allocation_validation/design.md)與[固定設定](loo_allocation_validation/protocol.json)：最後接受輪共同移除錨點及模型（J單輪）、累積錨點位移，與完整 LOO 的 bonus 分配比較。F₋ᵢ為主、完整F作對照，不使用pooled；主要終點是比例誤差、分配狀態與成本。
+
+實作與分析程式放在 `experiments/contribution/loo_allocation_validation/`，測試放在 `tests/`，輸出放在 `outputs/loo_allocation_validation/<run-id>/`。`loo-allocation` 的用法與舊資料探索重播流程見[實驗說明](loo_allocation_validation/README.md)。
+
+新增人數與問題複雜度探索：`python run.py loo-scaling --output-dir outputs/loo_allocation_scaling/<new-run-id>`，規約見[scaling_design.md](loo_allocation_validation/scaling_design.md)，使用合格乾淨團隊及F₋ᵢ分配參考。
+
 ## 固定端點角色統計
 
 [role_statistics](role_statistics/README.md)補齊論文角色分析的有效隊數、隊層級bootstrap區間、評分器配對差異與衍生影子付款；使用保存端點，不重新執行搜尋。

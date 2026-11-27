@@ -18,6 +18,8 @@
 | `start-stability` | 固定模型的反推／求解起點、角色與影子付款穩定度 | [contribution/start_stability](contribution/start_stability/README.md) |
 | `sampling` | 既有搜尋路徑的抽樣分配差異 | [contribution](contribution/README.md) |
 | `contribution` | CA+V、CA+CM、J、完整 LOO 冷快取成本重播 | [contribution](contribution/README.md) |
+| `loo-scaling` | 合格乾淨團隊的人數、維度與交互作用探索 | [contribution](contribution/loo_allocation_validation/README.md) |
+| `loo-allocation` | LAST_J、CUM_A 對完整 LOO 的分配誤差與peer成本 | [contribution](contribution/loo_allocation_validation/README.md) |
 | `calibration` | 獨立的 alpha 校正迴圈研究 | [alpha_calibration](alpha_calibration/README.md) |
 
 初始化與角色實驗固定案例，和包含招募、剪枝及付款的完整流程是不同設計。alpha 校正研究獨立保留於 `alpha_calibration/`；比例搜尋與其他探索位於本機封存區。
